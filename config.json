@@ -4,11 +4,11 @@
 		"port": 3000
 	},
 	"database": {
-		"type": "",
+		"type": "pg",
 		"ip": "localhost",
 		"port": 5432,
 		"name": "Ticketsystem",
-		"username": "johannes",
+		"user": "johannes",
 		"password": "dothisfor95"
 	},
 	"company": {

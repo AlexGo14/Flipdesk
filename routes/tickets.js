@@ -2,28 +2,14 @@ var express = require('express');
 var router = express.Router();
 
 router.get('/', function(req, res) {
-	pg.connect(conString, function(err, client, done) {
-		if(err) {
-			return console.error('error fetching client from pool', err);
-		}
-		client.query('SELECT * FROM "' + nconf.get('database').name + '".customer', function(err, result) {
-				done();
-				
-				if(err) {
-					return console.error('error running query', err);
-				}
-				var customerArr = []
-				for(var i = 0; i < result.rows.length; i++) {
-					customerArr[i] = { "id": result.rows[i].id, "name": result.rows[i].name };
-				}
-				
-				client.end();
-				
-				res.render('home', { title: 'Tickets', company: nconf.get('company').name,
-					customers: customerArr
-				});
+		
+	knex.select().from('customer').
+		then(function(rows) {
+			res.render('home', { title: 'Tickets', company: nconf.get('company').name,
+				customers: rows
 			});
 	});
+	
 });
 
 router.get('/:id', function(req, res) {

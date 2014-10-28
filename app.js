@@ -6,14 +6,28 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 nconf = require('nconf');
 pg = require("pg");
-global_functions = require('./public/javascripts/functions');
 
 nconf.argv()
        .env()
        .file({ file: 'config.json' });
+       
+knex = require('knex')({
+	client: nconf.get('database').type,
+	connection: {
+		host: nconf.get('database').ip,
+		user: nconf.get('database').user,
+		password: nconf.get('database').password,
+		database: nconf.get('database').name
+	},
+	pool: {
+		min: 0,
+		max: 10
+	},
+	debug: true
+});
 
-var databaseObj = nconf.get('database');
-conString = "pg://" + databaseObj.username + ":" + databaseObj.password + "@" + 
+/*var databaseObj = nconf.get('database');
+conString = "pg://" + databaseObj.user + ":" + databaseObj.password + "@" + 
 		databaseObj.ip + ":" + databaseObj.port + "/" + databaseObj.name;
 
 console.log('Try to connect to database ...');
@@ -23,7 +37,7 @@ pg.connect(conString, function(err, client, done) {
   } else {
 	  console.log('Database connection established.');
   }
-});
+});*/
 
 
 var landing_page = require('./routes/index');
