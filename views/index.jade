@@ -8,5 +8,32 @@ block content
 				Welcome to #{title}<br>
 				We would like to offer you a unique and excellent support service.<br>
 				Please log in to manage your tickets
-			button(class="btn").
-				Login
+			button(class="btn" data-toggle="modal" data-target="#loginModal") Login
+	
+	div(class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Close
+					h4(class="modal-title" id="myModalLabel") Login
+				div(class="modal-body")
+					label Bitte loggen Sie sich mit ihren Account Daten ein.
+					form(class="form" role="form" id="send_ticket_form")
+						div(class="form-group")
+							label E-Mail
+							input(type="email" class="form-control" placeholder="E-Mail")
+							<br><br>
+							label Passwort:
+							input(type="password" class="form-control" placeholder="Passwort")
+							<br>
+							div(class="checkbox")
+								label
+									input(type="checkbox")
+									label Remember me
+							button(type="button" class="btn btn-primary btn-lg") Login
+							
+						
+				div(class="modal-footer")
+					a(class="btn" href="/password-reset") Passwort vergessen

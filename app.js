@@ -29,6 +29,7 @@ pg.connect(conString, function(err, client, done) {
 var landing_page = require('./routes/index');
 var tickets = require('./routes/tickets');
 var administration = require('./routes/administration');
+var password_reset = require('./routes/password-reset');
 
 var app = express();
 
@@ -46,6 +47,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', landing_page);
 app.use('/tickets', tickets);
 app.use('/administration', administration);
+app.use('/password-reset', password_reset);
 
 
 // catch 404 and forward to error handler
