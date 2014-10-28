@@ -1,0 +1,13 @@
+Ticketsystem
+
+Was ist das Ticketsystem?
+  Das Ticketsystem ist ein leichtgewichtiges Supportticketingsystem zur Erfassung und Verwaltung von Supporttickets.
+
+Was ist das Besondere?
+  Im Ticketsystem können vom Beratungsunternehmen mehrere Kunden erstellt werden. Zu jedem Kunden ist eine individuelle Formularmaske für die Tickets definierbar. Dies ermöglicht es, den Supportprozes effektiv durch direkte Fragestellungen, zu gestalten.
+
+Technik
+  Das Ticketsystem basiert auf NodeJS und ist kompatibel mit einer PostgreSQL-Datenbank.
+
+Autor
+  Johannes Giere - jogiere@gmail.com
