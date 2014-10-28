@@ -1,0 +1,13 @@
+strong #{caption}
+article #{content}
+<br><br><br>
+button(class="btn btn-primary btn-lg" onclick="ticket_create_comment(this)") Write a comment
+<br><br><br>
+
+if comments.length > 0
+	h2 Comments
+	for loop_comment in comments
+		span Written by #{loop_comment.agent.name]
+		<br><br>
+		article(id="comment_id_" + loop_comment.id)=loop_comment.content
+		<br><br>

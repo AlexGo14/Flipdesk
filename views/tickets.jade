@@ -1,0 +1,67 @@
+extends layout
+
+block content
+	nav(class="navbar navbar-default" role="navigation")
+		div(class="container-fluid")
+			div(class="navbar-header")
+				a(class="navbar-brand" href="/tickets") #{company}
+			div(class="collapse navbar-collapse" id="bs-example-navbar-collapse-1")
+				ul(class="nav navbar-nav")
+					li(class="dropdown")
+						a(class="dropdown-toggle" data-toggle="dropdown") Customers
+							span(class="caret")
+						ul(class="dropdown-menu" role="menu")
+							for loop_customer in customers							
+								li
+									a(href="/tickets/customer/" + loop_customer.id)=loop_customer.name
+					li
+						a(href="/administration") Administration
+				form(class="navbar-form navbar-left" role="search" id="search_form_navbar")
+					div(class="form-group")
+						input(type="text" class="form-control" placeholder="Search")
+					button(type="submit" class="btn btn-default") Submit
+					
+	div(class="row")
+		div(class="col-sm-12 col-md-12 col-lg-12")
+			button(class="btn" onclick="show_createTicketModal()" ) Create Ticket
+	div(class="row")
+		div(class="col-sm-3 col-md-3 col-lg-3" id="ticket_list")
+			ul
+				for loop_ticket in tickets
+					li
+						span(class="btn" id=loop_ticket.id onclick="ticket_click(this.id)")=loop_ticket.caption
+		
+		div(class="col-sm-9 col-md-9 col-lg-9" id="ticket_space")
+
+
+	<!-- Modal -->
+	div(class="modal fade" id="createTicketModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Close
+					h4(class="modal-title" id="myModalLabel") Create Ticket
+				div(class="modal-body")
+					form(class="form" role="form" id="send_ticket_form")
+						div(class="form-group")
+							input(type="text" class="form-control input-lg" placeholder="Caption")
+							<br><br>
+							label User:
+							select(class="form-control")
+								for user in users
+									option(id=user.id)=user.first_name+user.last_name
+							<br><br>
+							label Agent:
+							select(class="form-control")
+								for agent in agents
+									option(id=agent.id)=agent.first_name+agent.last_name
+							<br><br>
+							textarea(class="form-control" rows="5" placeholder="Description")
+				div(class="modal-footer")
+					button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
+					button(type="button" class="btn btn-primary btn-lg" onclick="ticket_send(this)") Send
+			
+
+	script(src='/javascripts/tickets.js')

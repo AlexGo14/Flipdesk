@@ -1,0 +1,19 @@
+body {
+	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+#landing_content {
+	padding: 50px;
+}
+
+a {
+	color: #00B7FF;
+}
+
+#ticket_list {
+	border: 2px;
+}
+
+#search_form_navbar {
+	
+}
