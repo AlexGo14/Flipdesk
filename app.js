@@ -23,7 +23,8 @@ knex = require('knex')({
 	pool: {
 		min: 0,
 		max: 10
-	}
+	},
+	debug: true
 });
 
 

@@ -14,6 +14,7 @@ router.get('/', function(req, res) {
 	});
 });
 
+//Get a specific ticket
 router.get('/:id', function(req, res) {
 		
 	sequence.then(
@@ -25,7 +26,7 @@ router.get('/:id', function(req, res) {
 			then(function(rows) {
 				var ticket = {
 						'id': rows[0].id,
-						'content': rows[0].content,
+						'description': rows[0].description,
 						'caption': rows[0].caption,
 						'comments': []
 					};
@@ -39,12 +40,12 @@ router.get('/:id', function(req, res) {
 					join('comment', 'agent.id', '=', 'comment.fk_agent_id').
 					where({
 						fk_ticket_id: req.params.id
-					}).select('comment.id as comment_id', 'comment.content as comment_content', 'agent.id as agent_id', 'agent.last_name as agent_last_name', 'agent.first_name as agent_first_name').
+					}).select('comment.id as comment_id', 'comment.description as comment_description', 'agent.id as agent_id', 'agent.last_name as agent_last_name', 'agent.first_name as agent_first_name').
 				then(function(rows) {
 					
 					for(var i = 0; i < rows.length; i++) {
 						ticket.comments[i] = { 'id': rows[i].comment_id, 
-							'content': rows[i].comment_content,
+							'description': rows[i].comment_description,
 							'agent': { 'id': rows[i].agent_id, 'name': rows[i].agent_last_name + ' ' + rows[i].agent_first_name } };
 					}
 					
@@ -55,7 +56,7 @@ router.get('/:id', function(req, res) {
 		then(function(next, err, ticket) {
 			
 			res.render('ticket', { 'caption': ticket.caption, 'id': ticket.id, 
-				'content': ticket.content, 'comments': ticket.comments
+				'description': ticket.description, 'comments': ticket.comments
 			});
 			
 			next();
@@ -120,15 +121,84 @@ router.get('/customer/:id', function(req, res) {
 
 /* Create Ticket */
 router.post('/', function(req, res) {
-	res.json({'response': true});
+	
+	var new_ticket = {
+		'id': -1,
+		'caption': req.body.caption,
+		'description': req.body.description,
+		'user': {
+			'id': parseInt(req.body.user_id)
+		},
+		'agent': {
+			'id': parseInt(req.body.agent_id)
+		}
+	}
+	
+	
+	knex('ticket').returning('id').insert([{
+		'caption': new_ticket.caption,
+		'description': new_ticket.description,
+		'fk_user_id': new_ticket.user.id,
+		'fk_agent_id': new_ticket.agent.id
+	}]).then(function(id) {
+		if(id > 0) {
+			res.json({ 'success': true, 'id': id });
+		}
+	});
 });
 
+/* Update a ticket */
 router.put('/:id', function(req, res) {
 	
 });
 
+/* Archive a ticket */
 router.delete('/:id', function(req, res) {
 	
 });
 
+//Create a comment
+router.post('/:id/comment', function(req, res) {
+	var new_comment = {
+		'description': req.body.description,
+		'ticket': {
+			'id': req.body.ticket_id
+		},
+		'agent': {
+			'id': parseInt(req.body.agent_id)
+		},
+		'user': {
+			'id': parseInt(req.body.user_id)
+		}
+	};
+	
+	knex.select('id').from('comment').where({
+		'fk_ticket_id': new_comment.ticket.id
+		}).orderBy('fk_previous_comment_id', 'asc').limit(1).then(function(rows) {
+			if(rows.length > 0) {
+				if(new_comment.agent.id > 0) {
+					
+				} else if(new_comment.user.id > 0) {
+					
+				} else {
+					
+				}
+				
+				knex('comment').returning('id').insert([{
+					'description': new_comment.description,
+					'fk_agent_id': new_comment.agent.id,
+					'fk_ticket_id': new_comment.ticket.id,
+					'fk_previous_comment_id': rows[0].id
+					}]).then(function(id) {
+						if(id > 0) {
+							res.json({ 'success': true, 'id': id });
+						}
+					});
+			} else {
+				
+			}
+	});
+	/*
+	*/
+});
 module.exports = router;

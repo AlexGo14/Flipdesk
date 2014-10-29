@@ -46,22 +46,22 @@ block content
 				div(class="modal-body")
 					form(class="form" role="form" id="send_ticket_form")
 						div(class="form-group")
-							input(type="text" class="form-control input-lg" placeholder="Caption")
+							input(type="text" class="form-control input-lg" placeholder="Caption" id="create_ticket_form_caption")
 							<br><br>
 							label User:
-							select(class="form-control")
+							select(class="form-control" id="create_ticket_form_user")
 								for user in users
 									option(id=user.id)=user.first_name+user.last_name
 							<br><br>
 							label Agent:
-							select(class="form-control")
+							select(class="form-control" id="create_ticket_form_agent")
 								for agent in agents
 									option(id=agent.id)=agent.first_name+agent.last_name
 							<br><br>
-							textarea(class="form-control" rows="5" placeholder="Description")
+							textarea(class="form-control" rows="5" placeholder="Description" id="create_ticket_form_description")
 				div(class="modal-footer")
 					button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
-					button(type="button" class="btn btn-primary btn-lg" onclick="ticket_send(this)") Send
+					button(type="button" class="btn btn-primary btn-lg" onclick="ticket_send()") Send
 			
 
 	script(src='/javascripts/tickets.js')

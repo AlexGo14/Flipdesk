@@ -1,7 +1,8 @@
 strong #{caption}
-article #{content}
+article #{description}
+span(id="ticket-id" style="visibility: hidden;") #{id}
 <br><br><br>
-button(class="btn btn-primary btn-lg" onclick="ticket_create_comment(this)") Write a comment
+button(class="btn btn-primary btn-lg" onclick="ticket_create_comment(#{id})") Write a comment
 <br><br><br>
 
 if comments.length > 0
@@ -9,5 +10,23 @@ if comments.length > 0
 	for loop_comment in comments
 		span Written by #{loop_comment.agent.name]
 		<br><br>
-		article(id="comment_id_" + loop_comment.id)=loop_comment.content
+		article(id="comment_id_" + loop_comment.id)=loop_comment.description
 		<br><br>
+
+<!-- Modal -->
+div(class="modal fade" id="createCommentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+	div(class="modal-dialog")
+		div(class="modal-content")
+			div(class="modal-header")
+				button(type="button" class="close" data-dismiss="modal")
+					span(aria-hidden="true") &times;
+					span(class="sr-only") Close
+				h4(class="modal-title" id="myModalLabel") Create Ticket
+			div(class="modal-body")
+				form(class="form" role="form" id="send_ticket_form")
+					div(class="form-group")
+						textarea(class="form-control" rows="5" placeholder="Comment" id="create_comment_form_description")
+			div(class="modal-footer")
+				button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
+				button(type="button" class="btn btn-primary btn-lg" onclick="comment_send()") Send
+			
