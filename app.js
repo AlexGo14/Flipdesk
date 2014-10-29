@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 nconf = require('nconf');
 pg = require("pg");
 
+
 nconf.argv()
        .env()
        .file({ file: 'config.json' });
@@ -22,22 +23,8 @@ knex = require('knex')({
 	pool: {
 		min: 0,
 		max: 10
-	},
-	debug: true
+	}
 });
-
-/*var databaseObj = nconf.get('database');
-conString = "pg://" + databaseObj.user + ":" + databaseObj.password + "@" + 
-		databaseObj.ip + ":" + databaseObj.port + "/" + databaseObj.name;
-
-console.log('Try to connect to database ...');
-pg.connect(conString, function(err, client, done) {
-  if(err) {
-    return console.error('error fetching client from pool', err);
-  } else {
-	  console.log('Database connection established.');
-  }
-});*/
 
 
 var landing_page = require('./routes/index');
