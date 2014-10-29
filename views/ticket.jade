@@ -1,3 +1,27 @@
+
+<!-- Split button -->
+div(class="btn-group")
+	button(type="button" class="btn btn-success") Open
+	button(type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown")
+		span(class="caret")
+		span(class="sr-only") Toggle Dropdown
+		
+	ul(class="dropdown-menu" role="menu")
+		li
+			a(href="#") Open
+		li
+			a(href="#") Assigned
+		li
+			a(href="#") In progress
+		li
+			a(href="#") Waiting
+		li
+			a(href="#") Solved
+		li(class="divider")
+		li
+			a(href="#") Archive
+
+<br><br>
 strong #{caption}
 article #{description}
 span(id="ticket-id" style="visibility: hidden;") #{id}
@@ -10,7 +34,8 @@ if comments.length > 0
 	for loop_comment in comments
 		span Written by #{loop_comment.agent.name]
 		<br><br>
-		article(id="comment_id_" + loop_comment.id)=loop_comment.description
+		blockquote(id="comment_id_" + loop_comment.id)
+			p=loop_comment.description
 		<br><br>
 
 <!-- Modal -->
