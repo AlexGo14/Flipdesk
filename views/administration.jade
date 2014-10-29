@@ -16,7 +16,23 @@ block content
 									a(href="/tickets/customer/" + loop_customer.id)=loop_customer.name
 					li
 						a(href="/administration") Administration
-				form(class="navbar-form navbar-left" role="search" id="search_form_navbar")
-					div(class="form-group")
-						input(type="text" class="form-control" placeholder="Search")
-					button(type="submit" class="btn btn-default") Submit
+	div(class="row")
+		div(class="col-sm-3 col-md-3 col-lg-3")
+			ul(class="nav nav-pills nav-stacked")
+				li(class="active")
+					a(href="/administration") Settings
+				li
+					a(href="/administration/agents") Agents
+				li(class="dropdown")
+					a(class="dropdown-toggle" data-toggle="dropdown" href="#")
+						| Customers
+						span(class="caret")
+					ul(class="dropdown-menu" role="menu")
+						for loop_customer in customers
+							li
+								a(href="/administration/customer/" + loop_customer.id)=loop_customer.name
+				li
+					a(href="/statistics") Statistic
+				
+							
+		div(class="col-sm-9 col-md-9 col-lg-9")
