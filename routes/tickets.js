@@ -40,15 +40,16 @@ router.get('/:id', function(req, res) {
 					join('comment', 'agent.id', '=', 'comment.fk_agent_id').
 					where({
 						fk_ticket_id: req.params.id
-					}).select('comment.id as comment_id', 'comment.description as comment_description', 'agent.id as agent_id', 'agent.last_name as agent_last_name', 'agent.first_name as agent_first_name').
+					}).select('comment.id as comment_id', 'comment.create_timestamp as comment_create_timestamp', 'comment.description as comment_description', 'agent.id as agent_id', 'agent.last_name as agent_last_name', 'agent.first_name as agent_first_name').
 				then(function(rows) {
 					
 					for(var i = 0; i < rows.length; i++) {
 						ticket.comments[i] = { 'id': rows[i].comment_id, 
 							'description': rows[i].comment_description,
-							'agent': { 'id': rows[i].agent_id, 'name': rows[i].agent_last_name + ' ' + rows[i].agent_first_name } };
+							'agent': { 'id': rows[i].agent_id, 'name': rows[i].agent_first_name + ' ' + rows[i].agent_last_name },
+							'create_timestamp': rows[i].comment_create_timestamp };
 					}
-					
+					ticket.comments.reverse();
 					
 					next(err, ticket)
 				});
@@ -165,26 +166,27 @@ router.post('/:id/comment', function(req, res) {
 			'id': req.body.ticket_id
 		},
 		'agent': {
-			'id': parseInt(req.body.agent_id)
+			'id': req.body.agent_id
 		},
 		'user': {
-			'id': parseInt(req.body.user_id)
+			'id': req.body.user_id
 		}
 	};
+	
+	if(new_comment.agent.id != null) {
+		new_comment.agent.id = parseInt(new_comment.agent.id);
+	} else if(new_comment.user.id != null) {
+		new_comment.user.id = parseInt(new_comment.user.id);
+	} else {
+		
+	}
 	
 	knex.select('id').from('comment').where({
 		'fk_ticket_id': new_comment.ticket.id
 		}).orderBy('fk_previous_comment_id', 'asc').limit(1).then(function(rows) {
 			if(rows.length > 0) {
-				if(new_comment.agent.id > 0) {
-					
-				} else if(new_comment.user.id > 0) {
-					
-				} else {
-					
-				}
-				
-				knex('comment').returning('id').insert([{
+				if(new_comment.agent.id != null) {
+					knex('comment').returning('id').insert([{
 					'description': new_comment.description,
 					'fk_agent_id': new_comment.agent.id,
 					'fk_ticket_id': new_comment.ticket.id,
@@ -194,8 +196,23 @@ router.post('/:id/comment', function(req, res) {
 							res.json({ 'success': true, 'id': id });
 						}
 					});
-			} else {
+				} else if(new_comment.user.id != null) {
+					new_comment.user.id = parseInt(new_comment.user.id);
+				} else {
+					
+				}
 				
+				
+			} else {
+				knex('comment').returning('id').insert([{
+					'description': new_comment.description,
+					'fk_agent_id': new_comment.agent.id,
+					'fk_ticket_id': new_comment.ticket.id
+					}]).then(function(id) {
+						if(id > 0) {
+							res.json({ 'success': true, 'id': id });
+						}
+					});
 			}
 	});
 	/*

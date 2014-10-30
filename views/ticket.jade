@@ -31,8 +31,9 @@ button(class="btn btn-primary btn-lg" onclick="ticket_create_comment(#{id})") Wr
 
 if comments.length > 0
 	h2 Comments
+	
 	for loop_comment in comments
-		span Written by #{loop_comment.agent.name]
+		span Written by #{loop_comment.agent.name] on #{loop_comment.create_timestamp}
 		<br><br>
 		blockquote(id="comment_id_" + loop_comment.id)
 			p=loop_comment.description

@@ -35,7 +35,7 @@ function comment_send() {
 	var new_comment = {
 		'description': $('#create_comment_form_description')[0].value,
 		'agent_id': 1,
-		'user_id': -1,
+		'user_id': null,
 		'ticket_id': $('#ticket-id')[0].innerHTML
 	};
 	
@@ -45,6 +45,7 @@ function comment_send() {
 				
 				$('#create_comment_form_description')[0].value = '';
 				
+				ticket_click(parseInt(new_comment.ticket_id));
 			}
 	}, 'json');
 }
