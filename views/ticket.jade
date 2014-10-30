@@ -20,13 +20,13 @@ div(class="btn-group")
 		li(class="divider")
 		li
 			a(href="#") Archive
-
+	
+button(class="btn btn-primary" style="margin-left: 10px;" onclick="ticket_create_comment(#{id})") Write a comment
+	
 <br><br>
-strong #{caption}
+strong #{caption} - #{create_timestamp}
 article #{description}
 span(id="ticket-id" style="visibility: hidden;") #{id}
-<br><br><br>
-button(class="btn btn-primary btn-lg" onclick="ticket_create_comment(#{id})") Write a comment
 <br><br><br>
 
 if comments.length > 0

@@ -28,9 +28,10 @@ router.get('/:id', function(req, res) {
 						'id': rows[0].id,
 						'description': rows[0].description,
 						'caption': rows[0].caption,
-						'comments': []
+						'comments': [],
+						'create_timestamp': rows[0].create_timestamp
 					};
-				
+				console.log(rows[0]);
 				next(err, ticket);
 			});
 		}).
@@ -49,6 +50,7 @@ router.get('/:id', function(req, res) {
 							'agent': { 'id': rows[i].agent_id, 'name': rows[i].agent_first_name + ' ' + rows[i].agent_last_name },
 							'create_timestamp': rows[i].comment_create_timestamp };
 					}
+					console.log(ticket.comments);
 					ticket.comments.reverse();
 					
 					next(err, ticket)
@@ -57,7 +59,8 @@ router.get('/:id', function(req, res) {
 		then(function(next, err, ticket) {
 			
 			res.render('ticket', { 'caption': ticket.caption, 'id': ticket.id, 
-				'description': ticket.description, 'comments': ticket.comments
+				'description': ticket.description, 'comments': ticket.comments,
+				'create_timestamp': ticket.create_timestamp
 			});
 			
 			next();
