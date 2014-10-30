@@ -25,7 +25,9 @@ button(class="btn btn-primary" style="margin-left: 10px;" onclick="ticket_create
 	
 <br><br>
 strong #{caption} - #{create_timestamp}
-article #{description}
+form(class="form" role="form" id="send_ticket_form")
+	div(class="form-group")
+		textarea(class="form-control" placeholder="#{description}" disabled)
 span(id="ticket-id" style="visibility: hidden;") #{id}
 <br><br><br>
 

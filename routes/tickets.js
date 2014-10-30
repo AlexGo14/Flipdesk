@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var moment = require('moment-timezone');
 var Sequence = exports.Sequence || require('sequence').Sequence
     , sequence = Sequence.create()
     , err
@@ -48,7 +49,7 @@ router.get('/:id', function(req, res) {
 						ticket.comments[i] = { 'id': rows[i].comment_id, 
 							'description': rows[i].comment_description,
 							'agent': { 'id': rows[i].agent_id, 'name': rows[i].agent_first_name + ' ' + rows[i].agent_last_name },
-							'create_timestamp': rows[i].comment_create_timestamp };
+							'create_timestamp': moment(rows[i].comment_create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow() };
 					}
 					console.log(ticket.comments);
 					ticket.comments.reverse();
@@ -60,7 +61,7 @@ router.get('/:id', function(req, res) {
 			
 			res.render('ticket', { 'caption': ticket.caption, 'id': ticket.id, 
 				'description': ticket.description, 'comments': ticket.comments,
-				'create_timestamp': ticket.create_timestamp
+				'create_timestamp': moment(ticket.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow()
 			});
 			
 			next();
