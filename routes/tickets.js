@@ -58,10 +58,25 @@ router.get('/:id', function(req, res) {
 				});
 		}).
 		then(function(next, err, ticket) {
+			knex('agent').select().then(function(rows) {
+				var agents = [];
+				for(var i = 0; i < rows.length; i++) {
+					agents[i] = {
+						'id': rows[0].id,
+						'first_name': rows[0].first_name,
+						'last_name': rows[0].last_name
+					};
+				}
+				
+				next(err, ticket, agents);
+			});
+		}).
+		then(function(next, err, ticket, agents) {
 			
 			res.render('ticket', { 'caption': ticket.caption, 'id': ticket.id, 
 				'description': ticket.description, 'comments': ticket.comments,
-				'create_timestamp': moment(ticket.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow()
+				'create_timestamp': moment(ticket.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
+				'agents': agents
 			});
 			
 			next();

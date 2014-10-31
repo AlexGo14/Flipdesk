@@ -49,3 +49,11 @@ function comment_send() {
 			}
 	}, 'json');
 }
+
+function showAssignAgentModal() {
+	$('#assignAgentModal').modal('show');
+}
+
+function assign_agent_to_ticket() {
+	
+}
