@@ -8,9 +8,9 @@ block content
 				Welcome to #{title}<br>
 				We would like to offer you a unique and excellent support service.<br>
 				Please log in to manage your tickets
-			button(class="btn" data-toggle="modal" data-target="#loginModal") Login
+			button(class="btn" onclick="login_form()") Login
 	
-	div(class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+	div(class="modal fade" id="modalDiv" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
 		div(class="modal-dialog")
 			div(class="modal-content")
 				div(class="modal-header")
@@ -19,21 +19,21 @@ block content
 						span(class="sr-only") Close
 					h4(class="modal-title" id="myModalLabel") Login
 				div(class="modal-body")
-					label Bitte loggen Sie sich mit ihren Account Daten ein.
-					form(class="form" role="form" id="send_ticket_form")
+					label Please log in with your account data.
+					//if #{message}
+					//	div
+					//		span #{message}
+					form(class="form" role="form" id="login_form")
 						div(class="form-group")
 							label E-Mail
-							input(type="email" class="form-control" placeholder="E-Mail")
+							input(type="email" id="email_login" name="email" class="form-control" placeholder="E-Mail")
 							<br><br>
 							label Passwort:
-							input(type="password" class="form-control" placeholder="Passwort")
+							input(type="password" id="password_login" name="password" class="form-control" placeholder="Passwort")
 							<br>
-							div(class="checkbox")
-								label
-									input(type="checkbox")
-									label Remember me
-							button(type="button" class="btn btn-primary btn-lg") Login
+							button(type="button" class="btn btn-primary btn-lg" onclick="login()") Login
 							
 						
 				div(class="modal-footer")
-					a(class="btn" href="/password-reset") Passwort vergessen
+					a(class="btn" href="/password-reset") Forgot my password
+	script(src='/javascripts/functions.js')
