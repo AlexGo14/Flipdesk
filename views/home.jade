@@ -1,23 +1,5 @@
-extends layout
+extends private-layout
 
 block content
-	nav(class="navbar navbar-default" role="navigation")
-		div(class="container-fluid")
-			div(class="navbar-header")
-				a(class="navbar-brand" href="/tickets") #{company}
-			div(class="collapse navbar-collapse" id="bs-example-navbar-collapse-1")
-				ul(class="nav navbar-nav")
-					li(class="dropdown")
-						a(class="dropdown-toggle" data-toggle="dropdown") Customers
-							span(class="caret")
-						ul(class="dropdown-menu" role="menu")
-							for loop_customer in customers							
-								li
-									a(href="/tickets/customer/" + loop_customer.id)=loop_customer.name
-					li
-						a(href="/administration") Administration
-				form(class="navbar-form navbar-left" role="search" id="search_form_navbar")
-					div(class="form-group")
-						input(type="text" class="form-control" placeholder="Search")
-					button(type="submit" class="btn btn-default") Submit
-					
+	div
+		h1 This is Home

@@ -99,7 +99,6 @@ passport.deserializeUser(function(id, done) {
 	});
 });
 
-
 app.use('/', landing_page);
 app.use('/tickets', tickets);
 app.use('/administration', administration);

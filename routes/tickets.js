@@ -1,12 +1,13 @@
 var express = require('express');
 var router = express.Router();
+var utility = require('./utility');
 var moment = require('moment-timezone');
 var Sequence = exports.Sequence || require('sequence').Sequence
     , sequence = Sequence.create()
     , err
     ;
 
-router.get('/', function(req, res) {
+router.get('/', utility.requireAuthentication, function(req, res) {
 	
 	knex.select().from('customer').then(function(rows) {
 			res.render('home', { title: 'Tickets', company: nconf.get('company').name,
@@ -16,7 +17,7 @@ router.get('/', function(req, res) {
 });
 
 //Get a specific ticket
-router.get('/:id', function(req, res) {
+router.get('/:id', utility.requireAuthentication, function(req, res) {
 		
 	sequence.then(
 		function(next) {
@@ -84,7 +85,7 @@ router.get('/:id', function(req, res) {
 });
 
 /* GET tickets from a customer. */
-router.get('/customer/:id', function(req, res) {
+router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 	
 	var ticketsArr = [],
 		agentsArr = [],
@@ -140,7 +141,7 @@ router.get('/customer/:id', function(req, res) {
 });
 
 /* Create Ticket */
-router.post('/', function(req, res) {
+router.post('/', utility.requireAuthentication, function(req, res) {
 	
 	var new_ticket = {
 		'id': -1,
@@ -168,17 +169,17 @@ router.post('/', function(req, res) {
 });
 
 /* Update a ticket */
-router.put('/:id', function(req, res) {
+router.put('/:id', utility.requireAuthentication, function(req, res) {
 	
 });
 
 /* Archive a ticket */
-router.delete('/:id', function(req, res) {
+router.delete('/:id', utility.requireAuthentication, function(req, res) {
 	
 });
 
 //Create a comment
-router.post('/:id/comment', function(req, res) {
+router.post('/:id/comment', utility.requireAuthentication, function(req, res) {
 	var new_comment = {
 		'description': req.body.description,
 		'ticket': {
@@ -234,7 +235,6 @@ router.post('/:id/comment', function(req, res) {
 					});
 			}
 	});
-	/*
-	*/
 });
+
 module.exports = router;

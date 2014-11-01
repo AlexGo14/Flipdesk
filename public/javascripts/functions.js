@@ -11,11 +11,12 @@ function login_form() {
 function login() {
 	$.post('/authentication', $('#login_form').serialize(), function(data) {
 		if(data.success) {
-			var blu = true;
-			//redirect
+			window.location.replace("/tickets");
 		} else {
-			var blu = true;
-			//display error message
+			console.log(data);
+			$('#error_message_form').html(
+				'Your login credentials are invalid.'
+			);
 		}
 	});
 }

@@ -48,12 +48,13 @@ router.post('/', function( req, res, next) {
 	})(req, res, next);
 });
 
-router.delete('/', function ( req, res) {
+router.get('/logout', function ( req, res) {
 	if(req.isAuthenticated()){
 		req.logout();
-		req.session.messages = req.i18n.__("Log out successfully");
+		//req.session.messages = req.i18n.__("Log out successfully");
+		req.session.message = 'Log out successfully';
 	  }
-    res.json( { 'success': true } );
+    res.redirect('/');
 });
 
 module.exports = router;
