@@ -87,7 +87,6 @@ passport.use('local', new PassportLocalStrategy({
 passport.serializeUser(function(user, done) {
   done(null, user.id);
 });
-
 passport.deserializeUser(function(id, done) {
   // query the current user from database
 	knex('user').select().where({

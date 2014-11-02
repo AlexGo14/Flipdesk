@@ -16,6 +16,9 @@ block content
 						for loop_customer in customers
 							li
 								a(href="/administration/customer/" + loop_customer.id)=loop_customer.name
+						li
+							a(href="/administration/customer/add") 
+								strong Add customer
 				li
 					a(href="/statistics") Statistic
 				

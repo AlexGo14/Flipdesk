@@ -31,10 +31,13 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 						'description': rows[0].description,
 						'caption': rows[0].caption,
 						'comments': [],
-						'create_timestamp': rows[0].create_timestamp,
+						'create_timestamp': {
+								'short': moment(rows[0].create_timestamp).tz('Pacific/Auckland').startOf('minute').fromNow(),
+								'detailed': moment(rows[0].create_timestamp).tz('Pacific/Auckland').format('Do MMMM YYYY, h:mm a')
+						 },
 						'agent': rows[0].fk_agent_id
 					};
-					
+					console.log(ticket.create_timestamp.short);
 				next(err, ticket);
 			});
 		}).
@@ -51,8 +54,16 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 						ticket.comments[i] = { 'id': rows[i].comment_id, 
 							'description': rows[i].comment_description,
 							'agent': { 'id': rows[i].agent_id, 'name': rows[i].agent_first_name + ' ' + rows[i].agent_last_name },
-							'create_timestamp': moment(rows[i].comment_create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow() };
+							'create_timestamp': {
+								'short': moment(rows[i].comment_create_timestamp).tz('Pacific/Auckland').startOf('minute').fromNow(),
+								'detailed': moment(rows[i].comment_create_timestamp).tz('Pacific/Auckland').format('Do MMMM YYYY, h:mm a')
+								 }
+							}
+						
+							
+							console.log(moment(rows[i].comment_create_timestamp).tz('Pacific/Auckland').format('Do MMMM YYYY, h:mm a'));
 					}
+					
 					
 					ticket.comments.reverse();
 					
@@ -83,7 +94,7 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 			res.render('ticket', { 'caption': ticket.caption, 'id': ticket.id, 
 				'description': ticket.description, 'comments': ticket.comments,
 				'assigned_agent': ticket.agent,
-				'create_timestamp': moment(ticket.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
+				'create_timestamp': ticket.create_timestamp,
 				'agents': agents
 			});
 			
