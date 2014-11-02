@@ -83,24 +83,40 @@ function set_ticket_to_open() {
 
 function open_administration_settings() {
 	$.get('/administration/settings', {}, function(data) {
+		$('#settings_id').addClass('active');
+		$('#agents_id').removeClass('active');
+		$('#customers_id').removeClass('active');
+		
 		$('#administration_content').html(data);
 	});
 }
 
 function open_administration_agents() {
 	$.get('/administration/agents', {}, function(data) {
+		$('#settings_id').removeClass('active');
+		$('#agents_id').addClass('active');
+		$('#customers_id').removeClass('active');
+		
 		$('#administration_content').html(data);
 	});
 }
 
 function open_administration_customer(id) {
 	$.get('/administration/customer/' + id, {}, function(data) {
+		$('#settings_id').removeClass('active');
+		$('#agents_id').removeClass('active');
+		$('#customers_id').addClass('active');
+		
 		$('#administration_content').html(data);
 	});
 }
 
 function open_administration_customer_add() {
 	$.get('/administration/customer/add', {}, function(data) {
+		$('#settings_id').removeClass('active');
+		$('#agents_id').removeClass('active');
+		$('#customers_id').addClass('active');
+		
 		$('#administration_content').html(data);
 	});
 }

@@ -4,11 +4,11 @@ block content
 	div(class="row")
 		div(class="col-sm-3 col-md-3 col-lg-3")
 			ul(class="nav nav-pills nav-stacked")
-				li(class="active")
+				li(class="active" id="settings_li")
 					a(href="#" onclick="open_administration_settings()") Settings
-				li
+				li(id="agents_li")
 					a(href="#" onclick="open_administration_agents()") Agents
-				li(class="dropdown")
+				li(class="dropdown" id="customers_li")
 					a(class="dropdown-toggle" data-toggle="dropdown" href="#")
 						| Customers
 						span(class="caret")
@@ -28,3 +28,4 @@ block content
 	script(src='/javascripts/ticketsystem.js')
 	script.
 		open_administration_settings();
+		
