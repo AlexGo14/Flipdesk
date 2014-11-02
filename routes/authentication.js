@@ -30,7 +30,7 @@ router.post('/', function( req, res, next) {
 			// req.session and redirect to the login page again to display
 			req.session.messages = info.message;
 			
-			return res.json( {'success': false });
+			return res.json( {'success': false, 'message': info.message });
 		}
 
 		// if everything's OK

@@ -31,9 +31,10 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 						'description': rows[0].description,
 						'caption': rows[0].caption,
 						'comments': [],
-						'create_timestamp': rows[0].create_timestamp
+						'create_timestamp': rows[0].create_timestamp,
+						'agent': rows[0].fk_agent_id
 					};
-				console.log(rows[0]);
+					
 				next(err, ticket);
 			});
 		}).
@@ -52,7 +53,7 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 							'agent': { 'id': rows[i].agent_id, 'name': rows[i].agent_first_name + ' ' + rows[i].agent_last_name },
 							'create_timestamp': moment(rows[i].comment_create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow() };
 					}
-					console.log(ticket.comments);
+					
 					ticket.comments.reverse();
 					
 					next(err, ticket)
@@ -62,11 +63,16 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 			knex('agent').select().then(function(rows) {
 				var agents = [];
 				for(var i = 0; i < rows.length; i++) {
+					
 					agents[i] = {
-						'id': rows[0].id,
-						'first_name': rows[0].first_name,
-						'last_name': rows[0].last_name
+						'id': rows[i].id,
+						'first_name': rows[i].first_name,
+						'last_name': rows[i].last_name
 					};
+					
+					if(ticket.agent == agents[i].id) {
+						ticket.agent = agents[i];
+					}
 				}
 				
 				next(err, ticket, agents);
@@ -76,6 +82,7 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 			
 			res.render('ticket', { 'caption': ticket.caption, 'id': ticket.id, 
 				'description': ticket.description, 'comments': ticket.comments,
+				'assigned_agent': ticket.agent,
 				'create_timestamp': moment(ticket.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
 				'agents': agents
 			});
@@ -130,7 +137,6 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 				});
 		}).
 		then(function(next) {
-			console.log(usersArr);
 			
 			res.render('tickets', { title: 'Tickets', company: nconf.get('company').name,
 				tickets: ticketsArr, customers: customersArr, agents: agentsArr, users: usersArr
@@ -176,6 +182,42 @@ router.put('/:id', utility.requireAuthentication, function(req, res) {
 /* Archive a ticket */
 router.delete('/:id', utility.requireAuthentication, function(req, res) {
 	
+});
+
+/* Assign agent to ticket */
+router.post('/:id/assign/:agent_id', utility.requireAuthentication, function(req, res) {
+	var ticket_id = req.params.id;
+	agent_id = req.params.agent_id;
+	
+	if(agent_id > 0) {
+		knex('ticket')
+			.returning('id')
+			.update({
+				fk_agent_id: agent_id
+			})
+			.where('id', '=', ticket_id)		
+			.then(function(id) {
+				res.json( { success: true } );
+			})
+			.catch(function(err) {
+				console.log(err);
+				res.json( { success: false } );
+		});
+	} else if(agent_id == -1) {
+		knex('ticket')
+			.returning('id')
+			.update({
+				fk_agent_id: null
+			})
+			.where('id', '=', ticket_id)
+			.then(function(id) {
+				res.json( { success: true } );
+			})
+			.catch(function(err) {
+				console.log(err);
+				res.json( { success: false } );
+		});
+	}
 });
 
 //Create a comment

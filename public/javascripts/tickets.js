@@ -1,3 +1,4 @@
+
 function ticket_click(id) {
 	$.get('/tickets/' + id, '', function(data, textStatus) {
 		$('#ticket_space').html(data);
@@ -55,5 +56,28 @@ function showAssignAgentModal() {
 }
 
 function assign_agent_to_ticket() {
+	var agent_id = $('#agent_assignAgentModal_form')[0].selectedOptions[0].id;
 	
+	$.post('/tickets/' + $('#ticket-id').html() + '/assign/' + agent_id, {}, function(data) {
+		if(data.success) {
+			$('#ticket_status').html('Assigned');
+			$('#assigned_to_agent').html(', Assigned to ' + $('#agent_assignAgentModal_form')[0].selectedOptions[0].value);
+			
+			$('#assignAgentModal').modal('hide');
+		} else {
+			
+		}
+	});
+}
+
+function set_ticket_to_open() {
+	
+	$.post('/tickets/' + $('#ticket-id').html() + '/assign/-1', {}, function(data) {
+		if(data.success) {
+			$('#ticket_status').html('Open');
+			$('#assigned_to_agent').html(', Not Assigned');
+		} else {
+			
+		}
+	});
 }

@@ -1,14 +1,17 @@
 
 <!-- Split button -->
 div(class="btn-group")
-	button(type="button" class="btn btn-success") Open
+	if assigned_agent
+		button(type="button" class="btn btn-success" id="ticket_status") Assigned
+	else
+		button(type="button" class="btn btn-success" id="ticket_status") Open
 	button(type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown")
 		span(class="caret")
 		span(class="sr-only") Toggle Dropdown
 		
 	ul(class="dropdown-menu" role="menu")
 		li
-			a(href="#") Open
+			a(href="#" onclick="set_ticket_to_open()") Open
 		li
 			a(href="#" onclick="showAssignAgentModal()") Assigned
 		li
@@ -24,11 +27,20 @@ div(class="btn-group")
 button(class="btn btn-primary" style="margin-left: 10px;" onclick="ticket_create_comment(#{id})") Write a comment
 	
 <br><br>
-strong #{caption} - #{create_timestamp}
+strong #{caption} - #{create_timestamp}, Ticket ID:
+span(id="ticket-id") #{id}
+
+if assigned_agent
+	span(id="assigned_to_agent") , Assigned to #{assigned_agent.first_name} #{assigned_agent.last_name}
+else
+	span(id="assigned_to_agent") , Not assigned
+	
 form(class="form" role="form" id="send_ticket_form")
 	div(class="form-group")
 		textarea(class="form-control" placeholder="#{description}" disabled)
-span(id="ticket-id" style="visibility: hidden;") #{id}
+
+<br>
+	
 <br><br><br>
 
 if comments.length > 0
@@ -70,10 +82,10 @@ div(class="modal fade" id="assignAgentModal" tabindex="-1" role="dialog" aria-la
 			div(class="modal-body")
 				form(class="form" role="form" id="send_ticket_form")
 					div(class="form-group")
-						select(class="form-control")
+						select(class="form-control" id="agent_assignAgentModal_form")
 							for agent in agents
-								option(id="agent.id")=agent.first_name + agent.last_name
+								option(id="#{agent.id}")=agent.first_name + agent.last_name
 			div(class="modal-footer")
-				button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
-				button(type="button" class="btn btn-primary btn-lg" onclick="assign_agent_to_ticket()") Send
+				button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Cancel
+				button(type="button" class="btn btn-primary btn-lg" onclick="assign_agent_to_ticket()") Assign
 			
