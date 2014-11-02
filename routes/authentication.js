@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+//var bcrypt = require('bcrypt');
 
 router.get('/', function (req, res) {
 	if(req.user){
@@ -23,7 +24,7 @@ router.post('/', function( req, res, next) {
 			// if error happens
 			return next(err);
 		}
-		
+		console.log(user);
 		if (!user) {
 			// if authentication fail, get the error message that we set
 			// from previous (info.message) step, assign it into to

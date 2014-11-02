@@ -9,6 +9,7 @@ nconf = require('nconf');
 pg = require("pg");
 passport = require("passport");
 PassportLocalStrategy = require('passport-local').Strategy;
+var bcrypt = require('bcrypt');
 
 
 
@@ -66,17 +67,26 @@ passport.use('local', new PassportLocalStrategy({
 	// don't care the way I query from database, you can use
 	// any method to query the user from database
 	knex('agent').select().where({
-		'email': email,
-		'password': password
+		'email': email
 	}).then(function(rows) {
-		console.log(rows);
-		if(rows.length != 1) {
+		
+		
+		if(rows.length < 1) {
 			// if the user does not exist
 			return done(null, false, {message: "The user does not exist"});
-		} else {
+		}
+		
+		console.log(rows);
+		
+		for( var i = 0; i < rows.length; i++) {
+			console.log(i + ' - ' + rows[i].password);
+			
+			//Compare input password with stored password
+			bcrypt.compareSync(password, rows[i].password);
+			
 			// if everything is OK, return null as the error
 			// and the authenticated user
-			return done(null, rows[0] );
+			return done(null, rows[i] );
 		}
 	}).catch(function(err){
 		// if command executed with error
