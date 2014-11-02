@@ -10,4 +10,20 @@ router.get('/', utility.requireAuthentication, function(req, res) {
 	});
 });
 
+router.get('/settings', utility.requireAuthentication, function(req, res) {
+	res.render('administration-settings', {});
+});
+
+router.get('/agents', utility.requireAuthentication, function(req, res) {
+	res.render('administration-agent', {});
+});
+
+router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
+	res.render('administration-customer', {});
+});
+
+router.get('/customer/add', utility.requireAuthentication, function(req, res) {
+	res.render('administration-add', {});
+});
+
 module.exports = router;

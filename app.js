@@ -38,6 +38,7 @@ var tickets = require('./routes/tickets');
 var administration = require('./routes/administration');
 var password_reset = require('./routes/password-reset');
 var authentication = require('./routes/authentication');
+var statistics = require('./routes/statistics');
 
 var app = express();
 
@@ -113,6 +114,7 @@ app.use('/tickets', tickets);
 app.use('/administration', administration);
 app.use('/password-reset', password_reset);
 app.use('/authentication', authentication);
+app.use('/statistics', statistics);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

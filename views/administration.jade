@@ -5,9 +5,9 @@ block content
 		div(class="col-sm-3 col-md-3 col-lg-3")
 			ul(class="nav nav-pills nav-stacked")
 				li(class="active")
-					a(href="/administration") Settings
+					a(href="#" onclick="open_administration_settings()") Settings
 				li
-					a(href="/administration/agents") Agents
+					a(href="#" onclick="open_administration_agents()") Agents
 				li(class="dropdown")
 					a(class="dropdown-toggle" data-toggle="dropdown" href="#")
 						| Customers
@@ -15,12 +15,16 @@ block content
 					ul(class="dropdown-menu" role="menu")
 						for loop_customer in customers
 							li
-								a(href="/administration/customer/" + loop_customer.id)=loop_customer.name
+								a(href="#" onclick="open_administration_customer(#{loop_customer.id})")=loop_customer.name
 						li
-							a(href="/administration/customer/add") 
+							a(href="#" onclick="open_administration_customer_add()") 
 								strong Add customer
-				li
-					a(href="/statistics") Statistic
 				
 							
-		div(class="col-sm-9 col-md-9 col-lg-9")
+		div(class="col-sm-9 col-md-9 col-lg-9" id="administration_content")
+		
+		
+	
+	script(src='/javascripts/ticketsystem.js')
+	script.
+		open_administration_settings();

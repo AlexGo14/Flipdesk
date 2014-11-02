@@ -1,4 +1,3 @@
-
 function ticket_click(id) {
 	$.get('/tickets/' + id, '', function(data, textStatus) {
 		$('#ticket_space').html(data);
@@ -79,5 +78,29 @@ function set_ticket_to_open() {
 		} else {
 			
 		}
+	});
+}
+
+function open_administration_settings() {
+	$.get('/administration/settings', {}, function(data) {
+		$('#administration_content').html(data);
+	});
+}
+
+function open_administration_agents() {
+	$.get('/administration/agents', {}, function(data) {
+		$('#administration_content').html(data);
+	});
+}
+
+function open_administration_customer(id) {
+	$.get('/administration/customer/' + id, {}, function(data) {
+		$('#administration_content').html(data);
+	});
+}
+
+function open_administration_customer_add() {
+	$.get('/administration/customer/add', {}, function(data) {
+		$('#administration_content').html(data);
 	});
 }
