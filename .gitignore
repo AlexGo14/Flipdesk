@@ -1,0 +1,7 @@
+#Logs
+*.log
+
+#Modules
+node_modules/
+
+bin/
