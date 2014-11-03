@@ -13,6 +13,10 @@ block content
 							for loop_ticket in tickets
 								li
 									span(class="btn" id=loop_ticket.id onclick="ticket_click(this.id)")=loop_ticket.caption
+									if loop_ticket.fk_agent_id
+										
+									else
+										
 					
 		div(class="col-sm-9 col-md-9 col-lg-9" id="ticket_space")
 
@@ -46,5 +50,11 @@ block content
 					button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
 					button(type="button" class="btn btn-primary btn-lg" onclick="ticket_send()") Send
 			
-
+	
+	script(src='/javascripts/jquery.hotkeys.js')
 	script(src='/javascripts/ticketsystem.js')
+	script.
+		$(document).bind('keydown', 'shift+t', function () {
+			show_createTicketModal();
+		});
+		

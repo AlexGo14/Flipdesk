@@ -37,7 +37,7 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 						 },
 						'agent': rows[0].fk_agent_id
 					};
-					console.log(ticket.create_timestamp.short);
+					
 				next(err, ticket);
 			});
 		}).
@@ -61,7 +61,7 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 							}
 						
 							
-							console.log(moment(rows[i].comment_create_timestamp).tz('Pacific/Auckland').format('Do MMMM YYYY, h:mm a'));
+							
 					}
 					
 					
@@ -113,8 +113,16 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 	sequence.
 		then(function(next) {
 			
-			knex().select().from('ticket').
-				then(function(rows) {
+			knex().select().from('ticket').orderBy('update_timestamp', 'desc')
+				.then(function(rows) {
+					for(var i = 0; i < rows.length; i++) {
+						if(rows[i].fk_agent_id == null) {
+							rows[i].fk_agent_id = false;
+						}
+						if(rows[i].update_timestamp == null) {
+							rows[i].update_timestamp = false;
+						}
+					}
 					ticketsArr = rows;
 					
 					next(err);
@@ -204,7 +212,8 @@ router.post('/:id/assign/:agent_id', utility.requireAuthentication, function(req
 		knex('ticket')
 			.returning('id')
 			.update({
-				fk_agent_id: agent_id
+				fk_agent_id: agent_id,
+				update_timestamp: moment().format()
 			})
 			.where('id', '=', ticket_id)		
 			.then(function(id) {
@@ -218,7 +227,8 @@ router.post('/:id/assign/:agent_id', utility.requireAuthentication, function(req
 		knex('ticket')
 			.returning('id')
 			.update({
-				fk_agent_id: null
+				fk_agent_id: null,
+				update_timestamp: Date.now()
 			})
 			.where('id', '=', ticket_id)
 			.then(function(id) {
