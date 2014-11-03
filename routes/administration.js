@@ -19,10 +19,12 @@ router.get('/agents', utility.requireAuthentication, function(req, res) {
 });
 
 router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
+	console.log('heyho');
 	res.render('administration-customer', {});
 });
 
-router.get('/customer/add', utility.requireAuthentication, function(req, res) {
+router.get('/customer', utility.requireAuthentication, function(req, res) {
+	console.log('hey');
 	res.render('administration-add', {});
 });
 

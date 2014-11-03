@@ -108,15 +108,54 @@ function open_administration_customer(id) {
 		$('#customers_id').addClass('active');
 		
 		$('#administration_content').html(data);
+		switch_customer_navfield('general', 'general_tab');
 	});
 }
 
 function open_administration_customer_add() {
-	$.get('/administration/customer/add', {}, function(data) {
+	$.get('/administration/customer', {}, function(data) {
 		$('#settings_id').removeClass('active');
 		$('#agents_id').removeClass('active');
 		$('#customers_id').addClass('active');
 		
 		$('#administration_content').html(data);
 	});
+}
+
+function toggle_edit_agent_modal(agent_id) {
+	$('#edit_agent_modal').modal('toggle');
+}
+
+function switch_customer_navfield(option, event_src) {
+	switch (option) {
+		case 'general':
+			$('.nav_content').hide();
+			
+			$(event_src.id).addClass('active');
+			
+			$('#general_customer_div').show();
+			break;
+		case 'lists':
+			$('.nav_content').hide();
+			
+			$(event_src.id).addClass('active');
+			
+			$('#lists_customer_div').show();
+			
+			break;
+		case 'ticket':
+			$('.nav_content').hide();
+			
+			$(event_src.id).addClass('active');
+			
+			$('#ticket_fields_customer_div').show();
+			break;
+		case 'status':
+			$('.nav_content').hide();
+			
+			$(event_src.id).addClass('active');
+			
+			$('#status_fields_customer_div').show();
+			break;
+	}
 }
