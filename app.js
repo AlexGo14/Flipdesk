@@ -12,7 +12,6 @@ PassportLocalStrategy = require('passport-local').Strategy;
 var bcrypt = require('bcrypt');
 
 
-
 nconf.argv()
        .env()
        .file({ file: 'config.json' });
@@ -31,7 +30,6 @@ knex = require('knex')({
 	}//,
 	//debug: true
 });
-
 
 var landing_page = require('./routes/index');
 var tickets = require('./routes/tickets');
