@@ -3,43 +3,49 @@ Imap = require('imap'),
 MailParser = require("mailparser").MailParser,
     mailparser = new MailParser();
 
+
 mailparser.on("end", function(mail_object){
 	console.log('es wird gesucht');
-	if(mail_object.text != undefined) {
+	//if(mail_object.text != undefined) {
 		
-		knex('user').select('id').where({
-				email: mail_object.from[0].address
-		}).then(function(id) {
-			
-			if(id.length == 1) {
-				if(mail_object.inReplyTo == undefined) {
-					
-					knex('ticket').insert({
-						description: mail_object.text,
-						caption: mail_object.subject,
-						fk_user_id: id[0].id
-					})
-					.then(function() {
-						console.log('added new ticket');
-					})
-					.catch(function(err) {
-						console.log(err);
-					});
-			
-				} else {
-					/*knex('comment').insert({
-						description: mail_object.text,
-						fk_user_id: id,
-						fk_ticket_id: 
-						fk_previous_comment_id: 
-					}).
-					catch(function(err) {
-						console.log(err);
-					});*/
-				}
+	knex('user').select('id').where({
+			email: mail_object.from[0].address
+	}).then(function(id) {
+		var text;
+		if(mail_object.text != undefined) {
+			text = mail_object.text;
+		} else {
+			text = mail_object.html;
+		}
+		
+		if(id.length == 1) {
+			if(mail_object.inReplyTo == undefined) {
+				
+				knex('ticket').insert({
+					description: text,
+					caption: mail_object.subject,
+					fk_user_id: id[0].id
+				})
+				.then(function() {
+					console.log('added new ticket');
+				})
+				.catch(function(err) {
+					console.log(err);
+				});
+		
+			} else {
+				/*knex('comment').insert({
+					description: mail_object.text,
+					fk_user_id: id,
+					fk_ticket_id: 
+					fk_previous_comment_id: 
+				}).
+				catch(function(err) {
+					console.log(err);
+				});*/
 			}
-		});
-	};
+		}
+	});
 });
 
 mailFunction = {};
@@ -99,5 +105,9 @@ mailFunction.start = function (imap) {
 
 		imap.connect();
 	};
+
+mailFunction.send = function() {
+	
+}
 
 module.exports = mailFunction;
