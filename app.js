@@ -10,6 +10,10 @@ pg = require("pg");
 passport = require("passport");
 PassportLocalStrategy = require('passport-local').Strategy;
 var bcrypt = require('bcrypt');
+var Imap = require('imap'),
+    inspect = require('util').inspect;
+var MailParser = require("mailparser").MailParser;
+
 
 
 nconf.argv()
@@ -105,6 +109,29 @@ passport.deserializeUser(function(id, done) {
 	}).catch(function(err){
 		done(new Error('User ' + id + ' does not exist'));
 	});
+});
+
+
+//Mail-Listener
+maillistener = [];
+knex('customer').select().where({
+	active: true
+}).then(function(rows) {
+	for(var i = 0; i < rows.length; i++) {
+		var imapConfig = {
+			user: rows[i].username_mailbox,
+			password: rows[i].password_mailbox,
+			host: rows[i].email_mailbox,
+			port: 993,
+			tls: true
+		}
+		
+		var ms = new MailSearch( imapConfig );
+		console.log('asdf');
+		ms.search('INBOX', [ 'UNSEEN', ['FROM', ''] ]).then(function(mails) {
+			console.log('Total Inbox Count: :', mails.length);
+		});
+	}
 });
 
 app.use('/', landing_page);
