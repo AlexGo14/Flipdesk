@@ -23,6 +23,7 @@
     "passport-local": "1.0.0",
     "bcrypt": "0.8.0",
     "imap": "0.8.14",
-    "mailparser": "0.4.6"
+    "mailparser": "0.4.6",
+    "cron": "1.0.5"
   }
 }

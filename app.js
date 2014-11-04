@@ -10,9 +10,8 @@ pg = require("pg");
 passport = require("passport");
 PassportLocalStrategy = require('passport-local').Strategy;
 var bcrypt = require('bcrypt');
-var Imap = require('imap'),
-    inspect = require('util').inspect;
-var MailParser = require("mailparser").MailParser;
+var mailFunction = require('./routes/mail');
+var CronJob = require('cron').CronJob;
 
 
 
@@ -112,27 +111,25 @@ passport.deserializeUser(function(id, done) {
 });
 
 
+
 //Mail-Listener
-maillistener = [];
-knex('customer').select().where({
-	active: true
-}).then(function(rows) {
-	for(var i = 0; i < rows.length; i++) {
-		var imapConfig = {
-			user: rows[i].username_mailbox,
-			password: rows[i].password_mailbox,
-			host: rows[i].email_mailbox,
-			port: 993,
-			tls: true
-		}
-		
-		var ms = new MailSearch( imapConfig );
-		console.log('asdf');
-		ms.search('INBOX', [ 'UNSEEN', ['FROM', ''] ]).then(function(mails) {
-			console.log('Total Inbox Count: :', mails.length);
-		});
-	}
+
+mailFunction.imap = new Imap({
+	user: 'jogiere@gmail.com',
+	password: 'NfbPh5wd',
+	host: 'imap.gmail.com',
+	port: 993,
+	tls: true
 });
+
+var job = new CronJob('* 5 * * * *', function(){
+		mailFunction.start(mailFunction.imap);
+	}, function () {
+		console.log('Error occurred: stopped imap service');
+	},
+	true
+);
+
 
 app.use('/', landing_page);
 app.use('/tickets', tickets);
