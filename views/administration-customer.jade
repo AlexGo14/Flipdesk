@@ -9,14 +9,14 @@ ul(class="nav nav-tabs" role="tablist")
 		a(href="#") Ticket fields
 	li(onclick="switch_customer_navfield('status', this)" id="status_tab")
 		a(href="#") Status fields
-
+<br><br>
 div(id="general_customer_div" class="nav_content")
 	form(class="form" role="form" id="administration_customer_form")
 		div(class="form-group")
-			label ID: 1
+			label ID: #{id}
 			<br>
 			label Name: 
-			input(class="form-control" type="text" placeholder="Name")
+			input(class="form-control" type="text" value="#{name}" placeholder="Name") 
 			<br>
 			div(class="checkbox")
 				label
@@ -31,8 +31,9 @@ div(id="general_customer_div" class="nav_content")
 				input(type="checkbox")
 				| Disable and archive customer
 		button(class="btn btn-danger") Disable
+		
 div(id="lists_customer_div" style="" class="nav_content")
-	h3 White list
+	h3 Users list
 	button(class="btn btn-primary") Add user
 	<br>
 	table(class="table table-striped table-hover table-condensed")
@@ -41,17 +42,18 @@ div(id="lists_customer_div" style="" class="nav_content")
 			td Last name
 			td First name
 			td Email
-			td Tickets
-			td Unsolved tickets
 			td Last active
-		tr
-			td 1
-			td Giere
-			td Johannes
-			td jogiere@gmail.com
-			td 5
-			td 1
-			td 02.11.2014
+			
+		for loop_user in users
+			tr
+				td=loop_user.id
+				td=loop_user.last_name
+				td=loop_user.first_name
+				td=loop_user.email
+				if loop_user.update_timestamp
+					td=loop_user.update_timestamp
+				else
+					td
 		
 	h3 Black list
 	button(class="btn btn-primary") Add email
@@ -59,14 +61,19 @@ div(id="lists_customer_div" style="" class="nav_content")
 	table(class="table table-striped table-hover table-condensed")
 		tr
 			td Email
-		tr
-			td spam@gmail.com
+		for entry in blacklist
+			tr
+				td entry.email
+				
 	<br><br>
 	button(type="button" class="btn btn-default") Save
 div(id="ticket_fields_customer_div" style="" class="nav_content")
 	h3.
-		Hallo Ticket
+		Hallo Ticket<br>
+		Assigned agent and user are fixed.<br>
+		Everything other is variable but might not be imported from email.
 
 div(id="status_fields_customer_div" style="" class="nav_content")
 	h3.
-		Hallo Status
+		Hallo Status<br>
+		New, Assigned, Closed and Archived are fixed.

@@ -12,6 +12,7 @@ PassportLocalStrategy = require('passport-local').Strategy;
 var bcrypt = require('bcrypt');
 var mailFunction = require('./routes/mail');
 var CronJob = require('cron').CronJob;
+var moment = require("moment-timezone");
 
 
 
@@ -84,11 +85,25 @@ passport.use('local', new PassportLocalStrategy({
 			console.log(i + ' - ' + rows[i].password);
 			
 			//Compare input password with stored password
-			bcrypt.compareSync(password, rows[i].password);
+			if(bcrypt.compareSync(password, rows[i].password)) {
+				
+				// if everything is OK, return null as the error
+				// and the authenticated user
+				knex('user').where('id', '=', rows[i].id)
+				.update({
+					update_timestamp: moment().format()
+				})
+				.then(function(rows) {
+					
+				})
+				.catch(function(err) {
+					console.log(err);
+				});
+				
+				return done(null, rows[i] );
+			}
 			
-			// if everything is OK, return null as the error
-			// and the authenticated user
-			return done(null, rows[i] );
+			
 		}
 	}).catch(function(err){
 		// if command executed with error
@@ -97,7 +112,8 @@ passport.use('local', new PassportLocalStrategy({
   }
 ));
 passport.serializeUser(function(user, done) {
-  done(null, user.id);
+	
+	done(null, user.id);
 });
 passport.deserializeUser(function(id, done) {
   // query the current user from database

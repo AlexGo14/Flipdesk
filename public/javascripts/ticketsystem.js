@@ -123,7 +123,19 @@ function open_administration_customer_add() {
 }
 
 function toggle_edit_agent_modal(agent_id) {
-	$('#edit_agent_modal').modal('toggle');
+	$.get('/administration/agents/' + agent_id, {}, function(data) {
+		var data = data.agent;
+		
+		$('#fname_edit_agent_form_modal')[0].value = data.first_name;
+		$('#lname_edit_agent_form_modal')[0].value = data.last_name;
+		$('#email_edit_agent_form_modal')[0].value = data.email;
+		$('#isadmin_edit_agent_form_modal')[0].checked = data.is_admin;
+		$('#active_edit_agent_form_modal')[0].checked = data.active;
+		
+		$('#edit_agent_modal').modal('toggle');
+	});
+	
+	
 }
 
 function switch_customer_navfield(option, event_src) {
