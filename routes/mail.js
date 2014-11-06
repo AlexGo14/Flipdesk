@@ -6,7 +6,6 @@ MailParser = require("mailparser").MailParser,
 
 mailparser.on("end", function(mail_object){
 	console.log('es wird gesucht');
-	//if(mail_object.text != undefined) {
 		
 	knex('user').select('id').where({
 			email: mail_object.from[0].address
