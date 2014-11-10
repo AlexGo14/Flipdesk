@@ -140,9 +140,11 @@ function open_administration_customer_add() {
 
 /* Shows edit agent modal from "administration agent"-view */
 function toggle_edit_agent_modal(agent_id) {
+	
 	$.get('/administration/agents/' + agent_id, {}, function(data) {
 		var data = data.agent;
 		
+		$('#id_edit_agent_form_modal')[0].textContent = agent_id;
 		$('#fname_edit_agent_form_modal')[0].value = data.first_name;
 		$('#lname_edit_agent_form_modal')[0].value = data.last_name;
 		$('#email_edit_agent_form_modal')[0].value = data.email;
@@ -188,6 +190,7 @@ function switch_customer_navfield(option, event_src) {
 	}
 }
 
+/* Updates company name */
 function update_software_config() {
 	var company_name = $('#administration_settings_form_company_name')[0].value;
 	
@@ -202,5 +205,31 @@ function update_software_config() {
 				$('#info-label')[0].textContent = 'There was a problem with your network connection while submitting your data.';
 			}
 		}		
+	});
+}
+
+/* Updates agents */
+function update_agent() {
+	var agent_id = $('#id_edit_agent_form_modal')[0].textContent;
+	
+	$.post('/administration/agents/' + agent_id, {
+		first_name: $('#fname_edit_agent_form_modal')[0].value,
+		last_name: $('#lname_edit_agent_form_modal')[0].value,
+		email: $('#email_edit_agent_form_modal')[0].value,
+		is_admin: $('#isadmin_edit_agent_form_modal')[0].checked,
+		active: $('#active_edit_agent_form_modal')[0].checked
+	}, function(data) {
+		if(data.success) {
+			
+			$('#edit_agent_modal').modal('hide');
+			
+			$('#row_agent_' + agent_id)[0].children[1].textContent = $('#lname_edit_agent_form_modal')[0].value;
+			$('#row_agent_' + agent_id)[0].children[2].textContent = $('#fname_edit_agent_form_modal')[0].value;
+			$('#row_agent_' + agent_id)[0].children[3].textContent = $('#email_edit_agent_form_modal')[0].value;
+			$('#row_agent_' + agent_id)[0].children[4].children[1].checked = $('#active_edit_agent_form_modal')[0].checked;
+			$('#row_agent_' + agent_id)[0].children[4].children[1].disabled = true;
+		} else {
+			
+		}
 	});
 }

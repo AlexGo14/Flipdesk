@@ -18,6 +18,7 @@ router.get('/settings', utility.requireAuthentication, function(req, res) {
 	res.render('administration-settings', {'global_name': nconf.get('company').name, });
 });
 
+/* Updates company name */
 router.post('/settings/update', utility.requireAuthentication, function(req, res) {
 	
 	if(req.body.company_name != undefined) {
@@ -42,7 +43,7 @@ router.post('/settings/update', utility.requireAuthentication, function(req, res
 
 /* Renders administration/agents view */
 router.get('/agents', utility.requireAuthentication, function(req, res) {
-	knex('agent').select()
+	knex('agent').select().orderBy('id', 'asc')
 	.then(function(rows) {
 		var agent = [];
 		for(var i = 0; i < rows.length; i++) {
@@ -76,6 +77,28 @@ router.get('/agents/:id', utility.requireAuthentication, function(req, res) {
 	.catch(function(err) {
 		console.log(err);
 	});
+});
+
+/* Updates agent */
+router.post('/agents/:id', utility.requireAuthentication, function(req, res) {
+	
+	knex('agent').update({
+		first_name: req.body.first_name,
+		last_name: req.body.last_name,
+		email: req.body.email,
+		is_admin: req.body.is_admin,
+		active: req.body.active
+	}).where({
+		id: req.params.id
+	}).then(function(rows) {
+		
+		res.json( { 'success': true } );
+	}).catch(function(err) {
+		console.log(err);
+		
+		res.json( { 'success': false } );
+	});
+	
 });
 
 /* Loads customer details and returns json data */
