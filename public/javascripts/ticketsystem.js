@@ -1,17 +1,23 @@
+
+/* Calls specific ticket data and loads it into ticket view */
 function ticket_click(id) {
 	$.get('/tickets/' + id, '', function(data, textStatus) {
 		$('#ticket_space').html(data);
 	}, 'html');
 }
 
+/* Opens Modal to create new comment */
 function ticket_create_comment(id) {
 	$('#createCommentModal').modal('show');
 }
 
+/* Opens Modal to create new ticket */
 function show_createTicketModal() {
 	$('#createTicketModal').modal('show');
 }
 
+/* Creates a new ticket object from form data and performs HTTP-POST to create new ticket.
+ * After that, it hides the modal and empties the form input fields. */
 function ticket_send() {
 	var new_ticket = {
 		'caption': $('#create_ticket_form_caption')[0].value,
@@ -31,6 +37,8 @@ function ticket_send() {
 	}, 'json');
 }
 
+/* Create a new comment object from form data and performs HTTP-POST to create new comment
+ * Hides modal and empties input fields after all */
 function comment_send() {
 	var new_comment = {
 		'description': $('#create_comment_form_description')[0].value,
@@ -50,10 +58,13 @@ function comment_send() {
 	}, 'json');
 }
 
+/* Opens/Shows modal to assign agent to ticket */
 function showAssignAgentModal() {
 	$('#assignAgentModal').modal('show');
 }
 
+/* Gets agent id and performs HTTP-POST to assign agent to ticket. 
+ * After that the view is updated. */
 function assign_agent_to_ticket() {
 	var agent_id = $('#agent_assignAgentModal_form')[0].selectedOptions[0].id;
 	
@@ -69,6 +80,7 @@ function assign_agent_to_ticket() {
 	});
 }
 
+/* Sets ticket back to open and removes assigned agent from ticket. */
 function set_ticket_to_open() {
 	
 	$.post('/tickets/' + $('#ticket-id').html() + '/assign/-1', {}, function(data) {
@@ -81,6 +93,7 @@ function set_ticket_to_open() {
 	});
 }
 
+/* Shows administration template/view */
 function open_administration_settings() {
 	$.get('/administration/settings', {}, function(data) {
 		$('#settings_id').addClass('active');
@@ -91,6 +104,7 @@ function open_administration_settings() {
 	});
 }
 
+/* Shows agent view in administration */
 function open_administration_agents() {
 	$.get('/administration/agents', {}, function(data) {
 		$('#settings_id').removeClass('active');
@@ -101,6 +115,7 @@ function open_administration_agents() {
 	});
 }
 
+/* Shows specific customer view/template */
 function open_administration_customer(id) {
 	$.get('/administration/customer/' + id, {}, function(data) {
 		$('#settings_id').removeClass('active');
@@ -112,6 +127,7 @@ function open_administration_customer(id) {
 	});
 }
 
+/* Shows "customer add"-view */
 function open_administration_customer_add() {
 	$.get('/administration/customer', {}, function(data) {
 		$('#settings_id').removeClass('active');
@@ -122,6 +138,7 @@ function open_administration_customer_add() {
 	});
 }
 
+/* Shows edit agent modal from "administration agent"-view */
 function toggle_edit_agent_modal(agent_id) {
 	$.get('/administration/agents/' + agent_id, {}, function(data) {
 		var data = data.agent;
@@ -134,10 +151,9 @@ function toggle_edit_agent_modal(agent_id) {
 		
 		$('#edit_agent_modal').modal('toggle');
 	});
-	
-	
 }
 
+/* Reacts to user input to show all navbar views to configure customer data */
 function switch_customer_navfield(option, event_src) {
 	switch (option) {
 		case 'general':
@@ -170,4 +186,21 @@ function switch_customer_navfield(option, event_src) {
 			$('#status_fields_customer_div').show();
 			break;
 	}
+}
+
+function update_software_config() {
+	var company_name = $('#administration_settings_form_company_name')[0].value;
+	
+	$.ajax({
+		url: '/administration/settings/update', 
+		type: 'POST',
+		data: { 'company_name': company_name },
+		success: function(data) {
+			if(data.success) {
+				$('#info-label')[0].textContent = 'Your data has been processed.';
+			} else {
+				$('#info-label')[0].textContent = 'There was a problem with your network connection while submitting your data.';
+			}
+		}		
+	});
 }

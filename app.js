@@ -67,8 +67,6 @@ passport.use('local', new PassportLocalStrategy({
 	/* get the email and password from the input arguments of the function */
 	
 	// query the user from the database
-	// don't care the way I query from database, you can use
-	// any method to query the user from database
 	knex('agent').select().where({
 		'email': email
 	}).then(function(rows) {

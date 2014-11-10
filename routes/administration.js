@@ -3,6 +3,7 @@ var router = express.Router();
 var utility = require('./utility');
 var moment = require("moment-timezone");
 
+/* Renders general administration view */
 router.get('/', utility.requireAuthentication, function(req, res) {
 	knex.select().from('customer').then(function(rows) {
 			res.render('administration', { title: 'Tickets', company: nconf.get('company').name,
@@ -11,11 +12,35 @@ router.get('/', utility.requireAuthentication, function(req, res) {
 	});
 });
 
+/* Renders administration/settings view */
 router.get('/settings', utility.requireAuthentication, function(req, res) {
 	
 	res.render('administration-settings', {'global_name': nconf.get('company').name, });
 });
 
+router.post('/settings/update', utility.requireAuthentication, function(req, res) {
+	
+	if(req.body.company_name != undefined) {
+		nconf.set('company:name', req.body.company_name);
+		
+		nconf.save(function(err) {
+			if(err) {
+				console.log('Could not save company name.');
+				res.json( { 'success': false } );
+				return;
+			}
+			
+			res.json( { 'success': true } );
+			
+		});
+	} else {
+		
+		res.json( { 'success': false } );
+	}
+	
+});
+
+/* Renders administration/agents view */
 router.get('/agents', utility.requireAuthentication, function(req, res) {
 	knex('agent').select()
 	.then(function(rows) {
@@ -38,6 +63,7 @@ router.get('/agents', utility.requireAuthentication, function(req, res) {
 	
 });
 
+/* Loads agent details and returns json data */
 router.get('/agents/:id', utility.requireAuthentication, function(req, res) {
 	knex('agent').select().where({
 		id: req.params.id
@@ -52,6 +78,7 @@ router.get('/agents/:id', utility.requireAuthentication, function(req, res) {
 	});
 });
 
+/* Loads customer details and returns json data */
 router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 	var customer = {};
 	
@@ -102,9 +129,11 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 	
 });
 
+/* Renders "administration-add" view */
 router.get('/customer', utility.requireAuthentication, function(req, res) {
-	console.log('hey');
+
 	res.render('administration-add', {});
 });
+
 
 module.exports = router;

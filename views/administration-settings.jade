@@ -3,7 +3,7 @@ h1 Settings
 form(class="form" role="form" id="administration_settings_form")
 	div(class="form-group")
 		label Global name: 
-		input(class="form-control" type="text" placeholder="Name" value="#{global_name}")
+		input(class="form-control" type="text" placeholder="Name" value="#{global_name}" id="administration_settings_form_company_name")
 			
 		<br>
 		div(class="checkbox")
@@ -12,4 +12,6 @@ form(class="form" role="form" id="administration_settings_form")
 				| Statistics available for agents
 
 		<br><br>
-		button(type="button" class="btn btn-default") Save
+		button(type="button" class="btn btn-default" onclick="update_software_config()") Save
+span(id="info-label")
+
