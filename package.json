@@ -25,6 +25,7 @@
     "imap": "0.8.14",
     "mailparser": "0.4.6",
     "cron": "1.0.5",
-    "emailjs": "0.3.12"
+    "emailjs": "0.3.12",
+    "password-generator": "0.2.3"
   }
 }

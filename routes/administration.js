@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var utility = require('./utility');
 var moment = require("moment-timezone");
+var generatePassword = require('password-generator');
+var bcrypt = require('bcrypt');
 
 /* Renders general administration view */
 router.get('/', utility.requireAuthentication, function(req, res) {
@@ -79,6 +81,62 @@ router.get('/agents/:id', utility.requireAuthentication, function(req, res) {
 	});
 });
 
+/* Adds agent */
+router.post('/agents', utility.requireAuthentication, function(req, res) {
+	
+	//Insert into db
+	knex('agent').returning('id').insert({
+		first_name: req.body.first_name,
+		last_name: req.body.last_name,
+		email: req.body.email,
+		is_admin: req.body.is_admin,
+		active: req.body.active,
+		password: 'async'
+	}).then(function(rows) {
+		var agent_id = rows[0];
+		
+		//Generate salt, random password and hash async
+		//This function processes async to give the user a fast response. He does not have to wait
+		//for generating a salt, password and updating the db.
+		bcrypt.genSalt(10, function(err, salt) {
+			var gen_password = generatePassword(12, false);
+			
+			bcrypt.hash(gen_password, salt, function(err, hash) {
+				
+				//Update agent object
+				knex('agent').where({
+					id: agent_id
+				}).update({
+					password: hash
+				}).then(function(rows) {
+					
+					//Loads id of new agent object and sends email
+					knex('agent').select()
+						.where({'id': agent_id})
+						.then(function(rows) {
+							
+							//Send welcome email
+							utility.sendWelcomeEmail(rows[0].first_name, rows[0].last_name, rows[0].email, gen_password);
+						})
+						.catch(function(err) {
+							console.log(err);
+						});
+						
+				}).catch(function(err) {
+					console.log(err);
+				});
+			});
+		});
+		
+		
+		res.json( { 'success': true } );
+	}).catch(function(err) {
+		console.log(err);
+		
+		res.json( { 'success': false } );
+	});
+});
+
 /* Updates agent */
 router.post('/agents/:id', utility.requireAuthentication, function(req, res) {
 	
@@ -87,7 +145,8 @@ router.post('/agents/:id', utility.requireAuthentication, function(req, res) {
 		last_name: req.body.last_name,
 		email: req.body.email,
 		is_admin: req.body.is_admin,
-		active: req.body.active
+		active: req.body.active,
+		update_timestamp: moment().format()
 	}).where({
 		id: req.params.id
 	}).then(function(rows) {
@@ -120,7 +179,6 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 		})
 		.orderBy('user.id', 'asc')
 		.then(function(rows) {
-			console.log(rows);
 			
 			customer.users = rows;
 			for(var i = 0; i < customer.users.length; i++) {
@@ -158,5 +216,16 @@ router.get('/customer', utility.requireAuthentication, function(req, res) {
 	res.render('administration-add', {});
 });
 
+router.delete('/customer/:id', utility.requireAuthentication, function(req, res) {
+	knex('customer').update({
+		active: false
+	}).where({
+		id: req.params.id
+	}).then(function(rows) {
+		res.json({'success': true});
+	}).catch(function(err) {
+		res.json({'success': false});
+	});
+});
 
 module.exports = router;

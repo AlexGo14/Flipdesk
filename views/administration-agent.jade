@@ -1,5 +1,5 @@
 h1 Agents
-button(class="btn btn-primary") Add agent
+button(class="btn btn-primary" onclick="open_modal_add_agent()") Add agent
 <br>
 table(class="table table-striped table-hover table-condensed")
 	tr
@@ -55,3 +55,35 @@ div(class="modal fade" id="edit_agent_modal" tabindex="-1" role="dialog" aria-la
 					button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
 					button(type="button" class="btn btn-primary btn-lg" onclick="update_agent()") Send
 
+
+div(class="modal fade" id="add_agent_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Close
+					h4(class="modal-title" id="myModalLabel") Add agent
+				div(class="modal-body")
+					
+					form(class="form" role="form" id="add_agent_form")
+						div(class="form-group")
+							label First name:
+							input(type="text" class="form-control input-lg" placeholder="First Name" id="fname_add_agent_form_modal")
+							<br><br>
+							label Last name: 
+							input(type="text" class="form-control input-lg" placeholder="Last Name" id="lname_add_agent_form_modal")
+							<br><br>
+							label E-Mail
+							input(type="text" class="form-control input-lg" placeholder="E-Mail" id="email_add_agent_form_modal")
+							<br><br>
+							label
+								input(type="checkbox" id="isadmin_add_agent_form_modal")
+								| Is admin
+							<br><br>
+							label
+								input(type="checkbox" id="active_edit_agent_form_modal" checked disabled)
+								| Active
+				div(class="modal-footer")
+					button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
+					button(type="button" class="btn btn-primary btn-lg" onclick="add_agent()") Send

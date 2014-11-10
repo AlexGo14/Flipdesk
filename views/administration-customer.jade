@@ -25,12 +25,21 @@ div(id="general_customer_div" class="nav_content")
 			<br><br>
 			button(type="button" class="btn btn-default") Save
 	<br><br><br>
-	div(class="" style="background-color: #ff4136;")
-		div(class="checkbox")
-			label
-				input(type="checkbox")
-				| Disable and archive customer
-		button(class="btn btn-danger") Disable
+	span(id="disable_customer_info")
+	if active
+		div(class="" style="background-color: #ff4136;")
+			div(class="checkbox")
+				label
+					input(type="checkbox" id="disable_customer_checkbox")
+					| Disable and archive customer
+			button(class="btn btn-danger" onclick="disable_customer(#{id})") Disable
+	else
+		div(class="" style="")
+			div(class="checkbox")
+				label
+					input(type="checkbox" id="disable_customer_checkbox")
+					| Enable customer
+			button(class="btn btn-default" onclick="enable_customer(#{id})") Enable
 		
 div(id="lists_customer_div" style="" class="nav_content")
 	h3 Users list

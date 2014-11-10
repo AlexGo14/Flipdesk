@@ -233,3 +233,48 @@ function update_agent() {
 		}
 	});
 }
+
+function open_modal_add_agent() {
+	$('#add_agent_modal').modal('show');
+}
+
+function add_agent() {
+	$.post('/administration/agents', {
+		first_name: $('#fname_add_agent_form_modal')[0].value,
+		last_name: $('#lname_add_agent_form_modal')[0].value,
+		email: $('#email_add_agent_form_modal')[0].value,
+		is_admin: $('#isadmin_add_agent_form_modal')[0].checked,
+		active: true
+	}, function(data) {
+		if(data.success) {
+			
+			$('#add_agent_modal').modal('hide');
+			open_administration_agents();
+			
+		} else {
+			
+		}
+	});
+}
+
+function disable_customer(customerid) {
+	if($('#disable_customer_checkbox')[0].checked) {
+		$.ajax({
+			type: "DELETE",
+			url: '/administration/customer/' + customerid
+		})
+		.done(function(data) {
+			if(data.success) {
+				window.location.replace("/administration");
+			} else {
+				$('#disable_customer_info')[0].textContent = 'Error while disabling customer';
+			}
+		})
+		.fail(function(err) {
+			var test = err;
+		});
+		
+	} else {
+		$('#disable_customer_info')[0].textContent = 'Please check the box to disable this customer';
+	}
+}
