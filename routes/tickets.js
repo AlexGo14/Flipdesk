@@ -47,23 +47,20 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 					join('comment', 'agent.id', '=', 'comment.fk_agent_id').
 					where({
 						fk_ticket_id: req.params.id
-					}).select('comment.id as comment_id', 'comment.create_timestamp as comment_create_timestamp', 'comment.description as comment_description', 'agent.id as agent_id', 'agent.last_name as agent_last_name', 'agent.first_name as agent_first_name').
+					}).select('comment.id as comment_id', 'comment.create_timestamp as comment_create_timestamp', 'comment.description as comment_description', 'agent.id as agent_id', 'agent.last_name as agent_last_name', 'agent.first_name as agent_first_name', 'agent.email as agent_email').
 				then(function(rows) {
 					
 					for(var i = 0; i < rows.length; i++) {
 						ticket.comments[i] = { 'id': rows[i].comment_id, 
 							'description': rows[i].comment_description,
-							'agent': { 'id': rows[i].agent_id, 'name': rows[i].agent_first_name + ' ' + rows[i].agent_last_name },
+							'agent': { 'id': rows[i].agent_id, 'name': rows[i].agent_first_name + ' ' + rows[i].agent_last_name, 
+								'email': rows[i].agent_email },
 							'create_timestamp': {
 								'short': moment(rows[i].comment_create_timestamp).tz('Pacific/Auckland').startOf('minute').fromNow(),
 								'detailed': moment(rows[i].comment_create_timestamp).tz('Pacific/Auckland').format('Do MMMM YYYY, h:mm a')
 								 }
 							}
-						
-							
-							
 					}
-					
 					
 					ticket.comments.reverse();
 					
@@ -78,7 +75,8 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 					agents[i] = {
 						'id': rows[i].id,
 						'first_name': rows[i].first_name,
-						'last_name': rows[i].last_name
+						'last_name': rows[i].last_name,
+						'email': rows[i].email
 					};
 					
 					if(ticket.agent == agents[i].id) {
@@ -95,7 +93,7 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 				'description': ticket.description, 'comments': ticket.comments,
 				'assigned_agent': ticket.agent,
 				'create_timestamp': ticket.create_timestamp,
-				'agents': agents
+				'agents': agents, 'datamodel': []
 			});
 			
 			next();

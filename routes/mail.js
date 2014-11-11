@@ -5,7 +5,7 @@ MailParser = require("mailparser").MailParser,
 var emailjs     = require("emailjs");
 
 //TODO: Logindata
-mailparser.smtpServer = email.server.connect({
+mailparser.smtpServer = emailjs.server.connect({
    user:    "username", 
    password:"password", 
    host:    "smtp.your-email.com", 
@@ -67,11 +67,11 @@ mailFunction.imap = new Imap({
 });
 
 mailFunction.start = function () {
-		this.prototype.imap.once('ready', function() {
+		mailFunction.imap.once('ready', function() {
 			openInbox(function(err, box) {
 				if (err) throw err;
 				
-				this.prototype.imap.search(['UNSEEN'], function(err, results) {
+				mailFunction.imap.search(['UNSEEN'], function(err, results) {
 					if (err) throw err;
 					console.log(results);
 					if (results.length == 0) return;
@@ -107,19 +107,19 @@ mailFunction.start = function () {
 		});
 		
 		
-		this.prototype.imap.once('error', function(err) {
+		mailFunction.imap.once('error', function(err) {
 			console.log(err);
 		});
 
-		this.prototype.imap.once('end', function() {
+		mailFunction.imap.once('end', function() {
 			console.log('Connection ended');
 		});
 		
 		function openInbox(cb) {
-			this.prototype.imap.openBox('INBOX', false, cb);
+			mailFunction.imap.openBox('INBOX', false, cb);
 		};
 
-		this.prototype.imap.connect();
+		mailFunction.imap.connect();
 	};
 
 mailFunction.sendNewTicket = function(ticket) {
@@ -131,7 +131,7 @@ mailFunction.sendComment = function(ticket, comment) {
 }
 
 mailFunction.sendAgentWelcomeEmail = function(firstname, lastname, email, password) {
-	this.prototype.smtpServer.send({
+	mailFunction.smtpServer.send({
 		text:    'Hello ' + firstname + ' ' + lastname + ', you have been registered as an agent ' + 
 			'at the Flipdesk service of ' + nconf.get('company').name + '. Your password is ' + 
 			'\'' + password + '\'. You will be informed to change your password once you log in.', 
@@ -144,7 +144,7 @@ mailFunction.sendAgentWelcomeEmail = function(firstname, lastname, email, passwo
 }
 
 mailFunction.sendUserWelcomeEmail = function(firstname, lastname, email, password) {
-	this.prototype.smtpServer.send({
+	mailFunction.smtpServer.send({
 		text:    'Hello ' + firstname + ' ' + lastname + ', you have been registered as a new user ' + 
 			'at the Flipdesk service of ' + nconf.get('company').name + '. Your password is ' + 
 			'\'' + password + '\'. You will be informed to change your password once you log in.' + 

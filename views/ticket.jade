@@ -1,59 +1,69 @@
 
-<!-- Split button -->
-div(class="btn-group")
-	if assigned_agent
-		button(type="button" class="btn btn-success" id="ticket_status") Assigned
-	else
-		button(type="button" class="btn btn-success" id="ticket_status") Open
-	button(type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown")
-		span(class="caret")
-		span(class="sr-only") Toggle Dropdown
-		
-	ul(class="dropdown-menu" role="menu")
-		li
-			a(href="#" onclick="set_ticket_to_open()") Open
-		li
-			a(href="#" onclick="showAssignAgentModal()") Assigned
-		li
-			a(href="#") In progress
-		li
-			a(href="#") Waiting
-		li
-			a(href="#") Solved
-		li(class="divider")
-		li
-			a(href="#") Archive
-	
-button(class="btn btn-primary" style="margin-left: 10px;" onclick="ticket_create_comment(#{id})") Write a comment
-	
-<br><br>
-strong #{caption} - 
-u(data-toggle="tooltip" data-placement="left" title="#{create_timestamp.detailed}") #{create_timestamp.short}
-strong , Ticket ID:
-span(id="ticket-id") #{id}
+div(class="row")
+		div(class="col-sm-12 col-md-12 col-lg-12")
+			<!-- Split button -->
+			div(class="btn-group")
+				if assigned_agent
+					button(type="button" class="btn btn-success" id="ticket_status") Assigned
+				else
+					button(type="button" class="btn btn-success" id="ticket_status") Open
+				button(type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown")
+					span(class="caret")
+					span(class="sr-only") Toggle Dropdown
+					
+				ul(class="dropdown-menu" role="menu")
+					li
+						a(href="#" onclick="set_ticket_to_open()") Opened
+					li
+						a(href="#" onclick="showAssignAgentModal()") Assigned
+					li
+						a(href="#") Solved
+					li(class="divider")
+					li
+						a(href="#") Archived
+				
+			button(class="btn btn-primary" style="margin-left: 10px;" onclick="ticket_create_comment(#{id})") Write a comment
+			
+div(class="row")
+		div(class="col-sm-9 col-md-9 col-lg-9")
+			<br>
+			h2 #{caption}
+				
+			blockquote #{description}
 
-if assigned_agent
-	span(id="assigned_to_agent") , Assigned to #{assigned_agent.first_name} #{assigned_agent.last_name}
-else
-	span(id="assigned_to_agent") , Not assigned
-	
-blockquote #{description}
+			<br><br>
 
-<br>
-	
-<br><br><br>
-
-if comments.length > 0
-	h2 Comments
-	
-	for loop_comment in comments
-		span Written by #{loop_comment.agent.name] on 
-		u(data-toggle="tooltip" data-placement="left" title="#{loop_comment.create_timestamp.detailed}") #{loop_comment.create_timestamp.short}
-		<br><br>
-		blockquote(id="comment_id_" + loop_comment.id)
-			p=loop_comment.description
-		<br><br>
-
+			if comments.length > 0
+				for loop_comment in comments
+					span Written by 
+					span(data-toggle="tooltip" data-placement="left" title="#{loop_comment.agent.email}") #{loop_comment.agent.name} 
+					span on 
+					u(data-toggle="tooltip" data-placement="left" title="#{loop_comment.create_timestamp.detailed}") #{loop_comment.create_timestamp.short}
+					<br><br>
+					blockquote(id="comment_id_" + loop_comment.id)
+						p=loop_comment.description
+					<br><br>
+					
+		div(class="col-sm-3 col-md-3 col-lg-3")
+			strong Ticket ID: 
+			span(id="ticket-id") #{id}
+			<br><br>
+			span Created: 
+			u(data-toggle="tooltip" data-placement="left" title="#{create_timestamp.detailed}") #{create_timestamp.short}
+			<br><br>
+			if assigned_agent
+				span(id="assigned_to_agent") Agent: #{assigned_agent.first_name} #{assigned_agent.last_name}
+			else
+				span(id="assigned_to_agent") No agent assigned
+			<br><br>
+			if user
+				span(id="created_by_user") User: #{user.first_name} # {user.last_name}
+			else
+				span(id="created_by_user") No user assigned
+			for dataproperty in datamodel
+				span dataproperty.name
+				span : 
+				span dataproperty.value
 <!-- Modal -->
 div(class="modal fade" id="createCommentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
 	div(class="modal-dialog")
