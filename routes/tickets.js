@@ -228,7 +228,7 @@ router.post('/:id/assign/:agent_id', utility.requireAuthentication, function(req
 			.returning('id')
 			.update({
 				fk_agent_id: null,
-				update_timestamp: Date.now()
+				update_timestamp: moment().format()
 			})
 			.where('id', '=', ticket_id)
 			.then(function(id) {
