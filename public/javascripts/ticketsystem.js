@@ -257,6 +257,7 @@ function add_agent() {
 	});
 }
 
+//Disable customer
 function disable_customer(customerid) {
 	if($('#disable_customer_checkbox')[0].checked) {
 		$.ajax({
@@ -265,16 +266,62 @@ function disable_customer(customerid) {
 		})
 		.done(function(data) {
 			if(data.success) {
-				window.location.replace("/administration");
+				open_administration_customer(customerid);
 			} else {
 				$('#disable_customer_info')[0].textContent = 'Error while disabling customer';
 			}
 		})
 		.fail(function(err) {
-			var test = err;
+			$('#disable_customer_info')[0].textContent = 'Error while disabling customer';
 		});
 		
 	} else {
 		$('#disable_customer_info')[0].textContent = 'Please check the box to disable this customer';
 	}
+}
+
+//Enable customer
+function enable_customer(customerid) {
+	$.ajax({
+		type: "POST",
+		url: '/administration/customer/' + customerid
+	})
+	.done(function(data) {
+		if(data.success) {
+			open_administration_customer(customerid);
+		} else {
+			$('#enable_customer_info')[0].textContent = 'Error while enabling customer';
+		}
+	})
+	.fail(function(err) {
+		$('#enable_customer_info')[0].textContent = 'Error while enabling customer';
+	});
+}
+
+//Update customer settings
+function update_customer_settings(customerid) {
+	
+}
+
+//
+function show_adduser_modal() {
+	$('#add_user_modal').modal('show');
+}
+
+//
+function toggle_edit_user_modal(userid) {
+	
+	$.get('/administration/agents/' + userid, {}, function(data) {
+		var data = data.agent;
+		
+		$('#id_edit_user_form_modal')[0].textContent = agent_id;
+		$('#fname_edit_user_form_modal')[0].value = data.first_name;
+		$('#lname_edit_user_form_modal')[0].value = data.last_name;
+		$('#email_edit_user_form_modal')[0].value = data.email;
+		$('#active_edit_agent_form_modal')[0].checked = data.active;
+		
+		$('#edit_user_modal').modal('show');
+	});
+	
+	
 }

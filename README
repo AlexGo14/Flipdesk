@@ -1,13 +1,13 @@
-Ticketsystem
+Flipdesk
 
-Was ist das Ticketsystem?
-  Das Ticketsystem ist ein leichtgewichtiges Supportticketingsystem zur Erfassung und Verwaltung von Supporttickets.
+What is it?
+  Flipdesk is a fast and lightweight Helpdesksystem.
 
-Was ist das Besondere?
-  Im Ticketsystem können vom Beratungsunternehmen mehrere Kunden erstellt werden. Zu jedem Kunden ist eine individuelle Formularmaske für die Tickets definierbar. Dies ermöglicht es, den Supportprozes effektiv durch direkte Fragestellungen, zu gestalten.
+What is special about Flipdesk?
+  You as a service company are able to manage multiple customer/organisations. You are able to customise the ticket status fields and ticket fields. That means that you can improve your service in the way to create mandatory ticket fields for an organisation. In this way you save time and do not need to ask your customer about necessary information he should provide you.
 
-Technik
-  Das Ticketsystem basiert auf NodeJS und ist kompatibel mit einer PostgreSQL-Datenbank.
+Code
+  Based on NodeJS and compatible with PostgreSQL, MySQL/MariaDB and SQLite, Flipdesk is fast gives your customer fast replies.
 
-Autor
+Author
   Johannes Giere - jogiere@gmail.com

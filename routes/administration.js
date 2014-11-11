@@ -164,7 +164,8 @@ router.post('/agents/:id', utility.requireAuthentication, function(req, res) {
 router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 	var customer = {};
 	
-	knex('customer').select().where({
+	knex('customer').select('id', 'name', 'email_contact', 'create_timestamp', 'update_timestamp',
+		'fk_created_by_admin', 'active').where({
 		id: req.params.id
 	})
 	.then(function(rows) {
@@ -192,7 +193,7 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 			knex('blacklist').select().then(function(rows) {
 				
 				res.render('administration-customer', 
-					{'name': customer.name, 'id': customer.id, 'users': customer.users, 
+					{'name': customer.name, 'id': customer.id, 'users': customer.users, 'active': customer.active,
 						'blacklist': rows });
 			}).catch(function(err) {
 				
@@ -216,9 +217,23 @@ router.get('/customer', utility.requireAuthentication, function(req, res) {
 	res.render('administration-add', {});
 });
 
+/* Disable customer */
 router.delete('/customer/:id', utility.requireAuthentication, function(req, res) {
 	knex('customer').update({
 		active: false
+	}).where({
+		id: req.params.id
+	}).then(function(rows) {
+		res.json({'success': true});
+	}).catch(function(err) {
+		res.json({'success': false});
+	});
+});
+
+/* Enable customer */
+router.post('/customer/:id', utility.requireAuthentication, function(req, res) {
+	knex('customer').update({
+		active: true
 	}).where({
 		id: req.params.id
 	}).then(function(rows) {

@@ -1,49 +1,51 @@
 h1 Customer
+h3 #{name}
 
-ul(class="nav nav-tabs" role="tablist")
-	li(onclick="switch_customer_navfield('general', this)" id="general_tab")
-		a(href="#") General
-	li(onclick="switch_customer_navfield('lists', this)" id="lists_tab")
-		a(href="#") User lists
-	li(onclick="switch_customer_navfield('ticket', this)" id="ticket_tab")
-		a(href="#") Ticket fields
-	li(onclick="switch_customer_navfield('status', this)" id="status_tab")
-		a(href="#") Status fields
-<br><br>
-div(id="general_customer_div" class="nav_content")
-	form(class="form" role="form" id="administration_customer_form")
-		div(class="form-group")
-			label ID: #{id}
-			<br>
-			label Name: 
-			input(class="form-control" type="text" value="#{name}" placeholder="Name") 
-			<br>
-			div(class="checkbox")
-				label
-					input(type="checkbox")
-					| Allow everyone to create a ticket
-			<br><br>
-			button(type="button" class="btn btn-default") Save
-	<br><br><br>
-	span(id="disable_customer_info")
-	if active
+if active == true
+	ul(class="nav nav-tabs" role="tablist")
+		li(onclick="switch_customer_navfield('general', this)" id="general_tab")
+			a(href="#") General
+		li(onclick="switch_customer_navfield('lists', this)" id="lists_tab")
+			a(href="#") User lists
+		li(onclick="switch_customer_navfield('ticket', this)" id="ticket_tab")
+			a(href="#") Ticket fields
+		li(onclick="switch_customer_navfield('status', this)" id="status_tab")
+			a(href="#") Status fields
+	<br><br>
+	div(id="general_customer_div" class="nav_content")
+		form(class="form" role="form" id="administration_customer_form")
+			div(class="form-group")
+				label ID: #{id}
+				<br>
+				label Name: 
+				input(class="form-control" type="text" value="#{name}" placeholder="Name") 
+				<br>
+				div(class="checkbox")
+					label
+						input(type="checkbox")
+						| Allow everyone to create a ticket
+				<br><br>
+				button(type="button" class="btn btn-default" onclick="update_customer_settings(#{id})") Save
+		<br><br><br>
+		span(id="disable_customer_info")
 		div(class="" style="background-color: #ff4136;")
 			div(class="checkbox")
 				label
 					input(type="checkbox" id="disable_customer_checkbox")
 					| Disable and archive customer
 			button(class="btn btn-danger" onclick="disable_customer(#{id})") Disable
-	else
-		div(class="" style="")
-			div(class="checkbox")
-				label
-					input(type="checkbox" id="disable_customer_checkbox")
-					| Enable customer
-			button(class="btn btn-default" onclick="enable_customer(#{id})") Enable
-		
+else
+	<br><br>
+	span(id="enable_customer_info")
+	div(class="" style="")
+		button(class="btn btn-default" onclick="enable_customer(#{id})") Enable
+
+
+
+
 div(id="lists_customer_div" style="" class="nav_content")
 	h3 Users list
-	button(class="btn btn-primary") Add user
+	button(class="btn btn-primary" onclick="show_adduser_modal()") Add user
 	<br>
 	table(class="table table-striped table-hover table-condensed")
 		tr
@@ -54,7 +56,7 @@ div(id="lists_customer_div" style="" class="nav_content")
 			td Last active
 			
 		for loop_user in users
-			tr
+			tr(onclick="toggle_edit_user_modal(#{loop_user.id})")
 				td=loop_user.id
 				td=loop_user.last_name
 				td=loop_user.first_name
@@ -74,8 +76,6 @@ div(id="lists_customer_div" style="" class="nav_content")
 			tr
 				td entry.email
 				
-	<br><br>
-	button(type="button" class="btn btn-default") Save
 div(id="ticket_fields_customer_div" style="" class="nav_content")
 	h3.
 		Hallo Ticket<br>
@@ -86,3 +86,58 @@ div(id="status_fields_customer_div" style="" class="nav_content")
 	h3.
 		Hallo Status<br>
 		New, Assigned, Closed and Archived are fixed.
+
+
+
+
+
+div(class="modal fade" id="add_user_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Close
+					h4(class="modal-title" id="myModalLabel") Add user
+				div(class="modal-body")
+									
+					form(class="form" role="form" id="add_user_form")
+						div(class="form-group")
+							label First name:
+							input(type="text" class="form-control input-lg" placeholder="First Name" id="fname_add_user_form_modal")
+							<br><br>
+							label Last name: 
+							input(type="text" class="form-control input-lg" placeholder="First Name" id="lname_add_user_form_modal")
+							<br><br>
+							label E-Mail
+							input(type="text" class="form-control input-lg" placeholder="First Name" id="email_add_user_form_modal")
+							
+				div(class="modal-footer")
+					button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
+					button(type="button" class="btn btn-primary btn-lg" onclick="add_user()") Add
+
+
+div(class="modal fade" id="edit_user_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Close
+					h4(class="modal-title" id="myModalLabel") Add user
+				div(class="modal-body")
+									
+					form(class="form" role="form" id="add_user_form")
+						div(class="form-group")
+							label First name:
+							input(type="text" class="form-control input-lg" placeholder="First Name" id="fname_edit_user_form_modal")
+							<br><br>
+							label Last name: 
+							input(type="text" class="form-control input-lg" placeholder="Last Name" id="lname_edit_user_form_modal")
+							<br><br>
+							label E-Mail
+							input(type="text" class="form-control input-lg" placeholder="Email" id="email_edit_user_form_modal")
+							
+				div(class="modal-footer")
+					button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
+					button(type="button" class="btn btn-primary btn-lg" onclick="add_user()") Edit
