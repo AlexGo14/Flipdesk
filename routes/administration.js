@@ -231,7 +231,7 @@ router.delete('/customer/:id', utility.requireAuthentication, function(req, res)
 });
 
 /* Enable customer */
-router.post('/customer/:id', utility.requireAuthentication, function(req, res) {
+router.put('/customer/:id', utility.requireAuthentication, function(req, res) {
 	knex('customer').update({
 		active: true
 	}).where({
@@ -241,6 +241,99 @@ router.post('/customer/:id', utility.requireAuthentication, function(req, res) {
 	}).catch(function(err) {
 		res.json({'success': false});
 	});
+});
+
+/* Update customer */
+router.post('/customer/:id', utility.requireAuthentication, function(req, res) {
+	knex('customer').returning('id').update({
+		'name': req.body.name
+	}).where({
+		'id': req.params.id
+	}).then(function(id) {
+		if(id > 0) {
+			res.json({'success': true});
+		} else {
+			res.json({'success': false});
+		}
+	}).catch(function(err) {
+		res.json({'success': false});
+	});
+});
+
+/* Add user */
+router.post('/user', utility.requireAuthentication, function(req, res) {
+	
+	//Insert into db
+	knex('user').returning('id').insert({
+		first_name: req.body.first_name,
+		last_name: req.body.last_name,
+		email: req.body.email,
+		active: req.body.active,
+		password: 'async',
+		fk_customer_id: req.body.customer_id,
+		create_timestamp: moment().format()
+	}).then(function(rows) {
+		var user_id = rows[0];
+		
+		//Generate salt, random password and hash async
+		//This function processes async to give the user a fast response. He does not have to wait
+		//for generating a salt, password and updating the db.
+		bcrypt.genSalt(10, function(err, salt) {
+			var gen_password = generatePassword(12, false);
+			
+			bcrypt.hash(gen_password, salt, function(err, hash) {
+				
+				//Update agent object
+				knex('user').where({
+					id: user_id
+				}).update({
+					password: hash
+				}).then(function(rows) {
+					
+					//Loads id of new agent object and sends email
+					knex('user').select()
+						.where({'id': user_id})
+						.then(function(rows) {
+							
+							//Send welcome email
+							utility.sendWelcomeEmail(rows[0].first_name, rows[0].last_name, rows[0].email, gen_password);
+						})
+						.catch(function(err) {
+							console.log(err);
+						});
+						
+				}).catch(function(err) {
+					console.log(err);
+				});
+			});
+		});
+		
+		
+		res.json( { 'success': true, 'id': user_id, 'last_name': req.body.last_name, 
+			'first_name': req.body.first_name, 'email': req.body.email } );
+	}).catch(function(err) {
+		console.log(err);
+		
+		res.json( { 'success': false } );
+	});
+});
+
+/* Edit user */
+router.post('/user/:id', utility.requireAuthentication, function(req, res) {
+	
+	knex('user').returning('id').update({
+		'first_name': req.body.first_name,
+		'last_name': req.body.last_name,
+		'email': req.body.email
+	}).where({
+		id: req.params.id
+	}).then(function(id) {
+		res.json({'success': true});
+	}).catch(function(err) {
+		console.log(err);
+		res.json({'success': false});
+	});
+	
 });
 
 module.exports = router;

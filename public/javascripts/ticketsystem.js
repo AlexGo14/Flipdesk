@@ -283,7 +283,7 @@ function disable_customer(customerid) {
 //Enable customer
 function enable_customer(customerid) {
 	$.ajax({
-		type: "POST",
+		type: "PUT",
 		url: '/administration/customer/' + customerid
 	})
 	.done(function(data) {
@@ -300,7 +300,21 @@ function enable_customer(customerid) {
 
 //Update customer settings
 function update_customer_settings(customerid) {
-	
+	$.ajax({
+		type: "POST",
+		url: '/administration/customer/' + customerid,
+		data: {'name': $('#customer_name_form')[0].value}
+	})
+	.done(function(data) {
+		if(data.success) {
+			$('#save_customer_info')[0].textContent = 'User updates saved';
+		} else {
+			$('#save_customer_info')[0].textContent = 'Error while saving customer';
+		}
+	})
+	.fail(function(err) {
+		$('#save_customer_info')[0].textContent = 'Error while saving customer';
+	});
 }
 
 //
@@ -308,20 +322,69 @@ function show_adduser_modal() {
 	$('#add_user_modal').modal('show');
 }
 
-//
+//Show edit user modal
 function toggle_edit_user_modal(userid) {
 	
-	$.get('/administration/agents/' + userid, {}, function(data) {
-		var data = data.agent;
-		
-		$('#id_edit_user_form_modal')[0].textContent = agent_id;
-		$('#fname_edit_user_form_modal')[0].value = data.first_name;
-		$('#lname_edit_user_form_modal')[0].value = data.last_name;
-		$('#email_edit_user_form_modal')[0].value = data.email;
-		$('#active_edit_agent_form_modal')[0].checked = data.active;
-		
-		$('#edit_user_modal').modal('show');
-	});
+	$('#id_edit_user_form_modal')[0].textContent = 
+		$('#row_user_' + userid)[0].children[0].textContent;
+	$('#fname_edit_user_form_modal')[0].value = 
+		$('#row_user_' + userid)[0].children[2].textContent;
+	$('#lname_edit_user_form_modal')[0].value = 
+		$('#row_user_' + userid)[0].children[1].textContent;
+	$('#email_edit_user_form_modal')[0].value = 
+		$('#row_user_' + userid)[0].children[3].textContent;
 	
+	$('#edit_user_modal').modal('show');
+	
+	
+}
+
+function add_user(customerid) {
+	var firstname = $('#fname_add_user_form_modal')[0].value;
+	var lastname = $('#lname_add_user_form_modal')[0].value;
+	var email = $('#email_add_user_form_modal')[0].value;
+	
+	$.post('/administration/user', {
+		'first_name': firstname,
+		'last_name': lastname,
+		'email': email,
+		'active': true,
+		'customer_id': customerid
+	}, function(data) {
+		if(data.success) {
+			$('#user_table tr:last').after(
+			'<tr onclick="toggle_edit_user_modal(' + data.id + ')")>' + 
+				'<td>' + data.id + '</td>' + 
+				'<td>' + data.first_name + '</td>' + 
+				'<td>' + data.last_name + '</td>' + 
+				'<td>' + data.email + '</td>' + 
+				'<td></td>' +
+			'</tr>');
+			
+			$('#add_user_modal').modal('hide');
+		} else {
+			
+		}
+	});
+}
+
+/* Edit user */
+function edit_user() {
+	$.post('/administration/user/' + $('#id_edit_user_form_modal')[0].textContent, {
+		'first_name': $('#fname_edit_user_form_modal')[0].value,
+		'last_name': $('#lname_edit_user_form_modal')[0].value,
+		'email': $('#email_edit_user_form_modal')[0].value
+	}, function(data) {
+		if(data.success) {
+			var userid = $('#id_edit_user_form_modal')[0].textContent;
+			$('#row_user_' + userid)[0].children[1] = $('#lname_edit_user_form_modal')[0].value;
+			$('#row_user_' + userid)[0].children[2] = $('#fname_edit_user_form_modal')[0].value;
+			$('#row_user_' + userid)[0].children[3] = $('#email_edit_user_form_modal')[0].value;
+			
+			$('#edit_user_modal').modal('hide');
+		} else {
+			
+		}
+	});
 	
 }
