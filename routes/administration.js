@@ -4,6 +4,7 @@ var utility = require('./utility');
 var moment = require("moment-timezone");
 var generatePassword = require('password-generator');
 var bcrypt = require('bcrypt');
+var mailFunction = require('./mail');
 
 /* Renders general administration view */
 router.get('/', utility.requireAuthentication, function(req, res) {
@@ -116,7 +117,7 @@ router.post('/agents', utility.requireAuthentication, function(req, res) {
 						.then(function(rows) {
 							
 							//Send welcome email
-							utility.sendWelcomeEmail(rows[0].first_name, rows[0].last_name, rows[0].email, gen_password);
+							mailFunction.sendAgentWelcomeEmail(rows[0].first_name, rows[0].last_name, rows[0].email, gen_password);
 						})
 						.catch(function(err) {
 							console.log(err);
@@ -296,7 +297,7 @@ router.post('/user', utility.requireAuthentication, function(req, res) {
 						.then(function(rows) {
 							
 							//Send welcome email
-							utility.sendWelcomeEmail(rows[0].first_name, rows[0].last_name, rows[0].email, gen_password);
+							mailFunction.sendUserWelcomeEmail(rows[0].first_name, rows[0].last_name, rows[0].email, gen_password);
 						})
 						.catch(function(err) {
 							console.log(err);

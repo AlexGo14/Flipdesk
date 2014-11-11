@@ -127,17 +127,9 @@ passport.deserializeUser(function(id, done) {
 
 
 //Mail-Listener
-mailFunction.imap = new Imap({
-	user: 'jogiere@gmail.com',
-	password: 'NfbPh5wd',
-	host: 'imap.gmail.com',
-	port: 993,
-	tls: true
-});
-
 var job = new CronJob('* 5 * * * *', function(){
 		console.log('started');
-		mailFunction.start(mailFunction.imap);
+		mailFunction.start();
 	}, function () {
 		console.log('Error occurred: stopped imap service');
 	},

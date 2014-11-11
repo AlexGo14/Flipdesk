@@ -4,8 +4,8 @@ var utility = require('./utility');
 var moment = require('moment-timezone');
 var Sequence = exports.Sequence || require('sequence').Sequence
     , sequence = Sequence.create()
-    , err
-    ;
+    , err;
+var mailFunction = require('./mail');
 
 router.get('/', utility.requireAuthentication, function(req, res) {
 	
@@ -188,6 +188,8 @@ router.post('/', utility.requireAuthentication, function(req, res) {
 		'fk_agent_id': new_ticket.agent.id
 	}]).then(function(id) {
 		if(id > 0) {
+			mailFunction.sendNewTicket();
+			
 			res.json({ 'success': true, 'id': id });
 		}
 	});
@@ -293,6 +295,8 @@ router.post('/:id/comment', utility.requireAuthentication, function(req, res) {
 					'fk_ticket_id': new_comment.ticket.id
 					}]).then(function(id) {
 						if(id > 0) {
+							mailFunction.sendComment();
+							
 							res.json({ 'success': true, 'id': id });
 						}
 					});

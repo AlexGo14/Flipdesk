@@ -2,6 +2,15 @@ Imap = require('imap'),
     inspect = require('util').inspect;
 MailParser = require("mailparser").MailParser,
     mailparser = new MailParser();
+var emailjs     = require("emailjs");
+
+//TODO: Logindata
+mailparser.smtpServer = email.server.connect({
+   user:    "username", 
+   password:"password", 
+   host:    "smtp.your-email.com", 
+   ssl:     true
+});
 
 
 mailparser.on("end", function(mail_object){
@@ -48,13 +57,21 @@ mailparser.on("end", function(mail_object){
 });
 
 mailFunction = {};
-mailFunction.imap = {};
-mailFunction.start = function (imap) {
-		imap.once('ready', function() {
+
+mailFunction.imap = new Imap({
+	user: 'jogiere@gmail.com',
+	password: 'NfbPh5wd',
+	host: 'imap.gmail.com',
+	port: 993,
+	tls: true
+});
+
+mailFunction.start = function () {
+		this.prototype.imap.once('ready', function() {
 			openInbox(function(err, box) {
 				if (err) throw err;
 				
-				imap.search(['UNSEEN'], function(err, results) {
+				this.prototype.imap.search(['UNSEEN'], function(err, results) {
 					if (err) throw err;
 					console.log(results);
 					if (results.length == 0) return;
@@ -90,23 +107,54 @@ mailFunction.start = function (imap) {
 		});
 		
 		
-		imap.once('error', function(err) {
+		this.prototype.imap.once('error', function(err) {
 			console.log(err);
 		});
 
-		imap.once('end', function() {
+		this.prototype.imap.once('end', function() {
 			console.log('Connection ended');
 		});
 		
 		function openInbox(cb) {
-			imap.openBox('INBOX', false, cb);
+			this.prototype.imap.openBox('INBOX', false, cb);
 		};
 
-		imap.connect();
+		this.prototype.imap.connect();
 	};
 
-mailFunction.send = function() {
+mailFunction.sendNewTicket = function(ticket) {
 	
+}
+
+mailFunction.sendComment = function(ticket, comment) {
+	
+}
+
+mailFunction.sendAgentWelcomeEmail = function(firstname, lastname, email, password) {
+	this.prototype.smtpServer.send({
+		text:    'Hello ' + firstname + ' ' + lastname + ', you have been registered as an agent ' + 
+			'at the Flipdesk service of ' + nconf.get('company').name + '. Your password is ' + 
+			'\'' + password + '\'. You will be informed to change your password once you log in.', 
+		from:    "you <username@your-email.com>", //TODO set email mailbox
+		to:      firstname + ' ' + lastname + '<' + email + '>',
+		subject: 'Registration at Flipdesk ' + nconf.get('company').name
+		}, function(err, message) { 
+			console.log(err || message); 
+	});
+}
+
+mailFunction.sendUserWelcomeEmail = function(firstname, lastname, email, password) {
+	this.prototype.smtpServer.send({
+		text:    'Hello ' + firstname + ' ' + lastname + ', you have been registered as a new user ' + 
+			'at the Flipdesk service of ' + nconf.get('company').name + '. Your password is ' + 
+			'\'' + password + '\'. You will be informed to change your password once you log in.' + 
+			'Unfortunately, it is not possible to login as a user at the moment', 
+		from:    "you <username@your-email.com>", //TODO set email mailbox
+		to:      firstname + ' ' + lastname + '<' + email + '>',
+		subject: 'Registration at Flipdesk ' + nconf.get('company').name
+		}, function(err, message) { 
+			console.log(err || message); 
+	});
 }
 
 module.exports = mailFunction;

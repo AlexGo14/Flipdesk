@@ -6,9 +6,5 @@ module.exports = {
 			res.redirect('/');
 		}
 		next();
-	},
-	sendWelcomeEmail: function (firstname, lastname, email, password) {
-		
-		return true;
 	}
 }
