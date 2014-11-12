@@ -3,7 +3,7 @@ div(class="row")
 		div(class="col-sm-12 col-md-12 col-lg-12")
 			<!-- Split button -->
 			div(class="btn-group")
-				if assigned_agent
+				if ticket.agent
 					button(type="button" class="btn btn-success" id="ticket_status") Assigned
 				else
 					button(type="button" class="btn btn-success" id="ticket_status") Open
@@ -22,19 +22,19 @@ div(class="row")
 					li
 						a(href="#") Archived
 				
-			button(class="btn btn-primary" style="margin-left: 10px;" onclick="ticket_create_comment(#{id})") Write a comment
+			button(class="btn btn-primary" style="margin-left: 10px;" onclick="ticket_create_comment(#{ticket.id})") Write a comment
 			
 div(class="row")
 		div(class="col-sm-9 col-md-9 col-lg-9")
 			<br>
-			h2 #{caption}
+			h2 #{ticket.caption}
 				
-			blockquote #{description}
+			blockquote #{ticket.description}
 
 			<br><br>
 
-			if comments.length > 0
-				for loop_comment in comments
+			if ticket.comments.length > 0
+				for loop_comment in ticket.comments
 					span Written by 
 					span(data-toggle="tooltip" data-placement="left" title="#{loop_comment.agent.email}") #{loop_comment.agent.name} 
 					span on 
@@ -46,24 +46,26 @@ div(class="row")
 					
 		div(class="col-sm-3 col-md-3 col-lg-3")
 			strong Ticket ID: 
-			span(id="ticket-id") #{id}
+			span(id="ticket-id") #{ticket.id}
 			<br><br>
 			span Created: 
-			u(data-toggle="tooltip" data-placement="left" title="#{create_timestamp.detailed}") #{create_timestamp.short}
+			u(data-toggle="tooltip" data-placement="left" title="#{ticket.create_timestamp.detailed}") #{ticket.create_timestamp.short}
 			<br><br>
-			if assigned_agent
-				span(id="assigned_to_agent") Agent: #{assigned_agent.first_name} #{assigned_agent.last_name}
+			if ticket.agent
+				span(id="assigned_to_agent") Agent: #{ticket.agent.first_name} #{ticket.agent.last_name}
 			else
 				span(id="assigned_to_agent") No agent assigned
 			<br><br>
-			if user
-				span(id="created_by_user") User: #{user.first_name} # {user.last_name}
+			if ticket.user
+				span(id="created_by_user") User: #{ticket.user.first_name} #{ticket.user.last_name}
 			else
 				span(id="created_by_user") No user assigned
+			<br><br>
 			for dataproperty in datamodel
-				span dataproperty.name
+				span #{dataproperty.name}
 				span : 
-				span dataproperty.value
+				span #{dataproperty.value}
+				<br><br>
 <!-- Modal -->
 div(class="modal fade" id="createCommentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
 	div(class="modal-dialog")

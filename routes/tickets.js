@@ -21,7 +21,7 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 		
 	sequence.then(
 		function(next) {
-			
+			//Get ticket
 			knex('ticket').where({
 				id: req.params.id
 			}).select().
@@ -35,14 +35,24 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 								'short': moment(rows[0].create_timestamp).tz('Pacific/Auckland').startOf('minute').fromNow(),
 								'detailed': moment(rows[0].create_timestamp).tz('Pacific/Auckland').format('Do MMMM YYYY, h:mm a')
 						 },
-						'agent': rows[0].fk_agent_id
+						 //Saves agent id to load the agent afterwards.
+						'agent': rows[0].fk_agent_id,
+						//Saves user id to load the user aftwards.
+						'user': rows[0].fk_user_id
 					};
+					
+				if(ticket.agent == null) {
+					ticket.agent = false;
+				}
+				if(ticket.user == null) {
+					ticket.user = false;
+				}
 					
 				next(err, ticket);
 			});
 		}).
-		then(
-			function(next, err, ticket) {
+		then(function(next, err, ticket) {
+			//Gets every comment and agent of the comment
 				knex('agent').
 					join('comment', 'agent.id', '=', 'comment.fk_agent_id').
 					where({
@@ -68,6 +78,7 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 				});
 		}).
 		then(function(next, err, ticket) {
+			//Gets every agent
 			knex('agent').select().then(function(rows) {
 				var agents = [];
 				for(var i = 0; i < rows.length; i++) {
@@ -79,6 +90,7 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 						'email': rows[i].email
 					};
 					
+					//If the agent id is equal to the stored agent id, the object is set.
 					if(ticket.agent == agents[i].id) {
 						ticket.agent = agents[i];
 					}
@@ -88,12 +100,43 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 			});
 		}).
 		then(function(next, err, ticket, agents) {
+			//Gets user
+			if(ticket.user) {
+				knex('user').select('id', 'first_name', 'last_name', 'email', 'fk_customer_id', 'create_timestamp', 'update_timestamp', 'active')
+					.where({'id': ticket.user})
+					.then(function(rows) {
+						
+						if(rows.length == 1) {
+							ticket.user = {
+								'id': rows[0].id,
+								'first_name': rows[0].first_name,
+								'last_name': rows[0].last_name,
+								'email': rows[0].email,
+								'customer': {'id': rows[0].fk_customer_id}
+							};
+						}
+					
+						next(err, ticket, agents);
+				});
+			} else {
+				next(err, ticket, agents);
+			}
+		}).
+		then(function(next, err, ticket, agents) {
+			//Gets companies datamodel
+			utility.getTicketDatamodel(ticket.user.customer.id, ticket.id, function(datamodel) {
+				next(err, ticket, agents, datamodel);
+			});
 			
-			res.render('ticket', { 'caption': ticket.caption, 'id': ticket.id, 
-				'description': ticket.description, 'comments': ticket.comments,
-				'assigned_agent': ticket.agent,
-				'create_timestamp': ticket.create_timestamp,
-				'agents': agents, 'datamodel': []
+			
+			
+		}).
+		then(function(next, err, ticket, agents, datamodel) {
+			
+			res.render('ticket', { 
+				'ticket': ticket,
+				'agents': agents,
+				'datamodel': datamodel
 			});
 			
 			next();

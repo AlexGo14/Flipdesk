@@ -40,12 +40,12 @@ block content
 							label User:
 							select(class="form-control" id="create_ticket_form_user")
 								for user in users
-									option(id=user.id)=user.first_name+user.last_name
+									option(id=user.id)=user.first_name + ' ' + user.last_name
 							<br><br>
 							label Agent:
 							select(class="form-control" id="create_ticket_form_agent")
 								for agent in agents
-									option(id=agent.id)=agent.first_name+agent.last_name
+									option(id=agent.id)=agent.first_name + ' ' + agent.last_name
 							<br><br>
 							textarea(class="form-control" rows="5" placeholder="Description" id="create_ticket_form_description")
 				div(class="modal-footer")

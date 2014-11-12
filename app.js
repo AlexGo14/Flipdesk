@@ -77,10 +77,7 @@ passport.use('local', new PassportLocalStrategy({
 			return done(null, false, {message: "The user does not exist"});
 		}
 		
-		console.log(rows);
-		
 		for( var i = 0; i < rows.length; i++) {
-			console.log(i + ' - ' + rows[i].password);
 			
 			//Compare input password with stored password
 			if(bcrypt.compareSync(password, rows[i].password)) {
@@ -128,7 +125,7 @@ passport.deserializeUser(function(id, done) {
 
 //Mail-Listener
 var job = new CronJob('* 5 * * * *', function(){
-		console.log('started');
+		console.log('Started IMAP job');
 		mailFunction.start();
 	}, function () {
 		console.log('Error occurred: stopped imap service');
