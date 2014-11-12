@@ -190,13 +190,16 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 				}
 			}
 			
-			knex('blacklist').select().then(function(rows) {
-				
-				res.render('administration-customer', 
-					{'name': customer.name, 'id': customer.id, 'users': customer.users, 'active': customer.active,
-						'blacklist': rows });
-			}).catch(function(err) {
-				
+			utility.getDatamodel(req.params.id, function(datamodel) {
+				console.log(datamodel);
+				knex('blacklist').select().then(function(rows) {
+					
+					res.render('administration-customer', 
+						{'name': customer.name, 'id': customer.id, 'users': customer.users, 'active': customer.active,
+							'blacklist': rows, 'datamodel': datamodel });
+				}).catch(function(err) {
+					
+				});
 			});
 		})
 		.catch(function(err) {
