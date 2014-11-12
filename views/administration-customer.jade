@@ -9,8 +9,6 @@ if active == true
 			a(href="#") User lists
 		li(onclick="switch_customer_navfield('ticket', this)" id="ticket_tab")
 			a(href="#") Ticket fields
-		li(onclick="switch_customer_navfield('status', this)" id="status_tab")
-			a(href="#") Status fields
 	<br><br>
 	div(id="general_customer_div" class="nav_content")
 		form(class="form" role="form" id="administration_customer_form")
@@ -78,15 +76,35 @@ div(id="lists_customer_div" style="" class="nav_content")
 				td entry.email
 				
 div(id="ticket_fields_customer_div" style="" class="nav_content")
-	h3.
-		Hallo Ticket<br>
+	button(class="btn btn-primary" onclick="show_new_ticketfield_modal()") Add field
+	p.
 		Assigned agent and user are fixed.<br>
-		Everything other is variable but might not be imported from email.
+		Everything else is variable but might not be imported from email.
+		
+	table
+		tr
+			td(style="visibility: hidden;") ID
+			td
+				strong Name
+			td
+				strong Datatype
+			td
+				strong Mandatory
+		
+		for data in datamodel
+			tr
+				td(style="visibility: hidden;") #{data.id}
+				td
+					input(value="#{data.name}")
+				td
+					input(value="#{data.datatype}")
+				td
+					label
+						if data.mandatory
+							input(type="checkbox" checked)
+						else
+							input(type="checkbox")
 
-div(id="status_fields_customer_div" style="" class="nav_content")
-	h3.
-		Hallo Status<br>
-		New, Assigned, Closed and Archived are fixed.
 
 
 

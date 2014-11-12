@@ -232,6 +232,26 @@ var utility = {
 			});
 	},
 	
+	getDatatypes: function(callback) {
+		knex('customer_datatype')
+			.select('id', 'datatype')
+			.orderBy('id', 'desc')
+			.then(function(rows) {
+				var datatypes = [];
+				
+				for(var i = 0; i < rows.length; i++) {
+					datatypes[i] = {
+						'id': rows[i].id,
+						'datatype': rows[i].datatype
+					};
+				}
+				
+				callback(datatypes);
+			})
+			.catch(function(err) {
+				console.log(err);
+			});
+	},
 	getDatamodel: function(customerid, callback) {
 		//Select the customer datamodel and do join to datatype table to get the datatype
 		knex('customer_datamodel')

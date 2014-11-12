@@ -191,7 +191,7 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 			}
 			
 			utility.getDatamodel(req.params.id, function(datamodel) {
-				console.log(datamodel);
+				
 				knex('blacklist').select().then(function(rows) {
 					
 					res.render('administration-customer', 

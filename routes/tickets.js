@@ -41,15 +41,18 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 			}
 			
 			utility.getAgents(function(agents) {
-				utility.getUsersByCustomerId(req.params.id, function(users) {
-					utility.getCustomers(function(customers) {
-						res.render('tickets', { 
-							title: 'Tickets', 
-							company: nconf.get('company').name,
-							tickets: tickets, 
-							customers: customers, 
-							agents: agents, 
-							users: users
+				utility.getDatamodel(req.params.id, function(datamodel) {
+					utility.getUsersByCustomerId(req.params.id, function(users) {
+						utility.getCustomers(function(customers) {
+							res.render('tickets', { 
+								title: 'Tickets', 
+								company: nconf.get('company').name,
+								tickets: tickets, 
+								customers: customers, 
+								agents: agents, 
+								users: users,
+								datamodel: datamodel
+							});
 						});
 					});
 				});

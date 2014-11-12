@@ -47,6 +47,13 @@ block content
 								for agent in agents
 									option(id=agent.id)=agent.first_name + ' ' + agent.last_name
 							<br><br>
+							for data in datamodel
+								label #{data.name}
+								if data.mandatory
+									input(type="text" class="form-control" placeholder="#{data.name}" mandatory="true")
+								else 
+									input(type="text" class="form-control" placeholder="#{data.name}")
+								<br><br>
 							textarea(class="form-control" rows="5" placeholder="Description" id="create_ticket_form_description")
 				div(class="modal-footer")
 					button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
