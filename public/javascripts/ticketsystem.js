@@ -71,7 +71,7 @@ function assign_agent_to_ticket() {
 	$.post('/tickets/' + $('#ticket-id').html() + '/assign/' + agent_id, {}, function(data) {
 		if(data.success) {
 			$('#ticket_status').html('Assigned');
-			$('#assigned_to_agent').html(', Assigned to ' + $('#agent_assignAgentModal_form')[0].selectedOptions[0].value);
+			$('#assigned_to_agent').html('Agent: ' + $('#agent_assignAgentModal_form')[0].selectedOptions[0].value);
 			
 			$('#assignAgentModal').modal('hide');
 		} else {

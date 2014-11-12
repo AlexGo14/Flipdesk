@@ -1,17 +1,12 @@
 var express = require('express');
 var router = express.Router();
 var utility = require('./utility');
-var moment = require('moment-timezone');
-var Sequence = exports.Sequence || require('sequence').Sequence
-    , sequence = Sequence.create()
-    , err;
 var mailFunction = require('./mail');
 
 router.get('/', utility.requireAuthentication, function(req, res) {
-	
-	knex.select().from('customer').then(function(rows) {
-			res.render('home', { title: 'Tickets', company: nconf.get('company').name,
-				customers: rows
+	utility.getCustomers(function(customers) {
+		res.render('home', { title: 'Tickets', company: nconf.get('company').name,
+				customers: customers
 			});
 	});
 });
@@ -19,190 +14,46 @@ router.get('/', utility.requireAuthentication, function(req, res) {
 //Get a specific ticket
 router.get('/:id', utility.requireAuthentication, function(req, res) {
 		
-	sequence.then(
-		function(next) {
-			//Get ticket
-			knex('ticket').where({
-				id: req.params.id
-			}).select().
-			then(function(rows) {
-				var ticket = {
-						'id': rows[0].id,
-						'description': rows[0].description,
-						'caption': rows[0].caption,
-						'comments': [],
-						'create_timestamp': {
-								'short': moment(rows[0].create_timestamp).tz('Pacific/Auckland').startOf('minute').fromNow(),
-								'detailed': moment(rows[0].create_timestamp).tz('Pacific/Auckland').format('Do MMMM YYYY, h:mm a')
-						 },
-						 //Saves agent id to load the agent afterwards.
-						'agent': rows[0].fk_agent_id,
-						//Saves user id to load the user aftwards.
-						'user': rows[0].fk_user_id
-					};
-					
-				if(ticket.agent == null) {
-					ticket.agent = false;
-				}
-				if(ticket.user == null) {
-					ticket.user = false;
-				}
-					
-				next(err, ticket);
-			});
-		}).
-		then(function(next, err, ticket) {
-			//Gets every comment and agent of the comment
-				knex('agent').
-					join('comment', 'agent.id', '=', 'comment.fk_agent_id').
-					where({
-						fk_ticket_id: req.params.id
-					}).select('comment.id as comment_id', 'comment.create_timestamp as comment_create_timestamp', 'comment.description as comment_description', 'agent.id as agent_id', 'agent.last_name as agent_last_name', 'agent.first_name as agent_first_name', 'agent.email as agent_email').
-				then(function(rows) {
-					
-					for(var i = 0; i < rows.length; i++) {
-						ticket.comments[i] = { 'id': rows[i].comment_id, 
-							'description': rows[i].comment_description,
-							'agent': { 'id': rows[i].agent_id, 'name': rows[i].agent_first_name + ' ' + rows[i].agent_last_name, 
-								'email': rows[i].agent_email },
-							'create_timestamp': {
-								'short': moment(rows[i].comment_create_timestamp).tz('Pacific/Auckland').startOf('minute').fromNow(),
-								'detailed': moment(rows[i].comment_create_timestamp).tz('Pacific/Auckland').format('Do MMMM YYYY, h:mm a')
-								 }
-							}
-					}
-					
-					ticket.comments.reverse();
-					
-					next(err, ticket)
+		//Get ticket
+		utility.getTicket(req.params.id, function(ticket) {
+			
+			utility.getAgents(function(agents) {
+				res.render('ticket', { 
+					'ticket': ticket,
+					'agents': agents,
+					'datamodel': ticket.datamodel
 				});
-		}).
-		then(function(next, err, ticket) {
-			//Gets every agent
-			knex('agent').select().then(function(rows) {
-				var agents = [];
-				for(var i = 0; i < rows.length; i++) {
-					
-					agents[i] = {
-						'id': rows[i].id,
-						'first_name': rows[i].first_name,
-						'last_name': rows[i].last_name,
-						'email': rows[i].email
-					};
-					
-					//If the agent id is equal to the stored agent id, the object is set.
-					if(ticket.agent == agents[i].id) {
-						ticket.agent = agents[i];
-					}
-				}
-				
-				next(err, ticket, agents);
 			});
-		}).
-		then(function(next, err, ticket, agents) {
-			//Gets user
-			if(ticket.user) {
-				knex('user').select('id', 'first_name', 'last_name', 'email', 'fk_customer_id', 'create_timestamp', 'update_timestamp', 'active')
-					.where({'id': ticket.user})
-					.then(function(rows) {
-						
-						if(rows.length == 1) {
-							ticket.user = {
-								'id': rows[0].id,
-								'first_name': rows[0].first_name,
-								'last_name': rows[0].last_name,
-								'email': rows[0].email,
-								'customer': {'id': rows[0].fk_customer_id}
-							};
-						}
-					
-						next(err, ticket, agents);
-				});
-			} else {
-				next(err, ticket, agents);
-			}
-		}).
-		then(function(next, err, ticket, agents) {
-			//Gets companies datamodel
-			utility.getTicketDatamodel(ticket.user.customer.id, ticket.id, function(datamodel) {
-				next(err, ticket, agents, datamodel);
-			});
-			
-			
-			
-		}).
-		then(function(next, err, ticket, agents, datamodel) {
-			
-			res.render('ticket', { 
-				'ticket': ticket,
-				'agents': agents,
-				'datamodel': datamodel
-			});
-			
-			next();
 		});
 });
 
 /* GET tickets from a customer. */
 router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
-	
-	var ticketsArr = [],
-		agentsArr = [],
-		usersArr = [],
-		customersArr = [];
-		
-	sequence.
-		then(function(next) {
 			
-			knex().select().from('ticket').orderBy('update_timestamp', 'desc')
-				.then(function(rows) {
-					for(var i = 0; i < rows.length; i++) {
-						if(rows[i].fk_agent_id == null) {
-							rows[i].fk_agent_id = false;
-						}
-						if(rows[i].update_timestamp == null) {
-							rows[i].update_timestamp = false;
-						}
-					}
-					ticketsArr = rows;
-					
-					next(err);
+		utility.getTicketsByCustomerId(req.params.id, function(tickets) {
+			for(var i = 0; i < tickets.length; i++) {
+				if(tickets[i].agent.id == null) {
+					tickets[i].agent.id = false;
+				}
+				if(tickets[i].update_timestamp == null) {
+					tickets[i].update_timestamp = false;
+				}
+			}
+			
+			utility.getAgents(function(agents) {
+				utility.getUsersByCustomerId(req.params.id, function(users) {
+					utility.getCustomers(function(customers) {
+						res.render('tickets', { 
+							title: 'Tickets', 
+							company: nconf.get('company').name,
+							tickets: tickets, 
+							customers: customers, 
+							agents: agents, 
+							users: users
+						});
+					});
 				});
-		}).
-		then(function(next) {
-			
-			knex().select().from('agent').
-				then(function(rows) {
-					agentsArr = rows;
-					
-					next(err);
-				});
-		}).
-		then(function(next) {
-			
-			knex('user').where({
-				fk_customer_id: req.params.id
-			}).select().then(function(rows) {
-				usersArr = rows
-				
-				next(err);
 			});
-		}).
-		then(function(next) {
-			knex().select().from('customer').
-				then(function(rows) {
-					customersArr = rows;
-					
-					next(err);
-				});
-		}).
-		then(function(next) {
-			
-			res.render('tickets', { title: 'Tickets', company: nconf.get('company').name,
-				tickets: ticketsArr, customers: customersArr, agents: agentsArr, users: usersArr
-			});
-			
-			next();
 		});
 });
 
@@ -221,18 +72,8 @@ router.post('/', utility.requireAuthentication, function(req, res) {
 		}
 	}
 	
-	
-	knex('ticket').returning('id').insert([{
-		'caption': new_ticket.caption,
-		'description': new_ticket.description,
-		'fk_user_id': new_ticket.user.id,
-		'fk_agent_id': new_ticket.agent.id
-	}]).then(function(id) {
-		if(id > 0) {
-			mailFunction.sendNewTicket();
-			
-			res.json({ 'success': true, 'id': id });
-		}
+	utility.createTicket(new_ticket, function(id) {
+		res.json({ 'success': true, 'id': id });
 	});
 });
 

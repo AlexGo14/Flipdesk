@@ -10,9 +10,9 @@ pg = require("pg");
 passport = require("passport");
 PassportLocalStrategy = require('passport-local').Strategy;
 var bcrypt = require('bcrypt');
-var mailFunction = require('./routes/mail');
+mailFunction = require('./routes/mail');
 var CronJob = require('cron').CronJob;
-var moment = require("moment-timezone");
+moment = require("moment-timezone");
 
 
 

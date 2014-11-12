@@ -8,16 +8,15 @@ var mailFunction = require('./mail');
 
 /* Renders general administration view */
 router.get('/', utility.requireAuthentication, function(req, res) {
-	knex.select().from('customer').then(function(rows) {
-			res.render('administration', { title: 'Tickets', company: nconf.get('company').name,
-				customers: rows
-			});
+	utility.getCustomers(function(customers) {
+		res.render('administration', { title: 'Tickets', company: nconf.get('company').name,
+			customers: customers
+		});
 	});
 });
 
 /* Renders administration/settings view */
 router.get('/settings', utility.requireAuthentication, function(req, res) {
-	
 	res.render('administration-settings', {'global_name': nconf.get('company').name, });
 });
 
