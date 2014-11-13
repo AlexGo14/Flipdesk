@@ -62,6 +62,46 @@ var utility = {
 				console.log(err);
 			});
 	},
+	createUser: function (user, callback) {
+		knex('user').returning('id').insert({
+			first_name: user.first_name,
+			last_name: user.last_name,
+			email: user.email,
+			active: user.active,
+			password: user.password,
+			fk_customer_id: user.customer_id,
+			create_timestamp: moment().format()
+		}).then(function(id) {
+			callback(id[0]);
+		}).catch(function(err) {
+			console.log(err);
+		});
+	},
+	updateUserPassword: function(id, hash, callback) {
+		//Update agent object
+		knex('user').returning('id').where({
+			id: id
+		}).update({
+			password: hash
+		}).then(function(id) {
+			callback(id[0]);
+		}).catch(function(err) {
+			console.log(err);
+		});
+	},
+	updateUser: function(user, callback) {
+		knex('user').returning('id').update({
+			'first_name': user.first_name,
+			'last_name': user.last_name,
+			'email': user.email
+		}).where({
+			id: user.id
+		}).then(function(id) {
+			callback(id[0]);
+		}).catch(function(err) {
+			console.log(err);
+		});
+	},
 	
 	getCustomer: function (id, callback) {
 		knex('customer')
@@ -100,6 +140,39 @@ var utility = {
 				
 			});
 	},
+	disableCustomer: function (id, callback) {
+		knex('customer').returning('id').update({
+			active: false
+		}).where({
+			id: id
+		}).then(function(id) {
+			callback(id[0]);
+		}).catch(function(err) {
+			console.log(err);
+		});
+	},
+	enableCustomer: function (id, callback) {
+		knex('customer').returning('id').update({
+			active: true
+		}).where({
+			id: id
+		}).then(function(id) {
+			callback(id[0]);
+		}).catch(function(err) {
+			console.log(err);
+		});
+	},
+	updateCustomer: function (customer, callback) {
+		knex('customer').returning('id').update({
+			'name': customer.name
+		}).where({
+			'id': customer.id
+		}).then(function(id) {
+			callback(id);
+		}).catch(function(err) {
+			console.log(err);
+		});
+	},
 	
 	getAgent: function (id, callback) {
 		knex('agent')
@@ -134,6 +207,50 @@ var utility = {
 			.catch(function(err) {
 				console.log(err);
 			});
+	},
+	createAgent: function (agent, callback) {
+		knex('agent').returning('id').insert({
+			first_name: agent.first_name,
+			last_name: agent.last_name,
+			email: agent.email,
+			is_admin: agent.is_admin,
+			active: agent.active,
+			password: agent.password
+		}).then(function(id) {
+			id = id[0];
+			
+			callback(id);
+		}).catch(function(err) {
+			console.log(err);
+		});		
+	},
+	updateAgentPassword: function (id, hash, callback) {
+		//Update agent object
+		knex('agent').returning('id').where({
+			id: id
+		}).update({
+			password: hash
+		}).then(function(id) {
+			callback(id);
+		}).catch(function(err) {
+			console.log(err);
+		});
+	},
+	updateAgent: function(agent, callback) {
+		knex('agent').returning('id').update({
+			first_name: agent.first_name,
+			last_name: agent.last_name,
+			email: agent.email,
+			is_admin: agent.is_admin,
+			active: agent.active,
+			update_timestamp: moment().format()
+		}).where({
+			id: agent.id
+		}).then(function(id) {
+			callback(id[0]);
+		}).catch(function(err) {
+			console.log(err);
+		});
 	},
 	
 	getTicket: function (id, callback) {

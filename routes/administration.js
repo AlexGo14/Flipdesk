@@ -45,56 +45,30 @@ router.post('/settings/update', utility.requireAuthentication, function(req, res
 
 /* Renders administration/agents view */
 router.get('/agents', utility.requireAuthentication, function(req, res) {
-	knex('agent').select().orderBy('id', 'asc')
-	.then(function(rows) {
-		var agent = [];
-		for(var i = 0; i < rows.length; i++) {
-			agent[i] = {
-				id: rows[i].id,
-				last_name: rows[i].last_name,
-				first_name: rows[i].first_name,
-				email: rows[i].email,
-				active: rows[i].active
-			};
-		}
-		
-		res.render('administration-agent', {'agents': agent } );
-	})
-	.catch(function(err) {
-		console.log(err);
+	utility.getAgents(function(agents) {
+		res.render('administration-agent', {'agents': agents } );
 	});
-	
 });
 
 /* Loads agent details and returns json data */
 router.get('/agents/:id', utility.requireAuthentication, function(req, res) {
-	knex('agent').select().where({
-		id: req.params.id
-	})
-	.then(function(rows) {
-		if(rows.length == 1) {
-			res.json( { 'agent': rows[0] } );
-		}
-	})
-	.catch(function(err) {
-		console.log(err);
+	utility.getAgent(req.params.id, function(agent) {
+		res.json( { 'agent': agent } );
 	});
 });
 
 /* Adds agent */
 router.post('/agents', utility.requireAuthentication, function(req, res) {
-	
-	//Insert into db
-	knex('agent').returning('id').insert({
+	var agent = {
 		first_name: req.body.first_name,
 		last_name: req.body.last_name,
 		email: req.body.email,
 		is_admin: req.body.is_admin,
 		active: req.body.active,
-		password: 'async'
-	}).then(function(rows) {
-		var agent_id = rows[0];
-		
+		password: 'processing'
+	};
+	
+	utility.createAgent(agent, function(id) {
 		//Generate salt, random password and hash async
 		//This function processes async to give the user a fast response. He does not have to wait
 		//for generating a salt, password and updating the db.
@@ -103,64 +77,41 @@ router.post('/agents', utility.requireAuthentication, function(req, res) {
 			
 			bcrypt.hash(gen_password, salt, function(err, hash) {
 				
-				//Update agent object
-				knex('agent').where({
-					id: agent_id
-				}).update({
-					password: hash
-				}).then(function(rows) {
-					
-					//Loads id of new agent object and sends email
-					knex('agent').select()
-						.where({'id': agent_id})
-						.then(function(rows) {
-							
-							//Send welcome email
-							mailFunction.sendAgentWelcomeEmail(rows[0].first_name, rows[0].last_name, rows[0].email, gen_password);
-						})
-						.catch(function(err) {
-							console.log(err);
-						});
+				utility.updateAgentPassword(id, hash, function(id) {
+					utility.getAgent(id, function(agent) {
 						
-				}).catch(function(err) {
-					console.log(err);
+						//Send welcome email
+						mailFunction.sendAgentWelcomeEmail(agent.first_name, 
+							agent.last_name, agent.email, gen_password);
+					});
 				});
 			});
 		});
 		
 		
 		res.json( { 'success': true } );
-	}).catch(function(err) {
-		console.log(err);
-		
-		res.json( { 'success': false } );
 	});
 });
 
 /* Updates agent */
 router.post('/agents/:id', utility.requireAuthentication, function(req, res) {
-	
-	knex('agent').update({
+	var agent = {
+		id: req.params.id,
 		first_name: req.body.first_name,
 		last_name: req.body.last_name,
 		email: req.body.email,
 		is_admin: req.body.is_admin,
 		active: req.body.active,
 		update_timestamp: moment().format()
-	}).where({
-		id: req.params.id
-	}).then(function(rows) {
-		
-		res.json( { 'success': true } );
-	}).catch(function(err) {
-		console.log(err);
-		
-		res.json( { 'success': false } );
-	});
+	};
 	
+	utility.updateAgent(agent, function(id) {
+		res.json( { 'success': true } );
+	});
 });
 
-/* Loads customer details and returns json data */
+/* Loads customer details and returns json data 
+ * TODO: in utility auslagern */
 router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 	var customer = {};
 	
@@ -222,62 +173,43 @@ router.get('/customer', utility.requireAuthentication, function(req, res) {
 
 /* Disable customer */
 router.delete('/customer/:id', utility.requireAuthentication, function(req, res) {
-	knex('customer').update({
-		active: false
-	}).where({
-		id: req.params.id
-	}).then(function(rows) {
+	utility.disableCustomer(req.params.id, function(id) {
 		res.json({'success': true});
-	}).catch(function(err) {
-		res.json({'success': false});
 	});
 });
 
 /* Enable customer */
 router.put('/customer/:id', utility.requireAuthentication, function(req, res) {
-	knex('customer').update({
-		active: true
-	}).where({
-		id: req.params.id
-	}).then(function(rows) {
+	utility.enableCustomer(req.params.id, function(id) {
 		res.json({'success': true});
-	}).catch(function(err) {
-		res.json({'success': false});
 	});
 });
 
 /* Update customer */
 router.post('/customer/:id', utility.requireAuthentication, function(req, res) {
-	knex('customer').returning('id').update({
+	var customer = {
+		'id': req.params.id,
 		'name': req.body.name
-	}).where({
-		'id': req.params.id
-	}).then(function(id) {
-		if(id > 0) {
-			res.json({'success': true});
-		} else {
-			res.json({'success': false});
-		}
-	}).catch(function(err) {
-		res.json({'success': false});
+	};
+	
+	utility.updateCustomer(customer, function(id) {
+		res.json({'success': true});
 	});
 });
 
 /* Add user */
 router.post('/user', utility.requireAuthentication, function(req, res) {
-	
-	//Insert into db
-	knex('user').returning('id').insert({
+	var user = {
 		first_name: req.body.first_name,
 		last_name: req.body.last_name,
 		email: req.body.email,
 		active: req.body.active,
-		password: 'async',
-		fk_customer_id: req.body.customer_id,
-		create_timestamp: moment().format()
-	}).then(function(rows) {
-		var user_id = rows[0];
-		
+		password: 'processing',
+		fk_customer_id: req.body.customer_id
+	};
+	
+	//Insert into db
+	utility.createUser(user, function(user_id) {
 		//Generate salt, random password and hash async
 		//This function processes async to give the user a fast response. He does not have to wait
 		//for generating a salt, password and updating the db.
@@ -285,58 +217,33 @@ router.post('/user', utility.requireAuthentication, function(req, res) {
 			var gen_password = generatePassword(12, false);
 			
 			bcrypt.hash(gen_password, salt, function(err, hash) {
-				
-				//Update agent object
-				knex('user').where({
-					id: user_id
-				}).update({
-					password: hash
-				}).then(function(rows) {
-					
-					//Loads id of new agent object and sends email
-					knex('user').select()
-						.where({'id': user_id})
-						.then(function(rows) {
-							
-							//Send welcome email
-							mailFunction.sendUserWelcomeEmail(rows[0].first_name, rows[0].last_name, rows[0].email, gen_password);
-						})
-						.catch(function(err) {
-							console.log(err);
-						});
-						
-				}).catch(function(err) {
-					console.log(err);
+				//Update user object
+				utility.updateUserPassword(user_id, hash, function(id) {
+					utility.getUser(id, function(user) {
+						//Send welcome email
+						mailFunction.sendUserWelcomeEmail(user.first_name, 
+							user.last_name, user.email, gen_password);
+					});
 				});
 			});
 		});
 		
-		
-		res.json( { 'success': true, 'id': user_id, 'last_name': req.body.last_name, 
-			'first_name': req.body.first_name, 'email': req.body.email } );
-	}).catch(function(err) {
-		console.log(err);
-		
-		res.json( { 'success': false } );
+		res.json( { 'success': true, 'user': user } );
 	});
 });
 
 /* Edit user */
 router.post('/user/:id', utility.requireAuthentication, function(req, res) {
-	
-	knex('user').returning('id').update({
+	var user = {
+		'id': req.params.id,
 		'first_name': req.body.first_name,
 		'last_name': req.body.last_name,
 		'email': req.body.email
-	}).where({
-		id: req.params.id
-	}).then(function(id) {
-		res.json({'success': true});
-	}).catch(function(err) {
-		console.log(err);
-		res.json({'success': false});
-	});
+	};
 	
+	utility.updateUser(user, function(id) {
+		res.json({'success': true});
+	});
 });
 
 module.exports = router;
