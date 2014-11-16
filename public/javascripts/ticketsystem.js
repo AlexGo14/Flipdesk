@@ -26,6 +26,17 @@ function ticket_send() {
 		'agent_id': $('#create_ticket_form_agent')[0].selectedOptions[0].id
 	};
 	
+	var customProperties = $('.custom_properties');
+	var properties = [];
+	for(var i = 0; i < customProperties.length; i++) {
+		properties[i] = {
+			'datamodel_id': customProperties[i].id,
+			'value': customProperties[i].value
+		};
+	}
+	
+	new_ticket.properties = properties;
+	
 	$.post('/tickets', new_ticket, function(data) { 
 			if(data.success) {
 				$('#createTicketModal').modal('hide');
@@ -392,12 +403,12 @@ function edit_user() {
 function toggle_edit_fieldproperty_modal(id) {
 	var name = $('#row_property_' + id)[0].children[0].textContent;
 	var datatype = $('#row_property_' + id)[0].children[1].textContent;
-	var mandatory = $('#row_property_' + id)[0].children[2].checked;
-	var active = $('#row_property_' + id)[0].children[3].checked;
+	var mandatory = $('#row_property_' + id + ' input')[0].checked;
+	var active = $('#row_property_' + id + ' input')[1].checked;
 	
 	$('#id_edit_fieldproperty_form_modal')[0].textContent = id;
 	$('#name_edit_fieldproperty_form_modal')[0].value = name;
-	//$('#datatype_edit_fieldproperty_form_modal')[0].value = datatype;
+	$('#datatype_edit_fieldproperty_form_modal')[0].value = datatype;
 	$('#mandatory_edit_fieldproperty_modal')[0].checked = mandatory;
 	$('#active_edit_fieldproperty_modal')[0].checked = active;
 	
@@ -405,5 +416,71 @@ function toggle_edit_fieldproperty_modal(id) {
 }
 
 function edit_ticketfield() {
+	var id = $('#id_edit_fieldproperty_form_modal')[0].textContent;
 	
+	var ticketfield = {
+		'name': $('#name_edit_fieldproperty_form_modal')[0].value,
+		'datatype_id': $('#datatype_edit_fieldproperty_form_modal')[0].selectedOptions[0].id,
+		'customer_id': $('#customer_id')[0].textContent,
+		'mandatory': $('#mandatory_edit_fieldproperty_modal')[0].checked,
+		'active': $('#active_edit_fieldproperty_modal')[0].checked
+	};
+	
+	$.ajax({
+		url: '/administration/ticketfield/' + id,
+		data: ticketfield,
+		type: 'PUT',
+		success: function(data) {
+			if(data.success) {
+				
+				$('#row_property_' + id)[0].children[0].textContent = $('#name_edit_fieldproperty_form_modal')[0].value;
+				$('#row_property_' + id)[0].children[1].textContent = $('#datatype_edit_fieldproperty_form_modal')[0].value;
+				$('#row_property_' + id + ' input')[0].checked = $('#mandatory_edit_fieldproperty_modal')[0].checked;
+				$('#row_property_' + id + ' input')[1].checked = $('#active_edit_fieldproperty_modal')[0].checked;
+				
+				$('#edit_fieldproperty_modal').modal('toggle');
+				
+			} else {
+				var test = false;
+			}
+		}
+	});
+		
+}
+
+
+
+function toggle_add_fieldproperty_modal() {
+	$('#add_fieldproperty_modal').modal('toggle');
+}
+
+function add_ticketfield() {
+	var ticketfield = {
+		'name': $('#name_add_fieldproperty_form_modal')[0].value,
+		'datatype_id': $('#datatype_add_fieldproperty_form_modal')[0].selectedOptions[0].id,
+		'customer_id': $('#customer_id')[0].textContent,
+		'mandatory': $('#mandatory_add_fieldproperty_modal')[0].checked,
+		'active': $('#active_add_fieldproperty_modal')[0].checked
+	};
+	
+	$.ajax({
+		url: '/administration/ticketfield',
+		data: ticketfield,
+		type: 'POST',
+		success: function(data) {
+			if(data.success) {
+				$('#ticketfield_table tr:last').after(
+				'<tr onclick="toggle_edit_fieldproperty_modal(' + data.property.id + ')")>' + 
+					'<td><span>' + data.property.name + '</span></td>' + 
+					'<td><span>' + data.property.datatype + '</span></td>' + 
+					'<td><label><input type="checkbox" disabled checked="' + data.property.mandatory + '" /></label></td>' + 
+					'<td><label><input type="checkbox" disabled checked="' + data.property.active + '" /></label></td>' + 
+				'</tr>');
+				
+				toggle_add_fieldproperty_modal();
+			} else {
+				
+			}
+		}
+	});
 }

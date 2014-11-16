@@ -1,10 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var utility = require('./utility');
-//var moment = require("moment-timezone");
 var generatePassword = require('password-generator');
-//var bcrypt = require('bcrypt');
-//var mailFunction = require('./mail');
 
 /* Renders general administration view */
 router.get('/', utility.requireAuthentication, function(req, res) {
@@ -210,6 +207,62 @@ router.post('/user/:id', utility.requireAuthentication, function(req, res) {
 	utility.updateUser(user, function(id) {
 		res.json({'success': true});
 	});
+});
+
+/* Create ticket field */
+router.post('/ticketfield', utility.requireAuthentication, function(req, res) {
+	knex('customer_datamodel').returning('id').insert({
+		'name': req.body.name,
+		'mandatory': req.body.mandatory,
+		'fk_customer_id': req.body.customer_id,
+		'fk_datatype_id': req.body.datatype_id,
+		'active': req.body.active
+	})
+	.then(function(id) {
+		id = id[0];
+		
+		utility.getDatamodel(req.body.customer_id, function(datamodel) {
+			for(var i = 0; i < datamodel.length; i++) {
+				if(datamodel[i].id == id) {
+					res.json({'success': true, 'property': datamodel[i]});
+				}
+			}
+		});
+		
+	})
+	.catch(function(err) {
+		logger.error(err);
+		res.json({'success': false});
+	});
+});
+
+/* Update ticket field */
+router.put('/ticketfield/:id', utility.requireAuthentication, function(req, res) {
+	if(req.body.name != "" && req.body.mandatory != undefined && req.body.customer_id != undefined &&
+		req.body.customer_id > 0 && req.body.datatype_id != undefined && req.body.datatype_id > 0 &&
+		req.body.active != undefined) {
+	
+		knex('customer_datamodel').returning('id').update({
+			'name': req.body.name,
+			'mandatory': req.body.mandatory,
+			'fk_customer_id': parseInt(req.body.customer_id),
+			'fk_datatype_id': parseInt(req.body.datatype_id),
+			'active': req.body.active
+		})
+		.where({
+			'id': req.params.id
+		})
+		.then(function(id) {
+			id = id[0];
+			res.json({'success': true});
+		})
+		.catch(function(err) {
+			logger.error(err);
+			res.json({'success': false});
+		});
+	} else {
+		res.json({'success': false});
+	}
 });
 
 module.exports = router;

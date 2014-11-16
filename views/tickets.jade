@@ -49,10 +49,8 @@ block content
 							<br><br>
 							for data in datamodel
 								label #{data.name}
-								if data.mandatory
-									input(type="text" class="form-control" placeholder="#{data.name}" mandatory="true")
-								else 
-									input(type="text" class="form-control" placeholder="#{data.name}")
+								
+								input(type="text" class="form-control" class="custom_properties" id="#{data.id}" placeholder="#{data.name}" mandatory="#{data.mandatory}")
 								<br><br>
 							textarea(class="form-control" rows="5" placeholder="Description" id="create_ticket_form_description")
 				div(class="modal-footer")

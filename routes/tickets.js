@@ -29,7 +29,7 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 
 /* GET tickets from a customer. */
 router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
-			
+		
 		utility.getTicketsByCustomerId(req.params.id, function(tickets) {
 			for(var i = 0; i < tickets.length; i++) {
 				if(tickets[i].agent.id == null) {
@@ -41,7 +41,16 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 			}
 			
 			utility.getAgents(function(agents) {
-				utility.getDatamodel(req.params.id, function(datamodel) {
+				utility.getDatamodel(req.params.id, function(datamodel_draft) {
+					
+					var datamodel = [];
+					for(var i = 0; i < datamodel_draft.length; i++) {
+						if(datamodel_draft[i].active == true) {
+							datamodel.push(datamodel_draft[i]);
+						}
+					}
+					logger.error(datamodel);
+					
 					utility.getUsersByCustomerId(req.params.id, function(users) {
 						utility.getCustomers(function(customers) {
 							res.render('tickets', { 
@@ -72,10 +81,12 @@ router.post('/', utility.requireAuthentication, function(req, res) {
 		},
 		'agent': {
 			'id': parseInt(req.body.agent_id)
-		}
+		},
+		'properties': req.body.properties
 	}
 	
-	utility.createTicket(new_ticket, function(id) {
+	console.log(req.body);
+	utility.createTicket(new_ticket, function(id, err) {
 		res.json({ 'success': true, 'id': id });
 	});
 });

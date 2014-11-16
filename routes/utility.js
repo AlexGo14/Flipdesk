@@ -49,6 +49,7 @@ var utility = {
 			.where({
 				'fk_customer_id': customerid
 			})
+			.orderBy('id', 'asc')
 			.then(function(rows) {
 				var users = [];
 				
@@ -317,11 +318,31 @@ var utility = {
 			'fk_user_id': ticket.user.id,
 			'fk_agent_id': ticket.agent.id
 		}]).then(function(id) {
+			id = id[0];
+			
+			for(var i = 0; i < ticket.properties.length; i++) {
+				knex('ticket_datamodel')
+					.insert({
+						'fk_ticket_id': id,
+						'fk_datamodel_id': ticket.properties[i].datamodel_id,
+						'name': ticket.properties[i].name
+					})
+					.then(function(data) {
+						
+					})
+					.catch(function(err) {
+						logger.error(err);
+					});
+			}
+			
 			if(id > 0) {
 				mailFunction.sendNewTicket();
 				
-				callback(id[0]);
+				callback(id, null);
 			}
+		})
+		.catch(function(err) {
+			callback(null, err);
 		});
 	},
 	assignAgent: function (agent_id, ticket_id, callback, error) {
@@ -389,11 +410,13 @@ var utility = {
 		//Select the customer datamodel and do join to datatype table to get the datatype
 		knex('customer_datamodel')
 			.select('customer_datamodel.id as id', 'customer_datatype.datatype as datatype',
-				'customer_datamodel.name as name', 'customer_datamodel.mandatory as mandatory')
+				'customer_datamodel.name as name', 'customer_datamodel.mandatory as mandatory', 
+				'customer_datamodel.active as active')
 			.join('customer_datatype', 'customer_datamodel.fk_datatype_id', '=', 'customer_datatype.id')
 			.where({
 				'fk_customer_id': customerid
 			})
+			.orderBy('id', 'asc')
 			.then(function(rows) {
 				var datamodel = [];
 				
@@ -402,7 +425,8 @@ var utility = {
 						'id': rows[i].id,
 						'datatype': rows[i].datatype,
 						'name': rows[i].name,
-						'mandatory': rows[i].mandatory
+						'mandatory': rows[i].mandatory,
+						'active': rows[i].active
 					};
 				}
 				

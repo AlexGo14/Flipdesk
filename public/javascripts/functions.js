@@ -1,7 +1,7 @@
 function login_form() {
 	$.get('/authentication', {}, function(data) {
 		if(data.success) {
-			//redirect
+			window.location.replace("/tickets");
 		} else {
 			$('#modalDiv').modal('show');
 		}

@@ -13,7 +13,8 @@ if active == true
 	div(id="general_customer_div" class="nav_content")
 		form(class="form" role="form" id="administration_customer_form")
 			div(class="form-group")
-				label ID: #{id}
+				label ID: 
+				span(id="customer_id") #{id}
 				<br>
 				label Name: 
 				input(class="form-control" type="text" value="#{name}" placeholder="Name" id="customer_name_form") 
@@ -76,7 +77,7 @@ div(id="lists_customer_div" style="" class="nav_content")
 				td entry.email
 				
 div(id="ticket_fields_customer_div" style="" class="nav_content")
-	button(class="btn btn-primary" onclick="show_new_ticketfield_modal()") Add field
+	button(class="btn btn-primary" onclick="toggle_add_fieldproperty_modal()") Add field
 	p.
 		Assigned agent and user are fixed.<br>
 		Everything else is variable but might not be imported from email.
@@ -166,6 +167,41 @@ div(class="modal fade" id="edit_user_modal" tabindex="-1" role="dialog" aria-lab
 				div(class="modal-footer")
 					button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
 					button(type="button" class="btn btn-primary btn-lg" onclick="edit_user()") Edit
+
+
+div(class="modal fade" id="add_fieldproperty_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Close
+					h4(class="modal-title" id="myModalLabel") Add ticket field
+				div(class="modal-body")
+					
+					form(class="form" role="form" id="add_fieldproperty_form")
+						div(class="form-group")
+							label Name:
+							input(type="text" class="form-control" placeholder="Name" id="name_add_fieldproperty_form_modal")
+							<br><br>
+							label Datatype: 
+							select(id="datatype_add_fieldproperty_form_modal")
+								for type in datatypes
+									option(class="form-control" id="#{type.id}" value="#{type.datatype}")=type.datatype
+									
+							<br><br>
+							label
+								input(type="checkbox" id="mandatory_add_fieldproperty_modal")
+								| Mandatory
+							<br><br>
+							label
+								input(type="checkbox" id="active_add_fieldproperty_modal" checked)
+								| Active
+				div(class="modal-footer")
+					button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
+					button(type="button" class="btn btn-primary btn-lg" onclick="add_ticketfield()") Add
+
+
 
 div(class="modal fade" id="edit_fieldproperty_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
 		div(class="modal-dialog")
