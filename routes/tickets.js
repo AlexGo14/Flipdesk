@@ -49,7 +49,6 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 							datamodel.push(datamodel_draft[i]);
 						}
 					}
-					logger.error(datamodel);
 					
 					utility.getUsersByCustomerId(req.params.id, function(users) {
 						utility.getCustomers(function(customers) {
@@ -72,6 +71,7 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 /* Create Ticket */
 router.post('/', utility.requireAuthentication, function(req, res) {
 	
+	
 	var new_ticket = {
 		'id': -1,
 		'caption': req.body.caption,
@@ -85,7 +85,9 @@ router.post('/', utility.requireAuthentication, function(req, res) {
 		'properties': req.body.properties
 	}
 	
-	console.log(req.body);
+	
+	logger.error(new_ticket);
+	
 	utility.createTicket(new_ticket, function(id, err) {
 		res.json({ 'success': true, 'id': id });
 	});

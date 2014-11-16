@@ -12,7 +12,7 @@ block content
 						ul(class="list-unstyled")
 							for loop_ticket in tickets
 								li
-									if loop_ticket.fk_agent_id
+									if loop_ticket.agent.id
 										span(class="btn" id=loop_ticket.id onclick="ticket_click(this.id)")=loop_ticket.caption
 									else
 										u(class="btn" id=loop_ticket.id onclick="ticket_click(this.id)" underline)=loop_ticket.caption

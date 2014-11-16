@@ -325,7 +325,7 @@ var utility = {
 					.insert({
 						'fk_ticket_id': id,
 						'fk_datamodel_id': ticket.properties[i].datamodel_id,
-						'name': ticket.properties[i].name
+						'value': ticket.properties[i].value
 					})
 					.then(function(data) {
 						
@@ -342,7 +342,7 @@ var utility = {
 			}
 		})
 		.catch(function(err) {
-			callback(null, err);
+			callback(null, err);c
 		});
 	},
 	assignAgent: function (agent_id, ticket_id, callback, error) {
@@ -436,7 +436,7 @@ var utility = {
 	getTicketDatamodel: function(customerid, ticketid, callback) {
 		
 		//Select the specific values for one ticket.
-		utility.getDatamodel(customerid, function(datamodel) {
+		utility.getDatamodel(customerid, function(datamodel_temp) {
 			knex('ticket_datamodel')
 				.select('id', 'fk_datamodel_id', 'value')
 				.where({
@@ -444,10 +444,20 @@ var utility = {
 				})
 				.then(function(rows) {
 					
+					//Eliminate inactive properties
+					var datamodel = []
+					for(var i = 0; i < datamodel_temp.length; i++) {
+						if(datamodel_temp[i].active) {
+							datamodel[i] = datamodel_temp[i];
+						}
+					}
+					
+					//Set unsetted properties on null
 					for(var u = 0; u < datamodel.length; u++) {
 						datamodel[u].value = null;
 					}
 					
+					//Connect the values with the datamodel
 					for(var i = 0; i < rows.length; i++) {
 						
 						for(var u = 0; u < datamodel.length; u++) {

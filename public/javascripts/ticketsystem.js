@@ -23,21 +23,25 @@ function ticket_send() {
 		'caption': $('#create_ticket_form_caption')[0].value,
 		'description': $('#create_ticket_form_description')[0].value,
 		'user_id': $('#create_ticket_form_user')[0].selectedOptions[0].id,
-		'agent_id': $('#create_ticket_form_agent')[0].selectedOptions[0].id
+		'agent_id': $('#create_ticket_form_agent')[0].selectedOptions[0].id,
+		properties: []
 	};
 	
 	var customProperties = $('.custom_properties');
-	var properties = [];
+	
 	for(var i = 0; i < customProperties.length; i++) {
-		properties[i] = {
-			'datamodel_id': customProperties[i].id,
-			'value': customProperties[i].value
+		new_ticket.properties[i] = {
+			datamodel_id: parseInt(customProperties[i].id),
+			value: customProperties[i].value
 		};
 	}
 	
-	new_ticket.properties = properties;
-	
-	$.post('/tickets', new_ticket, function(data) { 
+	$.ajax({
+		url: '/tickets',
+		type: 'POST',
+		data: JSON.stringify(new_ticket),
+		contentType: 'application/json',
+		success: function(data) { 
 			if(data.success) {
 				$('#createTicketModal').modal('hide');
 				
@@ -45,7 +49,8 @@ function ticket_send() {
 				$('#create_ticket_form_description')[0].value = '';
 				
 			}
-	}, 'json');
+		}
+	});
 }
 
 /* Create a new comment object from form data and performs HTTP-POST to create new comment
