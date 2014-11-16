@@ -388,3 +388,22 @@ function edit_user() {
 	});
 	
 }
+
+function toggle_edit_fieldproperty_modal(id) {
+	var name = $('#row_property_' + id)[0].children[0].textContent;
+	var datatype = $('#row_property_' + id)[0].children[1].textContent;
+	var mandatory = $('#row_property_' + id)[0].children[2].checked;
+	var active = $('#row_property_' + id)[0].children[3].checked;
+	
+	$('#id_edit_fieldproperty_form_modal')[0].textContent = id;
+	$('#name_edit_fieldproperty_form_modal')[0].value = name;
+	//$('#datatype_edit_fieldproperty_form_modal')[0].value = datatype;
+	$('#mandatory_edit_fieldproperty_modal')[0].checked = mandatory;
+	$('#active_edit_fieldproperty_modal')[0].checked = active;
+	
+	$('#edit_fieldproperty_modal').modal('toggle');
+}
+
+function edit_ticketfield() {
+	
+}

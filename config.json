@@ -30,5 +30,8 @@
       "password": ""
     },
     "email": ""
+  },
+  "log4js": {
+	"level": "INFO"
   }
 }

@@ -22,7 +22,7 @@ var utility = {
 					);
 				}
 			}).catch(function(err) {
-				
+				console.log(err);
 			});
 	},
 	getUsers: function (callback) {
@@ -168,7 +168,7 @@ var utility = {
 		}).where({
 			'id': customer.id
 		}).then(function(id) {
-			callback(id);
+			callback(id[0]);
 		}).catch(function(err) {
 			console.log(err);
 		});
@@ -217,9 +217,7 @@ var utility = {
 			active: agent.active,
 			password: agent.password
 		}).then(function(id) {
-			id = id[0];
-			
-			callback(id);
+			callback(id[0]);
 		}).catch(function(err) {
 			console.log(err);
 		});		
@@ -231,7 +229,7 @@ var utility = {
 		}).update({
 			password: hash
 		}).then(function(id) {
-			callback(id);
+			callback(id[0]);
 		}).catch(function(err) {
 			console.log(err);
 		});
@@ -322,9 +320,27 @@ var utility = {
 			if(id > 0) {
 				mailFunction.sendNewTicket();
 				
-				callback(id);
+				callback(id[0]);
 			}
 		});
+	},
+	assignAgent: function (agent_id, ticket_id, callback, error) {
+		knex('ticket')
+			.returning('id')
+			.update({
+				fk_agent_id: agent_id,
+				update_timestamp: moment().format()
+			})
+			.where({
+				'id': ticket_id
+			})	
+			.then(function(id) {
+				callback(id[0]);
+			})
+			.catch(function(err) {
+				error(err);
+				console.log(err);
+			});
 	},
 	
 	getCommentsByTicketId: function (ticketid, callback) {
@@ -422,6 +438,17 @@ var utility = {
 					
 				});
 		});
+	},
+	
+	getBlacklist: function(callback) {
+		knex('blacklist')
+			.select('id', 'email')
+			.then(function(rows) {
+				callback(rows);
+			})
+			.catch(function(err) {
+				console.log(err);
+			});
 	},
 	
 	setUserObject: function(input) {

@@ -1,10 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var utility = require('./utility');
-var moment = require("moment-timezone");
+//var moment = require("moment-timezone");
 var generatePassword = require('password-generator');
-var bcrypt = require('bcrypt');
-var mailFunction = require('./mail');
+//var bcrypt = require('bcrypt');
+//var mailFunction = require('./mail');
 
 /* Renders general administration view */
 router.get('/', utility.requireAuthentication, function(req, res) {
@@ -110,59 +110,25 @@ router.post('/agents/:id', utility.requireAuthentication, function(req, res) {
 	});
 });
 
-/* Loads customer details and returns json data 
- * TODO: in utility auslagern */
+/* Loads customer details and returns json data */
 router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
-	var customer = {};
 	
-	knex('customer').select('id', 'name', 'email_contact', 'create_timestamp', 'update_timestamp',
-		'fk_created_by_admin', 'active').where({
-		id: req.params.id
-	})
-	.then(function(rows) {
+	utility.getCustomer(req.params.id, function(customer) {
 		
-		customer = rows[0];
-		
-		knex('user').select(
-			'user.id', 'user.first_name', 'user.last_name', 'user.email', 
-				'user.create_timestamp', 'user.update_timestamp')
-		.where({
-			'user.fk_customer_id': req.params.id
-		})
-		.orderBy('user.id', 'asc')
-		.then(function(rows) {
-			
-			customer.users = rows;
-			for(var i = 0; i < customer.users.length; i++) {
-				if(customer.users[i].update_timestamp == null || customer.users[i].update_timestamp == undefined) {
-					customer.users[i].update_timestamp = false;
-				} else {
-					customer.users[i].update_timestamp = moment(customer.users[i].update_timestamp).tz("Pacific/Auckland").format('Do MMMM YYYY, h:mm a');
-				}
-			}
+		utility.getUsersByCustomerId(req.params.id, function(users) {
+			customer.users = users;
 			
 			utility.getDatamodel(req.params.id, function(datamodel) {
-				
-				knex('blacklist').select().then(function(rows) {
-					
-					res.render('administration-customer', 
-						{'name': customer.name, 'id': customer.id, 'users': customer.users, 'active': customer.active,
-							'blacklist': rows, 'datamodel': datamodel });
-				}).catch(function(err) {
-					
-				});
+				utility.getDatatypes(function(datatypes) {
+					utility.getBlacklist(function(blacklist) {
+						res.render('administration-customer', 
+							{'name': customer.name, 'id': customer.id, 'users': customer.users, 'active': customer.active,
+								'blacklist': blacklist, 'datamodel': datamodel, 'datatypes': datatypes });
+					});
+				})
 			});
-		})
-		.catch(function(err) {
-			console.log(err);
 		});
-		
-		
-	})
-	.catch(function(err) {
-		
 	});
-	
 });
 
 /* Renders "administration-add" view */

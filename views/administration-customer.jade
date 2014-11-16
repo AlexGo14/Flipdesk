@@ -80,31 +80,36 @@ div(id="ticket_fields_customer_div" style="" class="nav_content")
 	p.
 		Assigned agent and user are fixed.<br>
 		Everything else is variable but might not be imported from email.
-		
-	table
+	
+	table(class="table table-striped table-hover table-condensed" id="ticketfield_table")
 		tr
-			td(style="visibility: hidden;") ID
 			td
 				strong Name
 			td
 				strong Datatype
 			td
 				strong Mandatory
+			td
+				strong Active
 		
 		for data in datamodel
-			tr
-				td(style="visibility: hidden;") #{data.id}
+			tr(onclick="toggle_edit_fieldproperty_modal(#{data.id})" id="row_property_#{data.id}")
 				td
-					input(value="#{data.name}")
+					span #{data.name}
 				td
-					input(value="#{data.datatype}")
+					span #{data.datatype}
 				td
 					label
 						if data.mandatory
-							input(type="checkbox" checked)
+							input(type="checkbox" disabled checked)
 						else
-							input(type="checkbox")
-
+							input(type="checkbox" disabled)
+				td
+					label
+						if data.active
+							input(type="checkbox" disabled checked)
+						else
+							input(type="checkbox" disabled)
 
 
 
@@ -161,3 +166,36 @@ div(class="modal fade" id="edit_user_modal" tabindex="-1" role="dialog" aria-lab
 				div(class="modal-footer")
 					button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
 					button(type="button" class="btn btn-primary btn-lg" onclick="edit_user()") Edit
+
+div(class="modal fade" id="edit_fieldproperty_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Close
+					h4(class="modal-title" id="myModalLabel") Edit modal
+				div(class="modal-body")
+					span(id="id_edit_fieldproperty_form_modal" style="visibility: hidden;")
+					
+					form(class="form" role="form" id="edit_fieldproperty_form")
+						div(class="form-group")
+							label Name:
+							input(type="text" class="form-control" placeholder="Name" id="name_edit_fieldproperty_form_modal")
+							<br><br>
+							label Datatype: 
+							select(id="datatype_edit_fieldproperty_form_modal")
+								for type in datatypes
+									option(class="form-control" id="#{type.id}" value="#{type.datatype}")=type.datatype
+									
+							<br><br>
+							label
+								input(type="checkbox" id="mandatory_edit_fieldproperty_modal")
+								| Mandatory
+							<br><br>
+							label
+								input(type="checkbox" id="active_edit_fieldproperty_modal")
+								| Active
+				div(class="modal-footer")
+					button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
+					button(type="button" class="btn btn-primary btn-lg" onclick="edit_ticketfield()") Edit

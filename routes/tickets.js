@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var utility = require('./utility');
-var mailFunction = require('./mail');
+//var mailFunction = require('./mail');
 
 router.get('/', utility.requireAuthentication, function(req, res) {
 	utility.getCustomers(function(customers) {
@@ -93,39 +93,19 @@ router.delete('/:id', utility.requireAuthentication, function(req, res) {
 /* Assign agent to ticket */
 router.post('/:id/assign/:agent_id', utility.requireAuthentication, function(req, res) {
 	var ticket_id = req.params.id;
-	agent_id = req.params.agent_id;
+	var agent_id = req.params.agent_id;
 	
-	if(agent_id > 0) {
-		knex('ticket')
-			.returning('id')
-			.update({
-				fk_agent_id: agent_id,
-				update_timestamp: moment().format()
-			})
-			.where('id', '=', ticket_id)		
-			.then(function(id) {
-				res.json( { success: true } );
-			})
-			.catch(function(err) {
-				console.log(err);
-				res.json( { success: false } );
-		});
-	} else if(agent_id == -1) {
-		knex('ticket')
-			.returning('id')
-			.update({
-				fk_agent_id: null,
-				update_timestamp: moment().format()
-			})
-			.where('id', '=', ticket_id)
-			.then(function(id) {
-				res.json( { success: true } );
-			})
-			.catch(function(err) {
-				console.log(err);
-				res.json( { success: false } );
-		});
+	if(agent_id == -1) {
+		agent_id = null;
 	}
+	
+	utility.assignAgent(agent_id, ticket_id, 
+		function(id) {
+			res.json( { success: true } );
+		}, 
+		function(err) {
+			res.json( { success: false } );
+		});
 });
 
 //Create a comment

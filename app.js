@@ -1,7 +1,7 @@
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
-var logger = require('morgan');
+var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 session = require('cookie-session')
 var bodyParser = require('body-parser');
@@ -9,17 +9,32 @@ nconf = require('nconf');
 pg = require("pg");
 passport = require("passport");
 PassportLocalStrategy = require('passport-local').Strategy;
-var bcrypt = require('bcrypt');
+bcrypt = require('bcrypt');
 mailFunction = require('./routes/mail');
 var CronJob = require('cron').CronJob;
 moment = require("moment-timezone");
 
+//Configure log4js
+log4js = require("log4js");
+log4js.configure({
+	appenders: [
+		{ type: 'console' },
+		{ type: 'file', filename: 'logs/flipdesk_' + moment().format('DD-MM-YYYY') + '.log', category: 'flipdesk' }
+	]
+});
+logger = log4js.getLogger('flipdesk');
+logger.setLevel('INFO');
 
 
+
+//Configure nconf
 nconf.argv()
        .env()
        .file({ file: 'config.json' });
-       
+
+//Set user defined log level
+logger.setLevel(nconf.get('log4js').level);
+
 knex = require('knex')({
 	client: nconf.get('database').type,
 	connection: {
@@ -49,7 +64,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 //app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use(logger('dev'));
+app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -173,5 +188,6 @@ app.use(function(err, req, res, next) {
 });
 
 var server = app.listen(nconf.get('server').port, function() {
-    console.log('Listening on port %d', server.address().port);
+	logger.info('Listening on port %d', server.address().port);
+    //console.log('Listening on port %d', server.address().port);
 });
