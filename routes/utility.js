@@ -532,7 +532,6 @@ var utility = {
 			'email': input.email, 
 			'active': input.active
 		};
-		
 	}
 }
 

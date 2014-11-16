@@ -16,14 +16,13 @@ router.get('/', function (req, res) {
 
 router.post('/', function( req, res, next) {
 	// ask passport to authenticate
-	
 	passport.authenticate('local', function(err, user, info) {
 		
 		if (err) {
 			// if error happens
 			return next(err);
 		}
-		console.log(user);
+		
 		if (!user) {
 			// if authentication fail, get the error message that we set
 			// from previous (info.message) step, assign it into to

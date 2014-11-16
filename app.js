@@ -13,6 +13,7 @@ bcrypt = require('bcrypt');
 mailFunction = require('./routes/mail');
 var CronJob = require('cron').CronJob;
 moment = require("moment-timezone");
+var utility = require("./routes/utility");
 
 //Configure log4js
 log4js = require("log4js");
@@ -99,7 +100,7 @@ passport.use('local', new PassportLocalStrategy({
 				
 				// if everything is OK, return null as the error
 				// and the authenticated user
-				knex('user').where('id', '=', rows[i].id)
+				knex('agent').where('id', '=', rows[i].id)
 				.update({
 					update_timestamp: moment().format()
 				})
@@ -107,10 +108,10 @@ passport.use('local', new PassportLocalStrategy({
 					
 				})
 				.catch(function(err) {
-					console.log(err);
+					logger.error(err);
 				});
 				
-				return done(null, rows[i] );
+				return done(null, utility.setAgentObject(rows[i]) );
 			}
 			
 			
@@ -126,13 +127,13 @@ passport.serializeUser(function(user, done) {
 	done(null, user.id);
 });
 passport.deserializeUser(function(id, done) {
-  // query the current user from database
-	knex('user').select().where({
+	// query the current user from database
+	knex('agent').select().where({
 		'id': id
-	}).then(function(user){
-		done(null, user);
+	}).then(function(agent){
+		done(null, utility.setAgentObject(agent));
 	}).catch(function(err){
-		done(new Error('User ' + id + ' does not exist'));
+		done(new Error('Agent ' + id + ' does not exist'));
 	});
 });
 
@@ -140,10 +141,10 @@ passport.deserializeUser(function(id, done) {
 
 //Mail-Listener
 var job = new CronJob('* 5 * * * *', function(){
-		console.log('Started IMAP job');
+		logger.info('Started IMAP job');
 		mailFunction.start();
 	}, function () {
-		console.log('Error occurred: stopped imap service');
+		logger.error('Error occurred: stopped imap service');
 	},
 	true
 );
@@ -189,5 +190,4 @@ app.use(function(err, req, res, next) {
 
 var server = app.listen(nconf.get('server').port, function() {
 	logger.info('Listening on port %d', server.address().port);
-    //console.log('Listening on port %d', server.address().port);
 });
