@@ -312,6 +312,8 @@ var utility = {
 			});
 	},
 	createTicket: function (ticket, callback) {
+
+		
 		knex('ticket').returning('id').insert([{
 			'caption': ticket.caption,
 			'description': ticket.description,

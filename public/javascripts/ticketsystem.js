@@ -29,6 +29,22 @@ function ticket_send() {
 	
 	var customProperties = $('.custom_properties');
 	
+	//Do the mandatory property check
+	var findNullMandatory = false;
+	for(var i = 0; i < customProperties.length; i++) {
+		if(customProperties[i].classList.contains('mandatory') && customProperties[i].value == '') {
+			customProperties[i].classList.add('add-property');
+			findNullMandatory = true;
+		} else {
+			customProperties[i].classList.remove('add-property');
+		}
+		
+		
+	}
+	if(findNullMandatory) {
+		return;
+	}
+	
 	for(var i = 0; i < customProperties.length; i++) {
 		new_ticket.properties[i] = {
 			datamodel_id: parseInt(customProperties[i].id),

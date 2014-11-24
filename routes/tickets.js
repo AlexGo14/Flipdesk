@@ -85,12 +85,33 @@ router.post('/', utility.requireAuthentication, function(req, res) {
 		'properties': req.body.properties
 	}
 	
-	
-	logger.error(new_ticket);
-	
-	utility.createTicket(new_ticket, function(id, err) {
-		res.json({ 'success': true, 'id': id });
+	utility.getUser(new_ticket.user.id, function(user) {
+		utility.getDatamodel(user.customer.id, function(datamodel) {
+			
+			for(var i = 0; i < datamodel.length; i++) {
+				if(datamodel[i].mandatory) {
+					for(var u = 0; u < new_ticket.properties.length; u++) {
+						if(new_ticket.properties[u].datamodel_id == datamodel[i].id && 
+							datamodel[i].mandatory && new_ticket.properties[u].value == '') {
+							res.json({'success': false, 'error': { message: 'Mandatory property not set (property id: ' + datamode[i].id + ')', 
+								'code': 1 } });
+							
+							return;
+						}
+					}
+				}
+			}
+			
+			utility.createTicket(new_ticket, function(id, err) {
+				if(err) {
+					res.json({'success': false, 'error': 'Internal database error'});
+				} else {
+					res.json({ 'success': true, 'id': id });
+				}
+			});
+		});
 	});
+	
 });
 
 /* Update a ticket */

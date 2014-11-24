@@ -50,7 +50,10 @@ block content
 							for data in datamodel
 								label #{data.name}
 								
-								input(type="text" class="form-control" class="custom_properties" id="#{data.id}" placeholder="#{data.name}" mandatory="#{data.mandatory}")
+								if data.mandatory
+									input(type="text" class="form-control custom_properties mandatory" id="#{data.id}" placeholder="#{data.name}")
+								else
+									input(type="text" class="form-control custom_properties" id="#{data.id}" placeholder="#{data.name}")
 								<br><br>
 							textarea(class="form-control" rows="5" placeholder="Description" id="create_ticket_form_description")
 				div(class="modal-footer")
