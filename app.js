@@ -111,7 +111,9 @@ passport.use('local', new PassportLocalStrategy({
 					logger.error(err);
 				});
 				
-				return done(null, utility.setAgentObject(rows[i]) );
+				var userObj = utility.setAgentObject(rows[i]);
+				
+				return done(null, userObj );
 			}
 			
 			
@@ -123,17 +125,16 @@ passport.use('local', new PassportLocalStrategy({
   }
 ));
 passport.serializeUser(function(user, done) {
-	
 	done(null, user.id);
 });
 passport.deserializeUser(function(id, done) {
 	// query the current user from database
-	knex('agent').select().where({
-		'id': id
-	}).then(function(agent){
-		done(null, utility.setAgentObject(agent));
-	}).catch(function(err){
-		done(new Error('Agent ' + id + ' does not exist'));
+	utility.getAgent(id, function(agent) {
+		if(agent != null) {
+			done(null, agent);
+		} else {
+			done(new Error('Agent ' + id + ' does not exist'));
+		}
 	});
 });
 

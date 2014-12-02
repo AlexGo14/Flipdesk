@@ -3,12 +3,22 @@ h3 Add customer
 form(class="form" role="form" id="administration_add_form")
 	div(class="form-group")
 		label Company name: 
-		input(class="form-control" type="text" placeholder="Name")
+		input(class="form-control" type="text" placeholder="Name" id="company-name")
 		<br>
-		label Subscribed until:
-		input(class="form-control" type="date" placeholder="Date")
-		<br>
-		label E-Mail
-		input(class="form-control" type="email" placeholder="E-Mail")
+		label Contact E-Mail
+		input(class="form-control" type="email" placeholder="E-Mail" id="contact-email")
 		<br><br>
-		button(type="button" class="btn btn-primary") Save
+		label IMAP E-Mail
+		input(class="form-control" type="email" placeholder="IMAP" id="imap-email")
+		<br>
+		label SMTP E-Mail
+		input(class="form-control" type="email" placeholder="SMTP" id="smtp-email")
+		<br>
+		label User
+		input(class="form-control" type="text" placeholder="User" id="user")
+		<br>
+		label Password
+		input(class="form-control" type="password" placeholder="Password" id="password")
+		<br><br>
+		button(type="button" class="btn btn-primary" onclick="addCustomer()") Save
+		span(id="error-message")

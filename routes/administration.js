@@ -134,6 +134,29 @@ router.get('/customer', utility.requireAuthentication, function(req, res) {
 	res.render('administration-add', {});
 });
 
+/* Creates a new customer */
+router.post('/customer', utility.requireAuthentication, function(req, res) {
+	
+	var customer = {
+		name: req.body.name,
+		email_contact: req.body.email_contact,
+		imap_email: req.body.imap_email,
+		smtp_email: req.body.smtp_email,
+		mailbox_user: req.body.mailbox_user,
+		mailbox_password: req.body.mailbox_password,
+		admin: { id: req.user.id }
+	}
+	
+	utility.createCustomer(customer, function(id, err) {
+		if(id != null) {
+			res.json({ success: true, id: id });
+		} else {
+			logger.error(err);
+			res.json({ success: false, error: { code: 1, msg: err } });
+		}
+	});
+});
+
 /* Disable customer */
 router.delete('/customer/:id', utility.requireAuthentication, function(req, res) {
 	utility.disableCustomer(req.params.id, function(id) {

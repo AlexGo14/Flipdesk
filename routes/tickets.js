@@ -4,6 +4,7 @@ var utility = require('./utility');
 //var mailFunction = require('./mail');
 
 router.get('/', utility.requireAuthentication, function(req, res) {
+	
 	utility.getCustomers(function(customers) {
 		res.render('home', { title: 'Tickets', company: nconf.get('company').name,
 				customers: customers

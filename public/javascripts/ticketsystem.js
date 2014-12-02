@@ -505,3 +505,28 @@ function add_ticketfield() {
 		}
 	});
 }
+
+function addCustomer() {
+	var customer = {
+		name: $('#company-name')[0].value,
+		email_contact: $('#contact-email')[0].value,
+		imap_email: $('#imap-email')[0].value,
+		smtp_email: $('#smtp-email')[0].value,
+		mailbox_user: $('#user')[0].value,
+		mailbox_password: $('#password')[0].value
+	};
+	
+	$.ajax({
+		url: 'administration/customer', 
+		data: JSON.stringify(customer),
+		type: 'POST',
+		contentType: 'application/json',
+		success: function(data) {
+			if(data.success) {
+				open_administration_customer(data.id);
+			} else {
+				$('#error-message')[0].textContent = data.error.code + ': ' + data.error.msg;
+			}
+		}
+	});
+}

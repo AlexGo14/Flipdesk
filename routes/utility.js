@@ -174,6 +174,24 @@ var utility = {
 			console.log(err);
 		});
 	},
+	createCustomer: function (customer, callback) {
+		knex('customer').insert({
+			'name': customer.name,
+			'email_contact': customer.email_contact,
+			'active': true,
+			'fk_created_by_admin': customer.admin.id,
+			'email_mailbox': customer.imap_email,
+			'username_mailbox': customer.mailbox_user,
+			'password_mailbox': customer.mailbox_password
+		})
+		.returning('id')
+		.then(function(id) {
+			callback(id[0], null);
+		})
+		.catch(function(err) {
+			callback(null, err);
+		});
+	},
 	
 	getAgent: function (id, callback) {
 		knex('agent')
@@ -189,6 +207,7 @@ var utility = {
 			})
 			.catch(function(err) {
 				console.log(err);
+				callback(null);
 			});
 	},
 	getAgents: function (callback) {
