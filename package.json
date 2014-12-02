@@ -24,6 +24,7 @@
     "cron": "1.0.5",
     "emailjs": "0.3.12",
     "password-generator": "0.2.3",
-    "log4js": "0.6.21"
+    "log4js": "0.6.21",
+    "nconf": "0.7.1"
   }
 }
