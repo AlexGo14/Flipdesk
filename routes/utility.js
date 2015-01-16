@@ -119,6 +119,29 @@ var utility = {
 				
 			});
 	},
+	getCustomersAdminSettings: function (callback) {
+		knex('customer')
+			.select('id', 'name', 'email_contact', 'create_timestamp', 
+				'update_timestamp', 'fk_created_by_admin', 'active',
+				'email_mailbox', 'username_mailbox', 'password_mailbox', 'email_mailbox_imap')
+			.then(function(rows) {
+				var customers = [];
+				
+				for(var i = 0; i < rows.length; i++) {
+					
+					try {
+						customers[i] = utility.setCustomerObjectAdminsSettings(rows[i]);
+					} catch (err) {
+						console.log(err);
+					}
+				}
+				
+				callback(customers);
+			})
+			.catch(function(err) {
+				
+			});
+	},
 	getCustomers: function (callback) {
 		knex('customer')
 			.select('id', 'name', 'email_contact', 'create_timestamp', 
@@ -426,6 +449,19 @@ var utility = {
 					
 					//There are no previous comments, so we will create the initial one
 					
+					if(comment.user.id == null) {
+						comment.user.id = null;
+					} else {
+						console.log('user ' + null + comment.user.id);
+					}
+					
+					if(comment.agent.id == null) {
+						comment.agent.id = null;
+					} else {
+						console.log('agent ' + comment.agent.id);
+					}
+					
+					
 					knex('comment').returning('id').insert([{
 						'description': comment.description,
 						'fk_agent_id': comment.agent.id,
@@ -571,6 +607,23 @@ var utility = {
 			'update_timestamp': input.update_timestamp,
 			'active': input.active
 		};
+	},
+	setCustomerObjectAdminsSettings: function(input) {
+		var customer = {
+			'id': input.id,
+			'name': input.name, 
+			'email': input.email_contact,
+			'create_timestamp': input.create_timestamp,
+			'update_timestamp': input.update_timestamp,
+			'admin': { 'id': input.fk_created_by_admin },
+			'active': input.active,
+			'email_mailbox': input.email_mailbox,
+			'username_mailbox': input.username_mailbox,
+			'password_mailbox': input.password_mailbox,
+			'email_mailbox_imap': input.email_mailbox_imap
+		};
+		
+		return customer;
 	},
 	setCustomerObject: function(input) {
 		

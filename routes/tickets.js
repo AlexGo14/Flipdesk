@@ -162,8 +162,6 @@ router.post('/:id/comment', utility.requireAuthentication, function(req, res) {
 		new_comment.agent.id = parseInt(new_comment.agent.id);
 	} else if(new_comment.user.id != null) {
 		new_comment.user.id = parseInt(new_comment.user.id);
-	} else {
-		
 	}
 	
 	utility.createComment(new_comment, function(id, error) {

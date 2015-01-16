@@ -12,7 +12,6 @@ PassportLocalStrategy = require('passport-local').Strategy;
 bcrypt = require('bcrypt');
 moment = require("moment-timezone");
 var utility = require("./routes/utility");
-var imapScanner = require('./packages/mail');
 
 
 //Configure log4js
@@ -25,8 +24,6 @@ log4js.configure({
 });
 logger = log4js.getLogger('flipdesk');
 logger.setLevel('INFO');
-
-imapScanner.start(); // start listening
 
 //Configure nconf
 nconf.argv()
@@ -178,6 +175,8 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
+
+var imapScanner = require('./packages/mail');
 
 var server = app.listen(nconf.get('server').port, function() {
 	logger.info('Listening on port %d', server.address().port);
