@@ -141,6 +141,21 @@ var utility = {
 				
 			});
 	},
+	getCustomerByImapMailbox: function(imapmailbox, callback) {
+		
+		knex('customer')
+			.select('id')
+			.where({
+				'email_mailbox_imap': imapmailbox
+			})
+			.then(function(rows) {
+				
+				utility.getCustomer(rows[0].id, callback);
+			})
+			.catch(function(err) {
+				logger.error(err);
+			});
+	},
 	disableCustomer: function (id, callback) {
 		knex('customer').returning('id').update({
 			active: false
@@ -331,7 +346,7 @@ var utility = {
 			});
 	},
 	createTicket: function (ticket, callback) {
-
+		
 		
 		knex('ticket').returning('id').insert([{
 			'caption': ticket.caption,
@@ -357,7 +372,9 @@ var utility = {
 			}
 			
 			if(id > 0) {
-				mailFunction.sendNewTicket();
+				if(ticket.agent.id != -1) {
+					mailFunction.sendNewTicket();
+				}
 				
 				callback(id, null);
 			}
@@ -385,6 +402,43 @@ var utility = {
 			});
 	},
 	
+	createComment: function (comment, callback) {
+		
+		//Don't know what I coded her, but it works
+		knex.select('id').from('comment').where({
+			'fk_ticket_id': comment.ticket.id
+			}).orderBy('fk_previous_comment_id', 'asc').limit(1).then(function(rows) {
+				if(rows.length > 0) {
+					
+					knex('comment').returning('id').insert([{
+						'description': comment.description,
+						'fk_agent_id': comment.agent.id,
+						'fk_ticket_id': comment.ticket.id,
+						'fk_user_id': comment.user.id,
+						'fk_previous_comment_id': rows[0].id
+					}]).then(function(id) {						
+						callback(id, null);
+					}).catch(function(err) {
+						callback(null, err);
+					});
+					
+				} else {
+					
+					//There are no previous comments, so we will create the initial one
+					
+					knex('comment').returning('id').insert([{
+						'description': comment.description,
+						'fk_agent_id': comment.agent.id,
+						'fk_user_id': comment.user.id,
+						'fk_ticket_id': comment.ticket.id
+					}]).then(function(id) {
+						callback(id, null);
+					}).catch(function(err) {
+						callback(null, err);
+					});
+				}
+		});
+	},
 	getCommentsByTicketId: function (ticketid, callback) {
 		knex('comment')
 			.select('id', 'description', 'fk_user_id', 'fk_agent_id', 

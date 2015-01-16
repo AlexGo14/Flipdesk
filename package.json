@@ -19,12 +19,9 @@
     "passport": "0.2.1",
     "passport-local": "1.0.0",
     "bcrypt": "0.8.0",
-    "imap": "0.8.14",
-    "mailparser": "0.4.6",
-    "cron": "1.0.5",
-    "emailjs": "0.3.12",
     "password-generator": "0.2.3",
     "log4js": "0.6.21",
-    "nconf": "0.7.1"
+    "nconf": "0.7.1",
+    "mail-listener2": "0.1.7"
   }
 }

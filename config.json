@@ -23,11 +23,11 @@
   },
   "mail": {
     "server": {
-      "ip": -1,
+      "host": "",
       "port": -1,
-      "name": "",
       "username": "",
-      "password": ""
+      "password": "",
+      "ssl": true
     },
     "email": ""
   },

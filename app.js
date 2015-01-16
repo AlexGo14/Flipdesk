@@ -10,10 +10,10 @@ pg = require("pg");
 passport = require("passport");
 PassportLocalStrategy = require('passport-local').Strategy;
 bcrypt = require('bcrypt');
-mailFunction = require('./routes/mail');
-var CronJob = require('cron').CronJob;
 moment = require("moment-timezone");
 var utility = require("./routes/utility");
+var imapScanner = require('./packages/mail');
+
 
 //Configure log4js
 log4js = require("log4js");
@@ -26,7 +26,7 @@ log4js.configure({
 logger = log4js.getLogger('flipdesk');
 logger.setLevel('INFO');
 
-
+imapScanner.start(); // start listening
 
 //Configure nconf
 nconf.argv()
@@ -139,16 +139,6 @@ passport.deserializeUser(function(id, done) {
 });
 
 
-
-//Mail-Listener
-var job = new CronJob('* 5 * * * *', function(){
-		logger.info('Started IMAP job');
-		mailFunction.start();
-	}, function () {
-		logger.error('Error occurred: stopped imap service');
-	},
-	true
-);
 
 
 app.use('/', landing_page);

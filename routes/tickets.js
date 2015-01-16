@@ -166,41 +166,16 @@ router.post('/:id/comment', utility.requireAuthentication, function(req, res) {
 		
 	}
 	
-	knex.select('id').from('comment').where({
-		'fk_ticket_id': new_comment.ticket.id
-		}).orderBy('fk_previous_comment_id', 'asc').limit(1).then(function(rows) {
-			if(rows.length > 0) {
-				if(new_comment.agent.id != null) {
-					knex('comment').returning('id').insert([{
-					'description': new_comment.description,
-					'fk_agent_id': new_comment.agent.id,
-					'fk_ticket_id': new_comment.ticket.id,
-					'fk_previous_comment_id': rows[0].id
-					}]).then(function(id) {
-						if(id > 0) {
-							res.json({ 'success': true, 'id': id });
-						}
-					});
-				} else if(new_comment.user.id != null) {
-					new_comment.user.id = parseInt(new_comment.user.id);
-				} else {
-					
-				}
-				
-				
-			} else {
-				knex('comment').returning('id').insert([{
-					'description': new_comment.description,
-					'fk_agent_id': new_comment.agent.id,
-					'fk_ticket_id': new_comment.ticket.id
-					}]).then(function(id) {
-						if(id > 0) {
-							mailFunction.sendComment();
-							
-							res.json({ 'success': true, 'id': id });
-						}
-					});
+	utility.createComment(new_comment, function(id, error) {
+		if(!error) {
+			if(new_comment.agent.id != null) {
+				mailFunction.sendComment(id);
 			}
+		
+			res.json({ 'success': true, 'id': id });
+		} else {
+			logger.error(error);
+		}
 	});
 });
 
