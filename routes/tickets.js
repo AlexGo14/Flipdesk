@@ -148,7 +148,7 @@ router.post('/:id/comment', utility.requireAuthentication, function(req, res) {
 	var new_comment = {
 		'description': req.body.description,
 		'ticket': {
-			'id': req.body.ticket_id
+			'id': parseInt(req.body.ticket_id)
 		},
 		'agent': {
 			'id': req.body.agent_id

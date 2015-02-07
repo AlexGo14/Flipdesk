@@ -22,6 +22,7 @@ var utility = {
 					);
 				}
 			}).catch(function(err) {
+				
 				console.log(err);
 			});
 	},
@@ -244,7 +245,8 @@ var utility = {
 				callback(agent);
 			})
 			.catch(function(err) {
-				console.log(err);
+				
+				console.log('Cannot read agent with ID: ' + id + ' --- ' + err);
 				callback(null);
 			});
 	},
@@ -310,6 +312,7 @@ var utility = {
 	},
 	
 	getTicket: function (id, callback) {
+		
 		knex('ticket')
 			.select('id', 'description', 'caption', 'create_timestamp', 'update_timestamp', 
 				'fk_agent_id', 'fk_user_id', 'solved')
@@ -323,6 +326,7 @@ var utility = {
 					
 					utility.getCommentsByTicketId(ticket.id, function(comments) {
 						ticket.comments = comments;
+						
 						
 						utility.getUser(ticket.user.id, function(user) {
 							ticket.user = user;
@@ -427,10 +431,23 @@ var utility = {
 	
 	createComment: function (comment, callback) {
 		
-		//Don't know what I coded her, but it works
+		if(comment.user.id == null || comment.user.id == '') {
+			comment.user.id = null;
+		} else {
+			console.log('user ' + null + comment.user.id);
+		}
+		
+		if(comment.agent.id == null || comment.agent.id == '') {
+			comment.agent.id = null;
+		} else {
+			console.log('agent ' + comment.agent.id);
+		}
+		
+		//Don't know what I coded her, but it bloody works
 		knex.select('id').from('comment').where({
 			'fk_ticket_id': comment.ticket.id
 			}).orderBy('fk_previous_comment_id', 'asc').limit(1).then(function(rows) {
+				
 				if(rows.length > 0) {
 					
 					knex('comment').returning('id').insert([{
@@ -447,20 +464,7 @@ var utility = {
 					
 				} else {
 					
-					//There are no previous comments, so we will create the initial one
-					
-					if(comment.user.id == null) {
-						comment.user.id = null;
-					} else {
-						console.log('user ' + null + comment.user.id);
-					}
-					
-					if(comment.agent.id == null) {
-						comment.agent.id = null;
-					} else {
-						console.log('agent ' + comment.agent.id);
-					}
-					
+					//There are no previous comments, so we will create the initial one					
 					
 					knex('comment').returning('id').insert([{
 						'description': comment.description,
@@ -487,7 +491,7 @@ var utility = {
 				var comments = [];
 				
 				for(var i = 0; i < rows.length; i++) {
-					comments[i] = utility.setCommentObject(rows[0]);
+					comments[i] = utility.setCommentObject(rows[i]);
 				}
 				
 				callback(comments);
