@@ -1,11 +1,11 @@
 var MailListener = require("mail-listener2");
+var email = require("emailjs");
 var utility = require("../routes/utility");
 
 var module = {
 	start: function() {
 		
 		utility.getCustomersAdminSettings(function(customers) {
-			
 			
 			for(var i = 0; i < customers.length; i++) {
 				var mailListener = new MailListener({
@@ -123,32 +123,45 @@ var module = {
 				mailListener.on("attachment", function(attachment){
 				  console.log(attachment.path);
 				});
-
-
-
-
-				mailFunction = {};
-
-				mailFunction.sendNewTicket = function(ticket) {
-					
-				}
-
-				mailFunction.sendComment = function(ticket, comment) {
-					
-				}
-
-				mailFunction.sendAgentWelcomeEmail = function(firstname, lastname, email, password) {
-					
-				}
-
-				mailFunction.sendUserWelcomeEmail = function(firstname, lastname, email, password) {
-					
-				}
-				
-				mailListener.start();
 			}
 
-
+		});
+	},
+	send: function(server, email) {
+		//Process server object
+		var server = email.server.connect({
+			user: server.user,
+			password: server.password,
+			host: server.host,
+			ssl: true
+		});
+		
+		//Process message object
+		var message = {
+			text: email.text.raw,
+			from: email.from,
+			to: email.to,
+			subject: email.subject,
+			//attachment:
+			//[
+			//	{ data: email.text.html, alternative: true }
+			//]
+		};
+		
+		//Check if any attachments are available and if yes, add them to the array.
+		for(var i = 0; i < message.attachments.length; i++) {
+			message.attachment.push( { path: message.attachments[i].path, 
+				type: message.attachments[i].type, name: message.attachments[i].name 
+			});
+		}
+		
+		//Send the message
+		server.send(message, function(err, message) { 
+			if(err) {
+				logger.error(err);
+			} else {
+				logger.info('Email has been send to: ' + message.to + ' from ' + message.from);
+			}
 		});
 	}
 }

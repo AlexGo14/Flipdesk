@@ -1,3 +1,4 @@
+
 var utility = {
 	requireAuthentication: function (req, res, next){
 		// check if the user is logged in
@@ -124,7 +125,8 @@ var utility = {
 		knex('customer')
 			.select('id', 'name', 'email_contact', 'create_timestamp', 
 				'update_timestamp', 'fk_created_by_admin', 'active',
-				'email_mailbox', 'username_mailbox', 'password_mailbox', 'email_mailbox_imap')
+				'email_mailbox', 'username_mailbox', 'password_mailbox', 'email_mailbox_imap',
+				'email_mailbox_smtp')
 			.then(function(rows) {
 				var customers = [];
 				
@@ -456,7 +458,7 @@ var utility = {
 						'fk_ticket_id': comment.ticket.id,
 						'fk_user_id': comment.user.id,
 						'fk_previous_comment_id': rows[0].id
-					}]).then(function(id) {						
+					}]).then(function(id) {	
 						callback(id, null);
 					}).catch(function(err) {
 						callback(null, err);
@@ -472,6 +474,7 @@ var utility = {
 						'fk_user_id': comment.user.id,
 						'fk_ticket_id': comment.ticket.id
 					}]).then(function(id) {
+						
 						callback(id, null);
 					}).catch(function(err) {
 						callback(null, err);
@@ -600,6 +603,26 @@ var utility = {
 			});
 	},
 	
+	sendEmail: function(customer_id, description, subject, to) {
+		utility.getCustomer(customer_id, function (customer) {
+			var message = {
+				'text': { 'raw': description },
+				'subject': subject,
+				'to': to,
+				'from': customer.email_mailbox,
+				'attachments': []
+			};
+			
+			var server = {
+				'user': customer.username_mailbox,
+				'password': customer.password_mailbox,
+				'host': customer.email_mailbox_stmp
+			}
+			
+			email.send(server, email);
+		});
+	},
+	
 	setUserObject: function(input) {
 		return {
 			'id': input.id,
@@ -624,7 +647,8 @@ var utility = {
 			'email_mailbox': input.email_mailbox,
 			'username_mailbox': input.username_mailbox,
 			'password_mailbox': input.password_mailbox,
-			'email_mailbox_imap': input.email_mailbox_imap
+			'email_mailbox_imap': input.email_mailbox_imap,
+			'email_mailbox_smtp': input.email_mailbox_smtp
 		};
 		
 		return customer;

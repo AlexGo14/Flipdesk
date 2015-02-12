@@ -8,8 +8,8 @@
     "ip": "localhost",
     "port": 5432,
     "name": "Ticketsystem",
-    "user": "johannes",
-    "password": "dothisfor95"
+    "user": "admin",
+    "password": "admin"
   },
   "company": {
     "name": "Support Service Ltd.",
