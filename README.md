@@ -10,4 +10,7 @@ Code
   Based on NodeJS and compatible with PostgreSQL, MySQL/MariaDB and SQLite, Flipdesk is fast gives your customer fast replies.
 
 Author
-  Johannes Giere - jogiere@gmail.com
+  Johannes Giere
+
+License
+  GPL v3
