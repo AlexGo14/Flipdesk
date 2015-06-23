@@ -42,6 +42,9 @@ router.post('/', function( req, res, next) {
 
 			// set the message
 			req.session.messages = "Login successfully";
+			
+			
+			
 			return res.json( {'success': true });
 		});
 

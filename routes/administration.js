@@ -232,6 +232,13 @@ router.post('/user/:id', utility.requireAuthentication, function(req, res) {
 	});
 });
 
+/* Delete user */
+router.delete('/user/:id', utility.requireAuthentication, function(req, res) {
+	utility.deleteUser(req.params.id, function(success) {
+		res.json({'success': success});
+	});
+});
+
 /* Create ticket field */
 router.post('/ticketfield', utility.requireAuthentication, function(req, res) {
 	knex('customer_datamodel').returning('id').insert({

@@ -32,8 +32,8 @@ div(class="row")
 			blockquote #{ticket.description}
 
 			<br><br>
-
 			if ticket.comments.length > 0
+				h3 Comments
 				for loop_comment in ticket.comments
 					span Written by 
 					span(data-toggle="tooltip" data-placement="left" title="#{loop_comment.agent.email}") #{loop_comment.agent.name} 

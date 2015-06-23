@@ -400,6 +400,23 @@ function add_user(customerid) {
 	});
 }
 
+/* Delete user */
+function delete_user() {
+	$.ajax({
+		url: '/administration/user/' + id,
+		data: {},
+		type: 'DELETE',
+		success: function(data) {
+			if(data.success) {
+				
+				$('#edit_fieldproperty_modal').modal('toggle');
+			} else {
+				var test = false;
+			}
+		}
+	});
+}
+
 /* Edit user */
 function edit_user() {
 	$.post('/administration/user/' + $('#id_edit_user_form_modal')[0].textContent, {

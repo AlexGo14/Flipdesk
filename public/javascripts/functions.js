@@ -20,3 +20,18 @@ function login() {
 		}
 	});
 }
+
+
+$('#email_login').keypress(function(e) {
+	var code = e.keyCode || e.which;
+	if(code == 13) {
+		login();
+	}
+});
+
+$('#password_login').keypress(function(e) {
+	var code = e.keyCode || e.which;
+	if(code == 13) {
+		login();
+	}
+});
