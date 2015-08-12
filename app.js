@@ -13,7 +13,6 @@ bcrypt = require('bcrypt');
 moment = require("moment-timezone");
 var utility = require("./routes/utility");
 
-
 //Configure log4js
 log4js = require("log4js");
 log4js.configure({
@@ -25,14 +24,14 @@ log4js.configure({
 logger = log4js.getLogger('flipdesk');
 logger.setLevel('INFO');
 
+
 //Configure nconf
 nconf.argv()
-       .env()
-       .file({ file: 'config.json' });
+     .env()
+     .file({ file: 'config.json' });
 
-//Set user defined log level
-logger.setLevel(nconf.get('log4js').level);
 
+//Configure database
 knex = require('knex')({
 	client: nconf.get('database').type,
 	connection: {
@@ -48,6 +47,14 @@ knex = require('knex')({
 	//debug: true
 });
 
+//Checks if a connection to database can be established.
+if(!utility.checkDatabaseConnection()) {
+	logger.error("Abort program");
+	return;
+}
+
+
+//Get routes
 var landing_page = require('./routes/index');
 var tickets = require('./routes/tickets');
 var administration = require('./routes/administration');
@@ -55,7 +62,9 @@ var password_reset = require('./routes/password-reset');
 var authentication = require('./routes/authentication');
 var statistics = require('./routes/statistics');
 
+
 var app = express();
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -71,6 +80,7 @@ app.use(session({ secret: 'SECRET' }));
 app.use(passport.initialize());
 app.use(passport.session());
 
+
 //Authentication functions
 passport.use('local', new PassportLocalStrategy({
     usernameField: 'email',
@@ -78,23 +88,23 @@ passport.use('local', new PassportLocalStrategy({
   },
   function(email, password, done) {
 	/* get the email and password from the input arguments of the function */
-	
+
 	// query the user from the database
 	knex('agent').select().where({
 		'email': email
 	}).then(function(rows) {
-		
-		
+
+
 		if(rows.length < 1) {
 			// if the user does not exist
 			return done(null, false, {message: "The user does not exist"});
 		}
-		
+
 		for( var i = 0; i < rows.length; i++) {
-			
+
 			//Compare input password with stored password
 			if(bcrypt.compareSync(password, rows[i].password)) {
-				
+
 				// if everything is OK, return null as the error
 				// and the authenticated user
 				knex('agent').where('id', '=', rows[i].id)
@@ -102,18 +112,18 @@ passport.use('local', new PassportLocalStrategy({
 					update_timestamp: moment().format()
 				})
 				.then(function(rows) {
-					
+
 				})
 				.catch(function(err) {
 					logger.error(err);
 				});
-				
+
 				var userObj = utility.setAgentObject(rows[i]);
-				
+
 				return done(null, userObj );
 			}
-			
-			
+
+
 		}
 	}).catch(function(err){
 		// if command executed with error
@@ -135,9 +145,7 @@ passport.deserializeUser(function(id, done) {
 	});
 });
 
-
-
-
+//Set routes up
 app.use('/', landing_page);
 app.use('/tickets', tickets);
 app.use('/administration', administration);
@@ -152,7 +160,8 @@ app.use(function(req, res, next) {
     next(err);
 });
 
-// error handlers
+
+// ERROR HANDLERS
 
 // development error handler
 // will print stacktrace
@@ -176,6 +185,7 @@ app.use(function(err, req, res, next) {
     });
 });
 
+//Custom packages
 var imapScanner = require('./packages/mail');
 
 var server = app.listen(nconf.get('server').port, function() {
