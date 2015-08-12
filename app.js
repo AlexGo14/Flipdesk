@@ -12,6 +12,16 @@ PassportLocalStrategy = require('passport-local').Strategy;
 bcrypt = require('bcrypt');
 moment = require("moment-timezone");
 var utility = require("./routes/utility");
+var fs = require('fs');
+
+var logDir = './logs';
+if(!fs.existsSync(logDir)) {
+	console.log('Log directory is missing.');
+
+	fs.mkdirSync(logDir);
+
+	console.log('Created log directory.');
+}
 
 //Configure log4js
 log4js = require("log4js");
