@@ -23,6 +23,6 @@
     "log4js": "0.6.21",
     "nconf": "0.7.1",
     "mail-listener2": "0.1.7",
-    "emailjs": "0.3.12"
+    "emailjs": "0.3.16"
   }
 }
