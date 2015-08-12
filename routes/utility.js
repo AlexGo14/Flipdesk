@@ -24,7 +24,7 @@ var utility = {
 				}
 			}).catch(function(err) {
 
-				console.log(err);
+				logger.error('Could not get user from database --- ' + err);
 			});
 	},
 	getUsers: function (callback) {
@@ -41,7 +41,7 @@ var utility = {
 				callback(users);
 
 			}).catch(function(err) {
-
+				logger.error('Could not get users from database --- ' + err);
 			});
 	},
 	getUsersByCustomerId: function(customerid, callback) {
@@ -62,7 +62,7 @@ var utility = {
 				callback(users);
 			})
 			.catch(function(err) {
-				console.log(err);
+				logger.error('Could not get users by customer id from database --- ' + err);
 			});
 	},
 	createUser: function (user, callback) {
@@ -77,7 +77,7 @@ var utility = {
 		}).then(function(id) {
 			callback(id[0]);
 		}).catch(function(err) {
-			console.log(err);
+			logger.error('Could not create user in database --- ' + err);
 		});
 	},
 	updateUserPassword: function(id, hash, callback) {
@@ -89,7 +89,7 @@ var utility = {
 		}).then(function(id) {
 			callback(id[0]);
 		}).catch(function(err) {
-			console.log(err);
+			logger.error('Could not update user password in database --- ' + err);
 		});
 	},
 	updateUser: function(user, callback) {
@@ -102,7 +102,7 @@ var utility = {
 		}).then(function(id) {
 			callback(id[0]);
 		}).catch(function(err) {
-			console.log(err);
+			logger.error('Could not update user in database --- ' + err);
 		});
 	},
 
@@ -118,7 +118,7 @@ var utility = {
 				callback(utility.setCustomerObject(rows[0]));
 			})
 			.catch(function(err) {
-
+				logger.error('Could not select customer from database --- ' + err);
 			});
 	},
 	getCustomersAdminSettings: function (callback) {
@@ -143,7 +143,7 @@ var utility = {
 				callback(customers);
 			})
 			.catch(function(err) {
-				logger.error("Could not fetch customer data: utility.getCustomersAdminSettings. ")
+				logger.error("Could not fetch customer data: utility.getCustomersAdminSettings --- " + err);
 			});
 	},
 	getCustomers: function (callback) {
@@ -165,7 +165,7 @@ var utility = {
 				callback(customers);
 			})
 			.catch(function(err) {
-
+				logger.error('Could not select customers from database --- ' + err);
 			});
 	},
 	getCustomerByImapMailbox: function(imapmailbox, callback) {
@@ -180,7 +180,7 @@ var utility = {
 				utility.getCustomer(rows[0].id, callback);
 			})
 			.catch(function(err) {
-				logger.error(err);
+				logger.error('Could not select customer by imap mailbox from database --- ' + err);
 			});
 	},
 	disableCustomer: function (id, callback) {
@@ -191,7 +191,7 @@ var utility = {
 		}).then(function(id) {
 			callback(id[0]);
 		}).catch(function(err) {
-			console.log(err);
+			logger.error('Could not disable customer in database --- ' + err);
 		});
 	},
 	enableCustomer: function (id, callback) {
@@ -202,7 +202,7 @@ var utility = {
 		}).then(function(id) {
 			callback(id[0]);
 		}).catch(function(err) {
-			console.log(err);
+			logger.error('Could not enable customer in database --- ' + err);
 		});
 	},
 	updateCustomer: function (customer, callback) {
@@ -213,7 +213,7 @@ var utility = {
 		}).then(function(id) {
 			callback(id[0]);
 		}).catch(function(err) {
-			console.log(err);
+			logger.error('Could not update customer in database --- ' + err);
 		});
 	},
 	createCustomer: function (customer, callback) {
@@ -248,8 +248,8 @@ var utility = {
 				callback(agent);
 			})
 			.catch(function(err) {
+				logger.error('Could not select customer from database with ID: ' + id + ' --- ' + err);
 
-				console.log('Cannot read agent with ID: ' + id + ' --- ' + err);
 				callback(null);
 			});
 	},
@@ -268,7 +268,7 @@ var utility = {
 				callback(agents);
 			})
 			.catch(function(err) {
-				console.log(err);
+				logger.error('Could not get agents from database --- ' + err);
 			});
 	},
 	createAgent: function (agent, callback) {
@@ -282,7 +282,7 @@ var utility = {
 		}).then(function(id) {
 			callback(id[0]);
 		}).catch(function(err) {
-			console.log(err);
+			logger.error('Could not create agent in database --- ' + err);
 		});
 	},
 	updateAgentPassword: function (id, hash, callback) {
@@ -294,7 +294,7 @@ var utility = {
 		}).then(function(id) {
 			callback(id[0]);
 		}).catch(function(err) {
-			console.log(err);
+			logger.error('Could not update agent in database --- ' + err);
 		});
 	},
 	updateAgent: function(agent, callback) {
@@ -310,7 +310,7 @@ var utility = {
 		}).then(function(id) {
 			callback(id[0]);
 		}).catch(function(err) {
-			console.log(err);
+			logger.error('Could not update agent in database --- ' + err);
 		});
 	},
 
@@ -349,7 +349,7 @@ var utility = {
 
 				}
 			}).catch(function(err) {
-				console.log(err);
+				logger.error('Could not get ticket from database --- ' + err);
 			});
 	},
 	getTicketsByCustomerId: function (customerid, callback) {
@@ -372,7 +372,7 @@ var utility = {
 				callback(tickets);
 
 			}).catch(function(err) {
-				console.log(err);
+				logger.error('Could not get tickets by customer id from database --- ' + err);
 			});
 	},
 	createTicket: function (ticket, callback) {
@@ -410,6 +410,7 @@ var utility = {
 			}
 		})
 		.catch(function(err) {
+			logger.error('Could not create ticket in database --- ' + err);
 			callback(null, err);c
 		});
 	},
@@ -428,7 +429,7 @@ var utility = {
 			})
 			.catch(function(err) {
 				error(err);
-				console.log(err);
+				logger.error('Could not assign ticket to agent in database --- ' + err);
 			});
 	},
 
@@ -436,17 +437,13 @@ var utility = {
 
 		if(comment.user.id == null || comment.user.id == '') {
 			comment.user.id = null;
-		} else {
-			console.log('user ' + null + comment.user.id);
 		}
 
 		if(comment.agent.id == null || comment.agent.id == '') {
 			comment.agent.id = null;
-		} else {
-			console.log('agent ' + comment.agent.id);
 		}
 
-		//Don't know what I coded her, but it bloody works
+		//Don't know what I coded her, but it works
 		knex.select('id').from('comment').where({
 			'fk_ticket_id': comment.ticket.id
 			}).orderBy('fk_previous_comment_id', 'asc').limit(1).then(function(rows) {
@@ -501,7 +498,7 @@ var utility = {
 				callback(comments);
 			})
 			.catch(function(err) {
-				console.log(err);
+				logger.error('Could not get comments by ticket id from database --- ' + err);
 			});
 	},
 
@@ -522,7 +519,7 @@ var utility = {
 				callback(datatypes);
 			})
 			.catch(function(err) {
-				console.log(err);
+				logger.error('Could not get datatypes from database --- ' + err);
 			});
 	},
 	getDatamodel: function(customerid, callback) {
@@ -550,6 +547,9 @@ var utility = {
 				}
 
 				callback(datamodel);
+			})
+			.catch(function(err) {
+				logger.error('Could not get datamodel from database --- ' + err);
 			});
 	},
 	getTicketDatamodel: function(customerid, ticketid, callback) {
@@ -589,6 +589,9 @@ var utility = {
 
 					callback(datamodel);
 
+				})
+				.catch(function(err) {
+					logger.error('Could not get ticket datamodel from database --- ' + err);
 				});
 		});
 	},
@@ -600,7 +603,7 @@ var utility = {
 				callback(rows);
 			})
 			.catch(function(err) {
-				console.log(err);
+				logger.error('Could not get blacklist from database --- ' + err);
 			});
 	},
 
@@ -675,8 +678,8 @@ var utility = {
 			'caption': input.caption,
 			'comments': [],
 			'create_timestamp': {
-					'short': moment(input.create_timestamp).tz('Pacific/Auckland').startOf('minute').fromNow(),
-					'detailed': moment(input.create_timestamp).tz('Pacific/Auckland').format('Do MMMM YYYY, h:mm a')
+					'short': moment(input.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
+					'detailed': moment(input.create_timestamp).tz('Europe/Berlin').format('Do MMMM YYYY, h:mm a')
 			 },
 			 'update_timestamp': null,
 			'agent': {'id': input.fk_agent_id },
@@ -685,8 +688,8 @@ var utility = {
 
 		if(input.update_timestamp != null) {
 			ticket.update_timestamp = {
-					'short': moment(input.update_timestamp).tz('Pacific/Auckland').startOf('minute').fromNow(),
-					'detailed': moment(input.update_timestamp).tz('Pacific/Auckland').format('Do MMMM YYYY, h:mm a')
+					'short': moment(input.update_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
+					'detailed': moment(input.update_timestamp).tz('Europe/Berlin').format('Do MMMM YYYY, h:mm a')
 			};
 		}
 
@@ -701,8 +704,8 @@ var utility = {
 			'ticket': {'id': input.fk_ticket_id},
 			'previous_comment': {'id': input.fk_previous_comment_id},
 			'create_timestamp': {
-					'short': moment(input.create_timestamp).tz('Pacific/Auckland').startOf('minute').fromNow(),
-					'detailed': moment(input.create_timestamp).tz('Pacific/Auckland').format('Do MMMM YYYY, h:mm a')
+					'short': moment(input.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
+					'detailed': moment(input.create_timestamp).tz('Europe/Berlin').format('Do MMMM YYYY, h:mm a')
 			 }
 		};
 	},
@@ -712,12 +715,12 @@ var utility = {
 			'first_name': input.first_name,
 			'last_name': input.last_name,
 			'create_timestamp': {
-				'short': moment(input.create_timestamp).tz('Pacific/Auckland').startOf('minute').fromNow(),
-				'detailed': moment(input.create_timestamp).tz('Pacific/Auckland').format('Do MMMM YYYY, h:mm a')
+				'short': moment(input.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
+				'detailed': moment(input.create_timestamp).tz('Europe/Berlin').format('Do MMMM YYYY, h:mm a')
 			},
 			'update_timestamp': {
-				'short': moment(input.create_timestamp).tz('Pacific/Auckland').startOf('minute').fromNow(),
-				'detailed': moment(input.create_timestamp).tz('Pacific/Auckland').format('Do MMMM YYYY, h:mm a')
+				'short': moment(input.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
+				'detailed': moment(input.create_timestamp).tz('Europe/Berlin').format('Do MMMM YYYY, h:mm a')
 			},
 			'is_admin': input.is_admin,
 			'email': input.email,
