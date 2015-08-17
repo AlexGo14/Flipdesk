@@ -97,13 +97,12 @@ passport.use('local', new PassportLocalStrategy({
     passwordField: 'password'
   },
   function(email, password, done) {
-	/* get the email and password from the input arguments of the function */
+	/* gets the email and password from the input arguments of the function */
 
 	// query the user from the database
 	knex('agent').select().where({
 		'email': email
 	}).then(function(rows) {
-
 
 		if(rows.length < 1) {
 			// if the user does not exist
@@ -132,8 +131,6 @@ passport.use('local', new PassportLocalStrategy({
 
 				return done(null, userObj );
 			}
-
-
 		}
 	}).catch(function(err){
 		// if command executed with error
@@ -196,7 +193,7 @@ app.use(function(err, req, res, next) {
 });
 
 //Custom packages
-var imapScanner = require('./packages/mail');
+//emailPackage = require('./packages/mail');
 
 var server = app.listen(nconf.get('server').port, function() {
 	logger.info('Listening on port %d', server.address().port);

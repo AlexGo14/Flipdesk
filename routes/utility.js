@@ -65,6 +65,7 @@ var utility = {
 				logger.error('Could not get users by customer id from database --- ' + err);
 			});
 	},
+
 	createUser: function (user, callback) {
 		knex('user').returning('id').insert({
 			first_name: user.first_name,
@@ -119,31 +120,6 @@ var utility = {
 			})
 			.catch(function(err) {
 				logger.error('Could not select customer from database --- ' + err);
-			});
-	},
-	getCustomersAdminSettings: function (callback) {
-
-		knex('customer')
-			.select('id', 'name', 'email_contact', 'create_timestamp',
-				'update_timestamp', 'fk_created_by_admin', 'active',
-				'email_mailbox', 'username_mailbox', 'password_mailbox', 'email_mailbox_imap',
-				'email_mailbox_smtp')
-			.then(function(rows) {
-				var customers = [];
-
-				for(var i = 0; i < rows.length; i++) {
-
-					try {
-						customers[i] = utility.setCustomerObjectAdminsSettings(rows[i]);
-					} catch (err) {
-						logger.error(err);
-					}
-				}
-
-				callback(customers);
-			})
-			.catch(function(err) {
-				logger.error("Could not fetch customer data: utility.getCustomersAdminSettings --- " + err);
 			});
 	},
 	getCustomers: function (callback) {
@@ -402,16 +378,13 @@ var utility = {
 			}
 
 			if(id > 0) {
-				if(ticket.agent.id != -1) {
-					mailFunction.sendNewTicket();
-				}
 
 				callback(id, null);
 			}
 		})
 		.catch(function(err) {
 			logger.error('Could not create ticket in database --- ' + err);
-			callback(null, err);c
+			callback(null, err);
 		});
 	},
 	assignAgent: function (agent_id, ticket_id, callback, error) {
@@ -638,24 +611,6 @@ var utility = {
 			'update_timestamp': input.update_timestamp,
 			'active': input.active
 		};
-	},
-	setCustomerObjectAdminsSettings: function(input) {
-		var customer = {
-			'id': input.id,
-			'name': input.name,
-			'email': input.email_contact,
-			'create_timestamp': input.create_timestamp,
-			'update_timestamp': input.update_timestamp,
-			'admin': { 'id': input.fk_created_by_admin },
-			'active': input.active,
-			'email_mailbox': input.email_mailbox,
-			'username_mailbox': input.username_mailbox,
-			'password_mailbox': input.password_mailbox,
-			'email_mailbox_imap': input.email_mailbox_imap,
-			'email_mailbox_smtp': input.email_mailbox_smtp
-		};
-
-		return customer;
 	},
 	setCustomerObject: function(input) {
 

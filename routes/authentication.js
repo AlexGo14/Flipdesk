@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 router.get('/', function (req, res) {
-	
+
 	if(req.user){
 		// already logged in
 		res.json( {'success': true} );
@@ -18,7 +18,6 @@ router.get('/', function (req, res) {
 router.post('/', function( req, res, next) {
 	// ask passport to authenticate
 	passport.authenticate('local', function(err, user, info) {
-		
 		if (err) {
 			// if error happens
 			return next(err);
@@ -29,7 +28,7 @@ router.post('/', function( req, res, next) {
 			// from previous (info.message) step, assign it into to
 			// req.session and redirect to the login page again to display
 			req.session.messages = info.message;
-			
+
 			return res.json( {'success': false, 'message': info.message });
 		}
 
@@ -42,9 +41,9 @@ router.post('/', function( req, res, next) {
 
 			// set the message
 			req.session.messages = "Login successfully";
-			
-			
-			
+
+
+
 			return res.json( {'success': true });
 		});
 

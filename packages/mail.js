@@ -1,11 +1,11 @@
 var MailListener = require("mail-listener2");
 var email = require("emailjs");
-var utility = require("../routes/utility");
+var objects = require("./objects");
+var database = require("./database");
 
-var module = {
+var mail_module = {
 	start: function() {
-
-		utility.getCustomersAdminSettings(function(customers) {
+		mail_module.getCustomersAdminSettings(function(customers) {
 
 			for(var i = 0; i < customers.length; i++) {
 
@@ -17,7 +17,7 @@ var module = {
 						username: customers[i].username_mailbox,
 						password: customers[i].password_mailbox,
 						host: customers[i].email_mailbox_imap,
-						port: 993, // imap port
+						port: 993,
 						tls: true,
 						tlsOptions: { rejectUnauthorized: false },
 						mailbox: "INBOX", // mailbox to monitor
@@ -42,8 +42,7 @@ var module = {
 						console.log(err);
 					});
 
-					mailListener.on("mail", function(mail, seqno, attributes){
-						//Get the customer by the imap host entry
+/*						//Get the customer by the imap host entry
 						utility.getCustomerByImapMailbox(mailListener.imap._config.host, function(customer) {
 
 							//Get all users and find the one user who wrote the email
@@ -120,20 +119,45 @@ var module = {
 
 							});
 						});
-					});
+					});*/
 
-					mailListener.on("attachment", function(attachment){
+					/*mailListener.on("attachment", function(attachment){
 						console.log(attachment.path);
-					});
+					});*/
 				} else {
 					logger.warn("Couldn't establish connection to customers IMAP-server. Missing IMAP credentials.");
 				}
 			}
 		});
 	},
+	getCustomersAdminSettings: function (callback) {
+
+	  knex('customer')
+	    .select('id', 'name', 'email_contact', 'create_timestamp',
+	      'update_timestamp', 'fk_created_by_admin', 'active',
+	      'email_mailbox', 'username_mailbox', 'password_mailbox', 'email_mailbox_imap',
+	      'email_mailbox_smtp')
+	    .then(function(rows) {
+	      var customers = [];
+
+	      for(var i = 0; i < rows.length; i++) {
+
+	        try {
+	          customers[i] = objects.setCustomerObjectAdminsSettings(rows[i]);
+	        } catch (err) {
+	          logger.error(err);
+	        }
+	      }
+
+	      callback(customers);
+	    })
+	    .catch(function(err) {
+	      logger.error("Could not fetch customer data: mail.getCustomersAdminSettings --- " + err);
+	    });
+	},
 	send: function(server, email) {
 
-		if(!isEmpty(server.user) && !isEmpty(server.password) && !isEmpty(server.host)) {
+		if(!server.user && !server.password && !server.host) {
 			//Process server object
 			var server = email.server.connect({
 				user: server.user,
@@ -172,10 +196,35 @@ var module = {
 		} else {
 			logger.error("Couldn't establish connection to SMTP server. Missing SMTP credentials. Check config.js");
 		}
+	},
+	notificationNewTicket: function(new_ticket) {
+
+		var server  = email.server.connect({
+			user: nconf.get('mail').server.username,
+			password: nconf.get('mail').server.password,
+			host: nconf.get('mail').server.smtp.host,
+			tls: true,
+			port: nconf.get('mail').server.smtp.port
+		});
+
+		database.getAgent(new_ticket.agent.id, function(agent) {
+			// send the message and get a callback with an error or details of the message that was sent
+			server.send({
+				text: "Dear agent a new ticket has been created. Please check your support dashboard.\r\r\rTicket content: " + new_ticket.description,
+				from: nconf.get('mail').email,
+				to:  agent.email,
+				subject: "New ticket: " + new_ticket.caption
+			}, function(err, message) {
+				if(err) {
+					logger.error(err);
+				} else {
+					logger.info(message);
+				}
+			});
+		});
 	}
 }
 
-module.start();
+mail_module.start();
 
-
-module.exports = module;
+module.exports = mail_module;
