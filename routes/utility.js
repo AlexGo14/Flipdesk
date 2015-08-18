@@ -224,7 +224,7 @@ var utility = {
 				callback(agent);
 			})
 			.catch(function(err) {
-				logger.error('Could not select customer from database with ID: ' + id + ' --- ' + err);
+				logger.error('Could not select agent from database with ID: ' + id + ' --- ' + err);
 
 				callback(null);
 			});
@@ -665,6 +665,7 @@ var utility = {
 		};
 	},
 	setAgentObject: function(input) {
+
 		return {
 			'id': input.id,
 			'first_name': input.first_name,

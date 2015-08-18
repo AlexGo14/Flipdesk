@@ -179,8 +179,6 @@ router.post('/:id/comment', utility.requireAuthentication, function(req, res) {
 
 					emailPackage.notificationNewComment(new_comment);
 				});
-
-
 			}
 
 			res.json({ 'success': true, 'id': id });

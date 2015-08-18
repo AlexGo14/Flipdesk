@@ -240,6 +240,27 @@ var mail_module = {
 			}
 		});
 	},
+	sendAgentWelcomeEmail: function (new_agent, password) {
+			var server = mail_module.getSmtpServer();
+
+			var description = "Hello " + new_agent.first_name + " " + new_agent.last_name + ",\r\r" +
+				"you are now registered as a support agent for " + nconf.get('company').name + ".\r\r" +
+				"Please login with your email address \"" + new_agent.email + "\" and the password \"" + password + "\".\r" +
+				"This password is temporary and you will have to change it at your first login.";
+
+			server.send({
+				text: description,
+				from: nconf.get('mail').email,
+				to:  new_agent.email,
+				subject: "Your agent account has been created"
+			}, function(err, message) {
+				if(err) {
+					logger.error(err);
+				} else {
+					logger.info(message);
+				}
+			});
+	},
 	getSmtpServer: function() {
 		var server  = email.server.connect({
 			user: nconf.get('mail').server.username,

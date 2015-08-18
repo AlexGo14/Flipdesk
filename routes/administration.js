@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var utility = require('./utility');
 var generatePassword = require('password-generator');
+var mailPackage = require('../packages/mail');
 
 /* Renders general administration view */
 router.get('/', utility.requireAuthentication, function(req, res) {
@@ -19,25 +20,25 @@ router.get('/settings', utility.requireAuthentication, function(req, res) {
 
 /* Updates company name */
 router.post('/settings/update', utility.requireAuthentication, function(req, res) {
-	
+
 	if(req.body.company_name != undefined) {
 		nconf.set('company:name', req.body.company_name);
-		
+
 		nconf.save(function(err) {
 			if(err) {
 				console.log('Could not save company name.');
 				res.json( { 'success': false } );
 				return;
 			}
-			
+
 			res.json( { 'success': true } );
-			
+
 		});
 	} else {
-		
+
 		res.json( { 'success': false } );
 	}
-	
+
 });
 
 /* Renders administration/agents view */
@@ -64,28 +65,27 @@ router.post('/agents', utility.requireAuthentication, function(req, res) {
 		active: req.body.active,
 		password: 'processing'
 	};
-	
+
+	//Generate salt, random password and hash async
+	//This function processes async to give the user a fast response.
+	//He should not wait for generating the salt, password, updating the db and sending the invitation/welcome email.
 	utility.createAgent(agent, function(id) {
-		//Generate salt, random password and hash async
-		//This function processes async to give the user a fast response. He does not have to wait
-		//for generating a salt, password and updating the db.
 		bcrypt.genSalt(10, function(err, salt) {
 			var gen_password = generatePassword(12, false);
-			
+
 			bcrypt.hash(gen_password, salt, function(err, hash) {
-				
+
 				utility.updateAgentPassword(id, hash, function(id) {
 					utility.getAgent(id, function(agent) {
-						
 						//Send welcome email
-						mailFunction.sendAgentWelcomeEmail(agent.first_name, 
-							agent.last_name, agent.email, gen_password);
+						logger.info(agent);
+						mailPackage.sendAgentWelcomeEmail(agent, gen_password);
 					});
 				});
 			});
 		});
-		
-		
+
+
 		res.json( { 'success': true } );
 	});
 });
@@ -101,7 +101,7 @@ router.post('/agents/:id', utility.requireAuthentication, function(req, res) {
 		active: req.body.active,
 		update_timestamp: moment().format()
 	};
-	
+
 	utility.updateAgent(agent, function(id) {
 		res.json( { 'success': true } );
 	});
@@ -109,16 +109,16 @@ router.post('/agents/:id', utility.requireAuthentication, function(req, res) {
 
 /* Loads customer details and returns json data */
 router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
-	
+
 	utility.getCustomer(req.params.id, function(customer) {
-		
+
 		utility.getUsersByCustomerId(req.params.id, function(users) {
 			customer.users = users;
-			
+
 			utility.getDatamodel(req.params.id, function(datamodel) {
 				utility.getDatatypes(function(datatypes) {
 					utility.getBlacklist(function(blacklist) {
-						res.render('administration-customer', 
+						res.render('administration-customer',
 							{'name': customer.name, 'id': customer.id, 'users': customer.users, 'active': customer.active,
 								'blacklist': blacklist, 'datamodel': datamodel, 'datatypes': datatypes });
 					});
@@ -136,7 +136,7 @@ router.get('/customer', utility.requireAuthentication, function(req, res) {
 
 /* Creates a new customer */
 router.post('/customer', utility.requireAuthentication, function(req, res) {
-	
+
 	var customer = {
 		name: req.body.name,
 		email_contact: req.body.email_contact,
@@ -146,7 +146,7 @@ router.post('/customer', utility.requireAuthentication, function(req, res) {
 		mailbox_password: req.body.mailbox_password,
 		admin: { id: req.user.id }
 	}
-	
+
 	utility.createCustomer(customer, function(id, err) {
 		if(id != null) {
 			res.json({ success: true, id: id });
@@ -177,7 +177,7 @@ router.post('/customer/:id', utility.requireAuthentication, function(req, res) {
 		'id': req.params.id,
 		'name': req.body.name
 	};
-	
+
 	utility.updateCustomer(customer, function(id) {
 		res.json({'success': true});
 	});
@@ -193,7 +193,7 @@ router.post('/user', utility.requireAuthentication, function(req, res) {
 		password: 'processing',
 		fk_customer_id: req.body.customer_id
 	};
-	
+
 	//Insert into db
 	utility.createUser(user, function(user_id) {
 		//Generate salt, random password and hash async
@@ -201,19 +201,19 @@ router.post('/user', utility.requireAuthentication, function(req, res) {
 		//for generating a salt, password and updating the db.
 		bcrypt.genSalt(10, function(err, salt) {
 			var gen_password = generatePassword(12, false);
-			
+
 			bcrypt.hash(gen_password, salt, function(err, hash) {
 				//Update user object
 				utility.updateUserPassword(user_id, hash, function(id) {
 					utility.getUser(id, function(user) {
 						//Send welcome email
-						mailFunction.sendUserWelcomeEmail(user.first_name, 
+						mailFunction.sendUserWelcomeEmail(user.first_name,
 							user.last_name, user.email, gen_password);
 					});
 				});
 			});
 		});
-		
+
 		res.json( { 'success': true, 'user': user } );
 	});
 });
@@ -226,7 +226,7 @@ router.post('/user/:id', utility.requireAuthentication, function(req, res) {
 		'last_name': req.body.last_name,
 		'email': req.body.email
 	};
-	
+
 	utility.updateUser(user, function(id) {
 		res.json({'success': true});
 	});
@@ -250,7 +250,7 @@ router.post('/ticketfield', utility.requireAuthentication, function(req, res) {
 	})
 	.then(function(id) {
 		id = id[0];
-		
+
 		utility.getDatamodel(req.body.customer_id, function(datamodel) {
 			for(var i = 0; i < datamodel.length; i++) {
 				if(datamodel[i].id == id) {
@@ -258,7 +258,7 @@ router.post('/ticketfield', utility.requireAuthentication, function(req, res) {
 				}
 			}
 		});
-		
+
 	})
 	.catch(function(err) {
 		logger.error(err);
@@ -271,7 +271,7 @@ router.put('/ticketfield/:id', utility.requireAuthentication, function(req, res)
 	if(req.body.name != "" && req.body.mandatory != undefined && req.body.customer_id != undefined &&
 		req.body.customer_id > 0 && req.body.datatype_id != undefined && req.body.datatype_id > 0 &&
 		req.body.active != undefined) {
-	
+
 		knex('customer_datamodel').returning('id').update({
 			'name': req.body.name,
 			'mandatory': req.body.mandatory,

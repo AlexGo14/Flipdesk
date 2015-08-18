@@ -147,7 +147,7 @@ passport.deserializeUser(function(id, done) {
 		if(agent != null) {
 			done(null, agent);
 		} else {
-			done(new Error('Agent ' + id + ' does not exist'));
+			done(new Error('Agent ID: ' + id + ' does not exist'));
 		}
 	});
 });
