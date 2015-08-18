@@ -42,8 +42,8 @@ var mail_module = {
 						console.log(err);
 					});
 
-/*						//Get the customer by the imap host entry
-						utility.getCustomerByImapMailbox(mailListener.imap._config.host, function(customer) {
+						//Get the customer by the imap host entry
+						/*utility.getCustomerByImapMailbox(mailListener.imap._config.host, function(customer) {
 
 							//Get all users and find the one user who wrote the email
 							utility.getUsersByCustomerId(customer.id, function(users) {
@@ -115,7 +115,6 @@ var mail_module = {
 
 										break;
 									}
-								}
 
 							});
 						});
@@ -199,13 +198,7 @@ var mail_module = {
 	},
 	notificationNewTicket: function(new_ticket) {
 
-		var server  = email.server.connect({
-			user: nconf.get('mail').server.username,
-			password: nconf.get('mail').server.password,
-			host: nconf.get('mail').server.smtp.host,
-			tls: true,
-			port: nconf.get('mail').server.smtp.port
-		});
+		var server = mail_module.getSmtpServer();
 
 		database.getAgent(new_ticket.agent.id, function(agent) {
 			// send the message and get a callback with an error or details of the message that was sent
@@ -222,6 +215,41 @@ var mail_module = {
 				}
 			});
 		});
+	},
+	notificationNewComment: function (new_comment) {
+		var server = mail_module.getSmtpServer();
+
+		//Find the new comment.
+		var comment = {};
+		for(var i = 0; i < new_comment.ticket.comments.length; i++) {
+			if(new_comment.ticket.comments[i].id == new_comment.comment.id) {
+				comment = new_comment.ticket.comments[i];
+			}
+		}
+
+		server.send({
+			text: "Dear agent a new comment has been created for your ticket \"" + new_comment.ticket.caption + "\".\r\rPlease check your support dashboard.\r\r\rComment: " + comment.description + "\r\r\rTicket content: " + new_comment.ticket.description,
+			from: nconf.get('mail').email,
+			to:  new_comment.ticket.agent.email,
+			subject: "New comment for ticket " + new_comment.ticket.caption
+		}, function(err, message) {
+			if(err) {
+				logger.error(err);
+			} else {
+				logger.info(message);
+			}
+		});
+	},
+	getSmtpServer: function() {
+		var server  = email.server.connect({
+			user: nconf.get('mail').server.username,
+			password: nconf.get('mail').server.password,
+			host: nconf.get('mail').server.smtp.host,
+			tls: true,
+			port: nconf.get('mail').server.smtp.port
+		});
+
+		return server;
 	}
 }
 

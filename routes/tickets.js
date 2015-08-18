@@ -170,7 +170,17 @@ router.post('/:id/comment', utility.requireAuthentication, function(req, res) {
 	utility.createComment(new_comment, function(id, error) {
 		if(!error) {
 			if(new_comment.agent.id != null) {
-				mailFunction.sendComment(id);
+				new_comment.comment = { 'id': id };
+
+				utility.getTicket(new_comment.ticket.id, function(ticket) {
+					new_comment.ticket = ticket;
+
+					logger.info(new_comment);
+
+					emailPackage.notificationNewComment(new_comment);
+				});
+
+
 			}
 
 			res.json({ 'success': true, 'id': id });
