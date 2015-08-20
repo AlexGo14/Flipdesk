@@ -58,11 +58,12 @@ knex = require('knex')({
 });
 
 //Checks if a connection to database can be established.
-if(!utility.checkDatabaseConnection()) {
-	logger.error("Abort program");
-	return;
-}
-
+utility.checkDatabaseConnection(function(status) {
+	if(!status) {
+		logger.error("Aborting server now!");
+		process.exit(1);
+	}
+})
 
 //Get routes
 var landing_page = require('./routes/index');

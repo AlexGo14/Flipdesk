@@ -683,15 +683,15 @@ var utility = {
 			'active': input.active
 		};
 	},
-	checkDatabaseConnection: function() {
+	checkDatabaseConnection: function(callback) {
 		return knex('customer').select().then(function(rows) {
 				logger.info('Database connection successfully established.');
 
-				return true;
-			}).catch(function(rows) {
+				callback(true);
+			}).catch(function(ex) {
 				logger.error('Could not connect to database. Check credentials.');
 
-				return false;
+				callback(false);
 			});
 	}
 }
