@@ -11,11 +11,26 @@ function login_form() {
 function login() {
 	$.post('/authentication', $('#login_form').serialize(), function(data) {
 		if(data.success) {
-			window.location.replace("/tickets");
+			if(data.login_pw_change) {
+				window.location.replace("/pwchange");
+			} else {
+				window.location.replace("/tickets");
+			}
 		} else {
-			console.log(data);
 			$('#error_message_form').html(
 				'Your login credentials are invalid.'
+			);
+		}
+	});
+}
+
+function change_password() {
+	$.post('/pwchange', $('#change_password_form').serialize(), function(data) {
+		if(data.success) {
+			window.location.replace("/tickets");
+		} else {
+			$('#error_message_form').html(
+				'Your new password could not be stored.'
 			);
 		}
 	});

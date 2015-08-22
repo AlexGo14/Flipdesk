@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var utility = require('../routes/utility');
 
 router.get('/', function (req, res) {
 
@@ -22,7 +23,7 @@ router.post('/', function( req, res, next) {
 			// if error happens
 			return next(err);
 		}
-		
+
 		if (!user) {
 			// if authentication fail, get the error message that we set
 			// from previous (info.message) step, assign it into to
@@ -39,12 +40,12 @@ router.post('/', function( req, res, next) {
 				return next(err);
 			}
 
-			// set the message
-			req.session.messages = "Login successfully";
+			utility.getAgent(user.id, function(agent) {
+				// set the message
+				req.session.messages = "Login successful";
 
-
-
-			return res.json( {'success': true });
+				return res.json( {'success': true , 'login_pw_change': agent.login_pw_change});
+			});
 		});
 
 	})(req, res, next);

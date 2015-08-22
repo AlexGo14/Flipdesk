@@ -75,7 +75,7 @@ router.post('/agents', utility.requireAuthentication, function(req, res) {
 
 			bcrypt.hash(gen_password, salt, function(err, hash) {
 
-				utility.updateAgentPassword(id, hash, function(id) {
+				utility.setNewAgentPassword(id, hash, function(id) {
 					utility.getAgent(id, function(agent) {
 						//Send welcome email
 						logger.info(agent);

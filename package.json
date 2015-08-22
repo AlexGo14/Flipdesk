@@ -24,5 +24,8 @@
     "nconf": "0.7.1",
     "mail-listener2": "0.1.7",
     "emailjs": "0.3.16"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0"
   }
 }

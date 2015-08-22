@@ -214,7 +214,7 @@ var utility = {
 	getAgent: function (id, callback) {
 		knex('agent')
 			.select('id', 'first_name', 'last_name', 'create_timestamp', 'update_timestamp',
-				'is_admin', 'email', 'active')
+				'is_admin', 'email', 'active', 'login_pw_change')
 			.where({
 				'id': id
 			})
@@ -261,7 +261,7 @@ var utility = {
 			logger.error('Could not create agent in database --- ' + err);
 		});
 	},
-	updateAgentPassword: function (id, hash, callback) {
+	setNewAgentPassword: function (id, hash, callback) {
 		//Update agent object
 		knex('agent').returning('id').where({
 			id: id
@@ -568,6 +568,25 @@ var utility = {
 				});
 		});
 	},
+	changeAgentPassword: function(agent_id, new_password, callback) {
+		knex('agent')
+			.returning('login_pw_change')
+			.update({
+				login_pw_change: false,
+				password: new_password
+			})
+			.where({
+				'id': agent_id
+			})
+			.then(function(result) {
+				callback(result[0], null);
+			})
+			.catch(function(err) {
+				callback(null, err);
+
+				logger.error('Could not update password for agent --- ' + err);
+			});
+	},
 
 	getBlacklist: function(callback) {
 		knex('blacklist')
@@ -680,7 +699,8 @@ var utility = {
 			},
 			'is_admin': input.is_admin,
 			'email': input.email,
-			'active': input.active
+			'active': input.active,
+			'login_pw_change': input.login_pw_change
 		};
 	},
 	checkDatabaseConnection: function(callback) {

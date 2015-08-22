@@ -1,0 +1,25 @@
+extends layout
+
+block navbar
+  nav(class="navbar navbar-default" role="navigation")
+    div(class="container-fluid")
+      div(class="navbar-header")
+        a(class="navbar-brand" href="/tickets") #{company}
+      div(class="collapse navbar-collapse" id="bs-example-navbar-collapse-1")
+
+block content
+  div(class="row")
+    div(class="col-sm-12 col-md-12 col-lg-12")
+      span This is your first login or you received a new password via email. Please choose a new password.
+      span(id="error_message_form")
+      
+      form(class="form" role="form" id="change_password_form")
+        div(class="form-group")
+          label Password:
+          input(type="password" id="new_password" name="new_password" class="form-control" placeholder="Password")
+          <br><br>
+          label Repeat password:
+          input(type="password" id="new_password_repeat" name="password" class="form-control" placeholder="Password")
+          <br>
+          button(type="button" class="btn btn-primary btn-lg" onclick="change_password()") Submit
+  script(src='/javascripts/functions.js')

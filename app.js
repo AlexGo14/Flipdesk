@@ -72,6 +72,7 @@ var administration = require('./routes/administration');
 var password_reset = require('./routes/password-reset');
 var authentication = require('./routes/authentication');
 var statistics = require('./routes/statistics');
+var pwchange = require('./routes/pwchange');
 
 
 var app = express();
@@ -160,6 +161,7 @@ app.use('/administration', administration);
 app.use('/password-reset', password_reset);
 app.use('/authentication', authentication);
 app.use('/statistics', statistics);
+app.use('/pwchange', pwchange);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -192,9 +194,6 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
-
-//Custom packages
-//emailPackage = require('./packages/mail');
 
 var server = app.listen(nconf.get('server').port, function() {
 	logger.info('Listening on port %d', server.address().port);
