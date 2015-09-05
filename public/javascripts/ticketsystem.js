@@ -26,9 +26,9 @@ function ticket_send() {
 		'agent_id': $('#create_ticket_form_agent')[0].selectedOptions[0].id,
 		properties: []
 	};
-	
+
 	var customProperties = $('.custom_properties');
-	
+
 	//Do the mandatory property check
 	var findNullMandatory = false;
 	for(var i = 0; i < customProperties.length; i++) {
@@ -38,32 +38,32 @@ function ticket_send() {
 		} else {
 			customProperties[i].classList.remove('add-property');
 		}
-		
-		
+
+
 	}
 	if(findNullMandatory) {
 		return;
 	}
-	
+
 	for(var i = 0; i < customProperties.length; i++) {
 		new_ticket.properties[i] = {
 			datamodel_id: parseInt(customProperties[i].id),
 			value: customProperties[i].value
 		};
 	}
-	
+
 	$.ajax({
 		url: '/tickets',
 		type: 'POST',
 		data: JSON.stringify(new_ticket),
 		contentType: 'application/json',
-		success: function(data) { 
+		success: function(data) {
 			if(data.success) {
 				$('#createTicketModal').modal('hide');
-				
+
 				$('#create_ticket_form_caption')[0].value = '';
 				$('#create_ticket_form_description')[0].value = '';
-				
+
 			}
 		}
 	});
@@ -78,13 +78,13 @@ function comment_send() {
 		'user_id': null,
 		'ticket_id': $('#ticket-id')[0].innerHTML
 	};
-	
-	$.post('/tickets/' + new_comment.ticket_id + '/comment', new_comment, function(data) { 
+
+	$.post('/tickets/' + new_comment.ticket_id + '/comment', new_comment, function(data) {
 			if(data.success) {
 				$('#createCommentModal').modal('hide');
-				
+
 				$('#create_comment_form_description')[0].value = '';
-				
+
 				ticket_click(parseInt(new_comment.ticket_id));
 			}
 	}, 'json');
@@ -95,32 +95,32 @@ function showAssignAgentModal() {
 	$('#assignAgentModal').modal('show');
 }
 
-/* Gets agent id and performs HTTP-POST to assign agent to ticket. 
+/* Gets agent id and performs HTTP-POST to assign agent to ticket.
  * After that the view is updated. */
 function assign_agent_to_ticket() {
 	var agent_id = $('#agent_assignAgentModal_form')[0].selectedOptions[0].id;
-	
+
 	$.post('/tickets/' + $('#ticket-id').html() + '/assign/' + agent_id, {}, function(data) {
 		if(data.success) {
 			$('#ticket_status').html('Assigned');
 			$('#assigned_to_agent').html('Agent: ' + $('#agent_assignAgentModal_form')[0].selectedOptions[0].value);
-			
+
 			$('#assignAgentModal').modal('hide');
 		} else {
-			
+
 		}
 	});
 }
 
 /* Sets ticket back to open and removes assigned agent from ticket. */
 function set_ticket_to_open() {
-	
+
 	$.post('/tickets/' + $('#ticket-id').html() + '/assign/-1', {}, function(data) {
 		if(data.success) {
 			$('#ticket_status').html('Open');
 			$('#assigned_to_agent').html(', Not Assigned');
 		} else {
-			
+
 		}
 	});
 }
@@ -131,7 +131,7 @@ function open_administration_settings() {
 		$('#settings_id').addClass('active');
 		$('#agents_id').removeClass('active');
 		$('#customers_id').removeClass('active');
-		
+
 		$('#administration_content').html(data);
 	});
 }
@@ -142,7 +142,7 @@ function open_administration_agents() {
 		$('#settings_id').removeClass('active');
 		$('#agents_id').addClass('active');
 		$('#customers_id').removeClass('active');
-		
+
 		$('#administration_content').html(data);
 	});
 }
@@ -153,7 +153,7 @@ function open_administration_customer(id) {
 		$('#settings_id').removeClass('active');
 		$('#agents_id').removeClass('active');
 		$('#customers_id').addClass('active');
-		
+
 		$('#administration_content').html(data);
 		switch_customer_navfield('general', 'general_tab');
 	});
@@ -165,24 +165,24 @@ function open_administration_customer_add() {
 		$('#settings_id').removeClass('active');
 		$('#agents_id').removeClass('active');
 		$('#customers_id').addClass('active');
-		
+
 		$('#administration_content').html(data);
 	});
 }
 
 /* Shows edit agent modal from "administration agent"-view */
 function toggle_edit_agent_modal(agent_id) {
-	
+
 	$.get('/administration/agents/' + agent_id, {}, function(data) {
 		var data = data.agent;
-		
+
 		$('#id_edit_agent_form_modal')[0].textContent = agent_id;
 		$('#fname_edit_agent_form_modal')[0].value = data.first_name;
 		$('#lname_edit_agent_form_modal')[0].value = data.last_name;
 		$('#email_edit_agent_form_modal')[0].value = data.email;
 		$('#isadmin_edit_agent_form_modal')[0].checked = data.is_admin;
 		$('#active_edit_agent_form_modal')[0].checked = data.active;
-		
+
 		$('#edit_agent_modal').modal('toggle');
 	});
 }
@@ -192,31 +192,31 @@ function switch_customer_navfield(option, event_src) {
 	switch (option) {
 		case 'general':
 			$('.nav_content').hide();
-			
+
 			$(event_src.id).addClass('active');
-			
+
 			$('#general_customer_div').show();
 			break;
 		case 'lists':
 			$('.nav_content').hide();
-			
+
 			$(event_src.id).addClass('active');
-			
+
 			$('#lists_customer_div').show();
-			
+
 			break;
 		case 'ticket':
 			$('.nav_content').hide();
-			
+
 			$(event_src.id).addClass('active');
-			
+
 			$('#ticket_fields_customer_div').show();
 			break;
 		case 'status':
 			$('.nav_content').hide();
-			
+
 			$(event_src.id).addClass('active');
-			
+
 			$('#status_fields_customer_div').show();
 			break;
 	}
@@ -225,25 +225,25 @@ function switch_customer_navfield(option, event_src) {
 /* Updates company name */
 function update_software_config() {
 	var company_name = $('#administration_settings_form_company_name')[0].value;
-	
+
 	$.ajax({
-		url: '/administration/settings/update', 
+		url: '/administration/settings/update',
 		type: 'POST',
 		data: { 'company_name': company_name },
 		success: function(data) {
 			if(data.success) {
-				$('#info-label')[0].textContent = 'Your data has been processed.';
+				$('#info-label')[0].textContent = 'Your data has been updated.';
 			} else {
 				$('#info-label')[0].textContent = 'There was a problem with your network connection while submitting your data.';
 			}
-		}		
+		}
 	});
 }
 
 /* Updates agents */
 function update_agent() {
 	var agent_id = $('#id_edit_agent_form_modal')[0].textContent;
-	
+
 	$.post('/administration/agents/' + agent_id, {
 		first_name: $('#fname_edit_agent_form_modal')[0].value,
 		last_name: $('#lname_edit_agent_form_modal')[0].value,
@@ -252,16 +252,16 @@ function update_agent() {
 		active: $('#active_edit_agent_form_modal')[0].checked
 	}, function(data) {
 		if(data.success) {
-			
+
 			$('#edit_agent_modal').modal('hide');
-			
+
 			$('#row_agent_' + agent_id)[0].children[1].textContent = $('#lname_edit_agent_form_modal')[0].value;
 			$('#row_agent_' + agent_id)[0].children[2].textContent = $('#fname_edit_agent_form_modal')[0].value;
 			$('#row_agent_' + agent_id)[0].children[3].textContent = $('#email_edit_agent_form_modal')[0].value;
 			$('#row_agent_' + agent_id)[0].children[4].children[1].checked = $('#active_edit_agent_form_modal')[0].checked;
 			$('#row_agent_' + agent_id)[0].children[4].children[1].disabled = true;
 		} else {
-			
+
 		}
 	});
 }
@@ -279,12 +279,12 @@ function add_agent() {
 		active: true
 	}, function(data) {
 		if(data.success) {
-			
+
 			$('#add_agent_modal').modal('hide');
 			open_administration_agents();
-			
+
 		} else {
-			
+
 		}
 	});
 }
@@ -306,7 +306,7 @@ function disable_customer(customerid) {
 		.fail(function(err) {
 			$('#disable_customer_info')[0].textContent = 'Error while disabling customer';
 		});
-		
+
 	} else {
 		$('#disable_customer_info')[0].textContent = 'Please check the box to disable this customer';
 	}
@@ -356,26 +356,26 @@ function show_adduser_modal() {
 
 //Show edit user modal
 function toggle_edit_user_modal(userid) {
-	
-	$('#id_edit_user_form_modal')[0].textContent = 
+
+	$('#id_edit_user_form_modal')[0].textContent =
 		$('#row_user_' + userid)[0].children[0].textContent;
-	$('#fname_edit_user_form_modal')[0].value = 
+	$('#fname_edit_user_form_modal')[0].value =
 		$('#row_user_' + userid)[0].children[2].textContent;
-	$('#lname_edit_user_form_modal')[0].value = 
+	$('#lname_edit_user_form_modal')[0].value =
 		$('#row_user_' + userid)[0].children[1].textContent;
-	$('#email_edit_user_form_modal')[0].value = 
+	$('#email_edit_user_form_modal')[0].value =
 		$('#row_user_' + userid)[0].children[3].textContent;
-	
+
 	$('#edit_user_modal').modal('show');
-	
-	
+
+
 }
 
 function add_user(customerid) {
 	var firstname = $('#fname_add_user_form_modal')[0].value;
 	var lastname = $('#lname_add_user_form_modal')[0].value;
 	var email = $('#email_add_user_form_modal')[0].value;
-	
+
 	$.post('/administration/user', {
 		'first_name': firstname,
 		'last_name': lastname,
@@ -385,17 +385,17 @@ function add_user(customerid) {
 	}, function(data) {
 		if(data.success) {
 			$('#user_table tr:last').after(
-			'<tr onclick="toggle_edit_user_modal(' + data.id + ')")>' + 
-				'<td>' + data.id + '</td>' + 
-				'<td>' + data.first_name + '</td>' + 
-				'<td>' + data.last_name + '</td>' + 
-				'<td>' + data.email + '</td>' + 
+			'<tr onclick="toggle_edit_user_modal(' + data.id + ')")>' +
+				'<td>' + data.id + '</td>' +
+				'<td>' + data.first_name + '</td>' +
+				'<td>' + data.last_name + '</td>' +
+				'<td>' + data.email + '</td>' +
 				'<td></td>' +
 			'</tr>');
-			
+
 			$('#add_user_modal').modal('hide');
 		} else {
-			
+
 		}
 	});
 }
@@ -408,7 +408,7 @@ function delete_user() {
 		type: 'DELETE',
 		success: function(data) {
 			if(data.success) {
-				
+
 				$('#edit_fieldproperty_modal').modal('toggle');
 			} else {
 				var test = false;
@@ -429,13 +429,13 @@ function edit_user() {
 			$('#row_user_' + userid)[0].children[1] = $('#lname_edit_user_form_modal')[0].value;
 			$('#row_user_' + userid)[0].children[2] = $('#fname_edit_user_form_modal')[0].value;
 			$('#row_user_' + userid)[0].children[3] = $('#email_edit_user_form_modal')[0].value;
-			
+
 			$('#edit_user_modal').modal('hide');
 		} else {
-			
+
 		}
 	});
-	
+
 }
 
 function toggle_edit_fieldproperty_modal(id) {
@@ -443,19 +443,19 @@ function toggle_edit_fieldproperty_modal(id) {
 	var datatype = $('#row_property_' + id)[0].children[1].textContent;
 	var mandatory = $('#row_property_' + id + ' input')[0].checked;
 	var active = $('#row_property_' + id + ' input')[1].checked;
-	
+
 	$('#id_edit_fieldproperty_form_modal')[0].textContent = id;
 	$('#name_edit_fieldproperty_form_modal')[0].value = name;
 	$('#datatype_edit_fieldproperty_form_modal')[0].value = datatype;
 	$('#mandatory_edit_fieldproperty_modal')[0].checked = mandatory;
 	$('#active_edit_fieldproperty_modal')[0].checked = active;
-	
+
 	$('#edit_fieldproperty_modal').modal('toggle');
 }
 
 function edit_ticketfield() {
 	var id = $('#id_edit_fieldproperty_form_modal')[0].textContent;
-	
+
 	var ticketfield = {
 		'name': $('#name_edit_fieldproperty_form_modal')[0].value,
 		'datatype_id': $('#datatype_edit_fieldproperty_form_modal')[0].selectedOptions[0].id,
@@ -463,27 +463,27 @@ function edit_ticketfield() {
 		'mandatory': $('#mandatory_edit_fieldproperty_modal')[0].checked,
 		'active': $('#active_edit_fieldproperty_modal')[0].checked
 	};
-	
+
 	$.ajax({
 		url: '/administration/ticketfield/' + id,
 		data: ticketfield,
 		type: 'PUT',
 		success: function(data) {
 			if(data.success) {
-				
+
 				$('#row_property_' + id)[0].children[0].textContent = $('#name_edit_fieldproperty_form_modal')[0].value;
 				$('#row_property_' + id)[0].children[1].textContent = $('#datatype_edit_fieldproperty_form_modal')[0].value;
 				$('#row_property_' + id + ' input')[0].checked = $('#mandatory_edit_fieldproperty_modal')[0].checked;
 				$('#row_property_' + id + ' input')[1].checked = $('#active_edit_fieldproperty_modal')[0].checked;
-				
+
 				$('#edit_fieldproperty_modal').modal('toggle');
-				
+
 			} else {
 				var test = false;
 			}
 		}
 	});
-		
+
 }
 
 
@@ -500,7 +500,7 @@ function add_ticketfield() {
 		'mandatory': $('#mandatory_add_fieldproperty_modal')[0].checked,
 		'active': $('#active_add_fieldproperty_modal')[0].checked
 	};
-	
+
 	$.ajax({
 		url: '/administration/ticketfield',
 		data: ticketfield,
@@ -508,16 +508,16 @@ function add_ticketfield() {
 		success: function(data) {
 			if(data.success) {
 				$('#ticketfield_table tr:last').after(
-				'<tr onclick="toggle_edit_fieldproperty_modal(' + data.property.id + ')")>' + 
-					'<td><span>' + data.property.name + '</span></td>' + 
-					'<td><span>' + data.property.datatype + '</span></td>' + 
-					'<td><label><input type="checkbox" disabled checked="' + data.property.mandatory + '" /></label></td>' + 
-					'<td><label><input type="checkbox" disabled checked="' + data.property.active + '" /></label></td>' + 
+				'<tr onclick="toggle_edit_fieldproperty_modal(' + data.property.id + ')")>' +
+					'<td><span>' + data.property.name + '</span></td>' +
+					'<td><span>' + data.property.datatype + '</span></td>' +
+					'<td><label><input type="checkbox" disabled checked="' + data.property.mandatory + '" /></label></td>' +
+					'<td><label><input type="checkbox" disabled checked="' + data.property.active + '" /></label></td>' +
 				'</tr>');
-				
+
 				toggle_add_fieldproperty_modal();
 			} else {
-				
+
 			}
 		}
 	});
@@ -532,9 +532,9 @@ function addCustomer() {
 		mailbox_user: $('#user')[0].value,
 		mailbox_password: $('#password')[0].value
 	};
-	
+
 	$.ajax({
-		url: 'administration/customer', 
+		url: 'administration/customer',
 		data: JSON.stringify(customer),
 		type: 'POST',
 		contentType: 'application/json',
