@@ -59,7 +59,7 @@ function ticket_send() {
 		contentType: 'application/json',
 		success: function(data) {
 			if(data.success) {
-				$('#ticket_overview_list').append('<li><span class="btn" id="' + data.ticket.id + '" onclick="ticket_click(' + this.id + ')">' + data.ticket.caption + '</span></li>');
+				$('#ticket_overview_list').append('<li><span class="btn" id="' + data.ticket.id + '" onclick="ticket_click(' + data.ticket.id + ')">' + data.ticket.caption + '</span></li>');
 
 				$('#createTicketModal').modal('hide');
 
