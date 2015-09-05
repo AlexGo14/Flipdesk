@@ -346,6 +346,22 @@ var utility = {
 						ticket.comments = comments;
 
 
+						//Sort comments
+						var sortedComments = [];
+						for(var i = 0; i < ticket.comments.length; i++) {
+							if(ticket.comments[i].previous_comment.id == null) {
+								sortedComments.push(ticket.comments[i]);
+								break;
+							}
+						}
+						for(var i = 0; i < ticket.comments.length; i++) {
+							if(ticket.comments[i].previous_comment.id != null) {
+								sortedComments.push(ticket.comments[i]);
+							}
+						}
+						ticket.comments = sortedComments;
+
+
 						utility.getUser(ticket.user.id, function(user) {
 							ticket.user = user;
 
@@ -499,7 +515,7 @@ var utility = {
 			.where({
 				'fk_ticket_id': ticketid
 			})
-			.orderBy('fk_previous_comment_id', 'desc')
+			.orderBy('fk_previous_comment_id', 'asc')
 			.then(function(rows) {
 				var comments = [];
 

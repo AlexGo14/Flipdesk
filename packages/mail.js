@@ -243,18 +243,44 @@ var mail_module = {
 	notificationNewComment: function (new_comment) {
 		var server = mail_module.getSmtpServer();
 
-		//Find the new comment.
+
+		var mailContent = "Comment: " + new_comment.description + "\r\r\r" +
+				"Ticket: " + new_comment.ticket.description + "\r\r\r";
+		if(new_comment.ticket.comments.length > 1) {
+			mailContent += "Previous comments: \r\r";
+		}
+
+
+		//Find the new comment and create mailContent.
 		var comment = {};
+		logger.error(new_comment.ticket.comments);
 		for(var i = 0; i < new_comment.ticket.comments.length; i++) {
 			if(new_comment.ticket.comments[i].id == new_comment.comment.id) {
 				comment = new_comment.ticket.comments[i];
+			} else if(new_comment.ticket.comments.length > 1) {
+				mailContent += "--- " + new_comment.ticket.comments[i].description + "\r\r\r";
 			}
 		}
 
+
+
 		server.send({
-			text: "Dear agent a new comment has been created for your ticket \"" + new_comment.ticket.caption + "\".\r\rPlease check your support dashboard.\r\r\rComment: " + comment.description + "\r\r\rTicket content: " + new_comment.ticket.description,
+			text: "Dear agent a new comment has been created for your ticket \"" + new_comment.ticket.caption + "\".\r\rPlease check your support dashboard.\r\r\r" + mailContent,
 			from: nconf.get('mail').email,
 			to:  new_comment.ticket.agent.email,
+			subject: "New comment for ticket " + new_comment.ticket.caption
+		}, function(err, message) {
+			if(err) {
+				logger.error(err);
+			} else {
+				logger.info(message);
+			}
+		});
+
+		server.send({
+			text: "Dear " + new_comment.ticket.user.first_name + " a new comment has been created for your ticket \"" + new_comment.ticket.caption + "\".\r\r\r" + mailContent,
+			from: nconf.get('mail').email,
+			to:  new_comment.ticket.user.email,
 			subject: "New comment for ticket " + new_comment.ticket.caption
 		}, function(err, message) {
 			if(err) {
