@@ -112,7 +112,7 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 
 	utility.getCustomer(req.params.id, function(customer) {
 
-		utility.getUsersByCustomerId(req.params.id, function(users) {
+		utility.getActiveUsersByCustomerId(req.params.id, function(users) {
 			customer.users = users;
 
 			utility.getDatamodel(req.params.id, function(datamodel) {
@@ -191,11 +191,14 @@ router.post('/user', utility.requireAuthentication, function(req, res) {
 		email: req.body.email,
 		active: req.body.active,
 		password: 'processing',
-		fk_customer_id: req.body.customer_id
+		fk_customer_id: parseInt(req.body.customer_id)
 	};
+	logger.error(user);
 
 	//Insert into db
 	utility.createUser(user, function(user_id) {
+		user.id = user_id;
+
 		//Generate salt, random password and hash async
 		//This function processes async to give the user a fast response. He does not have to wait
 		//for generating a salt, password and updating the db.
@@ -204,12 +207,9 @@ router.post('/user', utility.requireAuthentication, function(req, res) {
 
 			bcrypt.hash(gen_password, salt, function(err, hash) {
 				//Update user object
-				utility.updateUserPassword(user_id, hash, function(id) {
-					utility.getUser(id, function(user) {
-						//Send welcome email
-						mailFunction.sendUserWelcomeEmail(user.first_name,
-							user.last_name, user.email, gen_password);
-					});
+				utility.updateUserPassword(user.id, hash, function(id) {
+					//Send welcome email
+					mailPackage.sendUserWelcomeEmail(user, gen_password);
 				});
 			});
 		});

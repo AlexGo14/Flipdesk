@@ -405,11 +405,11 @@ function add_user(customerid) {
 	}, function(data) {
 		if(data.success) {
 			$('#user_table tr:last').after(
-			'<tr onclick="toggle_edit_user_modal(' + data.id + ')")>' +
-				'<td>' + data.id + '</td>' +
-				'<td>' + data.first_name + '</td>' +
-				'<td>' + data.last_name + '</td>' +
-				'<td>' + data.email + '</td>' +
+			'<tr onclick="toggle_edit_user_modal(' + data.user.id + ')")>' +
+				'<td>' + data.user.id + '</td>' +
+				'<td>' + data.user.first_name + '</td>' +
+				'<td>' + data.user.last_name + '</td>' +
+				'<td>' + data.user.email + '</td>' +
 				'<td></td>' +
 			'</tr>');
 
@@ -422,6 +422,8 @@ function add_user(customerid) {
 
 /* Delete user */
 function delete_user() {
+	var id = $('#id_edit_user_form_modal')[0].textContent;
+
 	$.ajax({
 		url: '/administration/user/' + id,
 		data: {},

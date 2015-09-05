@@ -13,7 +13,9 @@ var utility = {
 		//Select user
 		knex('user').select('id', 'first_name', 'last_name', 'email', 'fk_customer_id',
 			'create_timestamp', 'update_timestamp', 'active')
-			.where({'id': id})
+			.where({
+				'id': id
+			})
 			.then(function(rows) {
 
 				if(rows.length == 1) {
@@ -65,7 +67,28 @@ var utility = {
 				logger.error('Could not get users by customer id from database --- ' + err);
 			});
 	},
+	getActiveUsersByCustomerId: function(customerid, callback) {
+		knex('user')
+			.select('id', 'first_name', 'last_name', 'email', 'fk_customer_id',
+				'create_timestamp', 'update_timestamp', 'active')
+			.where({
+				'fk_customer_id': customerid,
+				'active': true
+			})
+			.orderBy('id', 'asc')
+			.then(function(rows) {
+				var users = [];
 
+				for(var i = 0; i < rows.length; i++) {
+					users[i] = utility.setUserObject(rows[i]);
+				}
+
+				callback(users);
+			})
+			.catch(function(err) {
+				logger.error('Could not get users by customer id from database --- ' + err);
+			});
+	},
 	createUser: function (user, callback) {
 		knex('user').returning('id').insert({
 			first_name: user.first_name,
@@ -73,7 +96,7 @@ var utility = {
 			email: user.email,
 			active: user.active,
 			password: user.password,
-			fk_customer_id: user.customer_id,
+			fk_customer_id: user.fk_customer_id,
 			create_timestamp: moment().format()
 		}).then(function(id) {
 			callback(id[0]);
@@ -81,16 +104,17 @@ var utility = {
 			logger.error('Could not create user in database --- ' + err);
 		});
 	},
-	updateUserPassword: function(id, hash, callback) {
+	updateUserPassword: function(user_id, hash, callback) {
+
 		//Update agent object
-		knex('user').returning('id').where({
-			id: id
-		}).update({
-			password: hash
+		knex('user').returning('id').update({
+			'password': hash
+		}).where({
+			'id': user_id
 		}).then(function(id) {
 			callback(id[0]);
 		}).catch(function(err) {
-			logger.error('Could not update user password in database --- ' + err);
+			logger.error("Could not update user (id: '" + user_id + "') password in database --- " + err);
 		});
 	},
 	updateUser: function(user, callback) {
@@ -106,7 +130,22 @@ var utility = {
 			logger.error('Could not update user in database --- ' + err);
 		});
 	},
-
+	deleteUser: function(user_id, callback) {
+		knex('user').returning('active').update({
+			'active': false
+		}).where({
+			id: user_id
+		}).then(function(active) {
+			//If the active value is false, the user has been set inactive.
+			if(!active) {
+				callback(true);
+			} else {
+				callback(false);
+			}
+		}).catch(function(err) {
+			logger.error('Could not update user in database --- ' + err);
+		});
+	},
 	getCustomer: function (id, callback) {
 		knex('customer')
 			.select('id', 'name', 'email_contact', 'create_timestamp',

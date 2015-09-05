@@ -261,6 +261,25 @@ var mail_module = {
 				}
 			});
 	},
+	sendUserWelcomeEmail: function (new_user, password) {
+			var server = mail_module.getSmtpServer();
+
+			var description = "Hello " + new_user.first_name + " " + new_user.last_name + ",\r\r" +
+				"you are now registered as user for the support service of " + nconf.get('company').name + ".";
+
+			server.send({
+				text: description,
+				from: nconf.get('mail').email,
+				to:  new_user.email,
+				subject: "A account has been created for you"
+			}, function(err, message) {
+				if(err) {
+					logger.error(err);
+				} else {
+					logger.info(message);
+				}
+			});
+	},
 	sendAgentResetEmail: function (agent, password) {
 		var server = mail_module.getSmtpServer();
 
