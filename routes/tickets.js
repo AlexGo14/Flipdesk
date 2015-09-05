@@ -105,12 +105,15 @@ router.post('/', utility.requireAuthentication, function(req, res) {
 
 			utility.createTicket(new_ticket, function(id, err) {
 				if(!err) {
-					res.json({ 'success': true, 'id': id });
+
+					utility.getTicket(id, function(ticketObj) {
+						res.json({ 'success': true, 'ticket': ticketObj });
+					});
 
 					//Send a notification ticket to the agent.
 					emailPackage.notificationNewTicket(new_ticket);
 				} else {
-					res.json({'success': false, 'error': 'Internal database error'});
+					res.json({'success': false, 'error': 'Internal server error'});
 				}
 			});
 		});

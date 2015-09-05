@@ -35,6 +35,18 @@ var objects = {
 			'email': input.email,
 			'active': input.active
 		};
+	},
+  setUserObject: function(input) {
+		return {
+			'id': input.id,
+			'first_name': input.first_name,
+			'last_name': input.last_name,
+			'email': input.email,
+			'customer': {'id': input.fk_customer_id},
+			'create_timestamp': input.create_timestamp,
+			'update_timestamp': input.update_timestamp,
+			'active': input.active
+		};
 	}
 }
 

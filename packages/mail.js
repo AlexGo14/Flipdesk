@@ -215,6 +215,30 @@ var mail_module = {
 				}
 			});
 		});
+
+		database.getUser(new_ticket.user.id, function(user) {
+
+			var textDescription = "Dear " + user.last_name + ",\r a new ticket has been created. " +
+				"A support representive will contact you as soon as possible.\r\r\r";
+
+			if(new_ticket.description) {
+				textDescription += "This is the ticket content: " + new_ticket.description;
+			}
+
+			// send the message and get a callback with an error or details of the message that was sent
+			server.send({
+				text: textDescription,
+				from: nconf.get('mail').email,
+				to:  user.email,
+				subject: "New ticket: " + new_ticket.caption
+			}, function(err, message) {
+				if(err) {
+					logger.error(err);
+				} else {
+					logger.info(message);
+				}
+			});
+		});
 	},
 	notificationNewComment: function (new_comment) {
 		var server = mail_module.getSmtpServer();

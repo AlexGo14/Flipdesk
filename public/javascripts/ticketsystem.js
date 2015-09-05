@@ -59,10 +59,13 @@ function ticket_send() {
 		contentType: 'application/json',
 		success: function(data) {
 			if(data.success) {
+				$('#ticket_overview_list').append('<li><span class="btn" id="' + data.ticket.id + '" onclick="ticket_click(' + this.id + ')">' + data.ticket.caption + '</span></li>');
+
 				$('#createTicketModal').modal('hide');
 
 				$('#create_ticket_form_caption')[0].value = '';
 				$('#create_ticket_form_description')[0].value = '';
+
 
 			}
 		}

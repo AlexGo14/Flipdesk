@@ -1,6 +1,6 @@
 extends private-layout
 
-block content					
+block content
 	div(class="row")
 		div(class="col-sm-3 col-md-3 col-lg-3")
 			div(class="row")
@@ -9,17 +9,17 @@ block content
 			div(class="row")
 				div(class="col-sm-3 col-md-3 col-lg-3")
 					div(class="col-sm-3 col-md-3 col-lg-3" id="ticket_list")
-						ul(class="list-unstyled")
+						ul(class="list-unstyled" id="ticket_overview_list")
 							for loop_ticket in tickets
 								li
 									if loop_ticket.agent.id
 										span(class="btn" id=loop_ticket.id onclick="ticket_click(this.id)")=loop_ticket.caption
 									else
 										u(class="btn" id=loop_ticket.id onclick="ticket_click(this.id)" underline)=loop_ticket.caption
-										
-									
-									
-					
+
+
+
+
 		div(class="col-sm-9 col-md-9 col-lg-9" id="ticket_space")
 
 
@@ -49,7 +49,7 @@ block content
 							<br><br>
 							for data in datamodel
 								label #{data.name}
-								
+
 								if data.mandatory
 									input(type="text" class="form-control custom_properties mandatory" id="#{data.id}" placeholder="#{data.name}")
 								else
@@ -59,12 +59,11 @@ block content
 				div(class="modal-footer")
 					button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
 					button(type="button" class="btn btn-primary btn-lg" onclick="ticket_send()") Send
-			
-	
+
+
 	script(src='/javascripts/jquery.hotkeys.js')
 	script(src='/javascripts/ticketsystem.js')
 	script.
 		$(document).bind('keydown', 'shift+t', function () {
 			show_createTicketModal();
 		});
-		

@@ -18,6 +18,26 @@ var database = {
 
 				callback(null);
 			});
+	},
+  getUser: function (id, callback) {
+		//Select user
+		knex('user').select('id', 'first_name', 'last_name', 'email', 'fk_customer_id',
+			'create_timestamp', 'update_timestamp', 'active')
+			.where({
+				'id': id
+			})
+			.then(function(rows) {
+
+				if(rows.length == 1) {
+
+					callback(
+						objects.setUserObject(rows[0])
+					);
+				}
+			}).catch(function(err) {
+
+				logger.error('Could not get user from database --- ' + err);
+			});
 	}
 }
 
