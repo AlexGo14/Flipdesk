@@ -240,6 +240,26 @@ function update_software_config() {
 	});
 }
 
+function reset_agent_password() {
+	var confirmDialog = confirm("Are you sure, that you want to reset the user's password?");
+
+	if (confirmDialog == true) {
+	    var email = $('#email_edit_agent_form_modal')[0].value;
+
+			$.post('/password-reset', { 'email' : email }, function(data) {
+				if(data.success) {
+					alert("The user's password has been reset.");
+
+					$('#edit_agent_modal').modal('hide');
+				} else {
+					alert("An error occurred.");
+				}
+			});
+	} else {
+
+	}
+}
+
 /* Updates agents */
 function update_agent() {
 	var agent_id = $('#id_edit_agent_form_modal')[0].textContent;

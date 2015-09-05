@@ -15,7 +15,11 @@ a {
 }
 
 #search_form_navbar {
-	
+
+}
+
+#resetpasswordbutton_edit_agent_form_modal {
+	float: left;
 }
 
 .add-property {
