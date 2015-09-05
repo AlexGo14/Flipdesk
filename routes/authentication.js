@@ -41,10 +41,15 @@ router.post('/', function( req, res, next) {
 			}
 
 			utility.getAgent(user.id, function(agent) {
-				// set the message
-				req.session.messages = "Login successful";
+				if(agent.active) {
+					req.session.messages = "Login successful";
 
-				return res.json( {'success': true , 'login_pw_change': agent.login_pw_change});
+					return res.json( {'success': true , 'login_pw_change': agent.login_pw_change});
+				} else {
+					req.session.messages = "User not active";
+
+					return res.json({'success': false, 'message': 'User is inactive'});
+				}
 			});
 		});
 

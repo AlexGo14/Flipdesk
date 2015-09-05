@@ -36,6 +36,18 @@ function change_password() {
 	});
 }
 
+function sendNewPassword() {
+	$.post('/password-reset', $('#send_new_password_form').serialize(), function(data) {
+		if(data.success) {
+			window.location.replace("/");
+		} else {
+			/*$('#error_message_form').html(
+				'An error occurred. We are sorry.'
+			);*/
+		}
+	});
+}
+
 
 $('#email_login').keypress(function(e) {
 	var code = e.keyCode || e.which;

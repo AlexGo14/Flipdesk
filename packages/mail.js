@@ -261,6 +261,28 @@ var mail_module = {
 				}
 			});
 	},
+	sendAgentResetEmail: function (agent, password) {
+		var server = mail_module.getSmtpServer();
+
+		var description = "Hello " + agent.first_name + " " + agent.last_name + ",\r\r" +
+			"we have reset your password.\r" +
+			"You find a temporary password in this email.\r\r\r" +
+			"Please login with your email address \"" + agent.email + "\" and the password \"" + password + "\".\r" +
+			"This password is temporary and you will have to change it at your first login.";
+
+		server.send({
+			text: description,
+			from: nconf.get('mail').email,
+			to:  agent.email,
+			subject: "Your password has been reset"
+		}, function(err, message) {
+			if(err) {
+				logger.error(err);
+			} else {
+				logger.info(message);
+			}
+		});
+	},
 	getSmtpServer: function() {
 		var server  = email.server.connect({
 			user: nconf.get('mail').server.username,

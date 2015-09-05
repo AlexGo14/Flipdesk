@@ -30,10 +30,6 @@ router.post('/', utility.requireAuthentication, function(req, res) {
         }
 			});
 		});
-
-
-
-
   }
 });
 

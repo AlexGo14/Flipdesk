@@ -3,16 +3,17 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
-session = require('cookie-session')
 var bodyParser = require('body-parser');
+var utility = require("./routes/utility");
+var fs = require('fs');
+session = require('cookie-session')
 nconf = require('nconf');
 pg = require("pg");
 passport = require("passport");
 PassportLocalStrategy = require('passport-local').Strategy;
 bcrypt = require('bcrypt');
 moment = require("moment-timezone");
-var utility = require("./routes/utility");
-var fs = require('fs');
+
 
 var logDir = './logs';
 if(!fs.existsSync(logDir)) {

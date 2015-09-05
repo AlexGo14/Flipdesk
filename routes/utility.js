@@ -587,7 +587,25 @@ var utility = {
 				logger.error('Could not update password for agent --- ' + err);
 			});
 	},
+	resetAgentPassword: function(agent_email, new_password, callback) {
+		knex('agent')
+			.returning('id')
+			.update({
+				login_pw_change: true,
+				password: new_password
+			})
+			.where({
+				'email': agent_email
+			})
+			.then(function(result) {
+				callback(result[0], null);
+			})
+			.catch(function(err) {
+				callback(null, err);
 
+				logger.error('Could not reset password for agent --- ' + err);
+			});
+	},
 	getBlacklist: function(callback) {
 		knex('blacklist')
 			.select('id', 'email')
