@@ -9,5 +9,4 @@ project_management
 
 #Files
 config.login.json
-config.template.json
 gulpfile.js

@@ -361,6 +361,11 @@ var utility = {
 						}
 						ticket.comments = sortedComments;
 
+						//Check for a recursive comment list view
+						if(nconf.get('view').recursiveCommentList) {
+							ticket.comments.reverse();
+						}
+
 
 						utility.getUser(ticket.user.id, function(user) {
 							ticket.user = user;

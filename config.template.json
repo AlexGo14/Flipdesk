@@ -1,0 +1,45 @@
+{
+  "language": "en",
+  "server": {
+  "port": 3000
+  },
+  "database": {
+    "type": "pg",
+    "ip": "localhost",
+    "port": 5432,
+    "name": "",
+    "user": "",
+    "password": ""
+  },
+  "company": {
+    "name": "",
+    "contact": {
+      "email": "",
+      "street": "",
+      "zipcode": 0,
+      "city": "",
+      "name": ""
+    }
+  },
+  "mail": {
+    "server": {
+      "smtp": {
+        "host": "",
+        "port": 0
+      },
+      "imap": {
+        "host": "",
+        "port": 0
+      },
+      "username": "",
+      "password": ""
+      },
+    "email": ""
+  },
+  "log4js": {
+    "level": "INFO"
+  },
+  "view": {
+    "recursiveCommentList": false
+  }
+ }
