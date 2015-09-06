@@ -260,7 +260,22 @@ var utility = {
 			callback(null, err);
 		});
 	},
+	solveTicket: function (ticket_id, callback, error) {
 
+		knex('ticket').update({
+			'solved': true
+		})
+		.where({
+			'id': ticket_id
+		})
+		.returning('solved')
+		.then(function(solved) {
+			callback(solved[0]);
+		})
+		.catch(function(err) {
+			error( { 'code': null, 'msg': null } );
+		});
+	},
 	getAgent: function (id, callback) {
 		knex('agent')
 			.select('id', 'first_name', 'last_name', 'create_timestamp', 'update_timestamp',
@@ -393,12 +408,6 @@ var utility = {
 						}
 						ticket.comments = sortedComments;
 
-						//Check for a recursive comment list view
-						if(nconf.get('view').recursiveCommentList) {
-							ticket.comments.reverse();
-						}
-
-
 						utility.getUser(ticket.user.id, function(user) {
 							ticket.user = user;
 
@@ -480,10 +489,25 @@ var utility = {
 		});
 	},
 	assignAgent: function (agent_id, ticket_id, callback, error) {
+		if(agent_id == null) {
+			utility.getTicket(ticket_id, function(ticket) {
+				if(ticket.solved) {
+					utility.privateAssignAgent(agent_id, ticket_id, callback, error);
+				} else {
+					error({'code': 3});
+				}
+			});
+		} else {
+			utility.privateAssignAgent(agent_id, ticket_id, callback, error);
+		}
+	},
+
+	privateAssignAgent: function (agent_id, ticket_id, callback, error) {
 		knex('ticket')
 			.returning('id')
 			.update({
 				fk_agent_id: agent_id,
+				solved: false,
 				update_timestamp: moment().format()
 			})
 			.where({
@@ -497,7 +521,6 @@ var utility = {
 				logger.error('Could not assign ticket to agent in database --- ' + err);
 			});
 	},
-
 	createComment: function (comment, callback) {
 
 		if(comment.user.id == null || comment.user.id == '') {
@@ -768,7 +791,8 @@ var utility = {
 			 },
 			 'update_timestamp': null,
 			'agent': {'id': input.fk_agent_id },
-			'user': { 'id': input.fk_user_id }
+			'user': { 'id': input.fk_user_id },
+			'solved': input.solved
 		};
 
 		if(input.update_timestamp != null) {

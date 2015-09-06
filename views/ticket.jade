@@ -4,55 +4,62 @@ div(class="row")
 			<!-- Split button -->
 			div(class="btn-group")
 				if ticket.agent
-					button(type="button" class="btn btn-success" id="ticket_status") Assigned
+					if ticket.solved
+						button(type="button" class="btn btn-success" id="ticket_status") Solved
+					else
+						button(type="button" class="btn btn-success" id="ticket_status") Assigned
 				else
 					button(type="button" class="btn btn-success" id="ticket_status") Open
+
 				button(type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown")
 					span(class="caret")
 					span(class="sr-only") Toggle Dropdown
-					
+
 				ul(class="dropdown-menu" role="menu")
 					li
-						a(href="#" onclick="set_ticket_to_open()") Opened
+						a(href="#" onclick="set_ticket_to_opened()") Opened
 					li
 						a(href="#" onclick="showAssignAgentModal()") Assigned
 					li
-						a(href="#") Solved
+						a(href="#" onclick="set_ticket_to_solved()") Solved
 					li(class="divider")
 					li
 						a(href="#") Archived
-				
+
 			button(class="btn btn-primary" style="margin-left: 10px;" onclick="ticket_create_comment(#{ticket.id})") Write a comment
-			
+
 div(class="row")
 		div(class="col-sm-9 col-md-9 col-lg-9")
 			<br>
 			h2 #{ticket.caption}
-				
+
 			blockquote #{ticket.description}
 
 			<br><br>
 			if ticket.comments.length > 0
 				h3 Comments
 				for loop_comment in ticket.comments
-					span Written by 
-					span(data-toggle="tooltip" data-placement="left" title="#{loop_comment.agent.email}") #{loop_comment.agent.name} 
-					span on 
+					span Written by
+					span(data-toggle="tooltip" data-placement="left" title="#{loop_comment.agent.email}") #{loop_comment.agent.name}
+					span on
 					u(data-toggle="tooltip" data-placement="left" title="#{loop_comment.create_timestamp.detailed}") #{loop_comment.create_timestamp.short}
 					<br><br>
 					blockquote(id="comment_id_" + loop_comment.id)
 						p=loop_comment.description
 					<br><br>
-					
+
 		div(class="col-sm-3 col-md-3 col-lg-3")
-			strong Ticket ID: 
+			strong Ticket ID:
 			span(id="ticket-id") #{ticket.id}
 			<br><br>
-			span Created: 
+			span Created:
 			u(data-toggle="tooltip" data-placement="left" title="#{ticket.create_timestamp.detailed}") #{ticket.create_timestamp.short}
 			<br><br>
 			if ticket.agent
-				span(id="assigned_to_agent") Agent: #{ticket.agent.first_name} #{ticket.agent.last_name}
+				span() Agent:
+				span(id="assigned_to_agent") #{ticket.agent.first_name} #{ticket.agent.last_name}
+				<br>
+				span(id="assigned_to_agent_id") Agent-ID: #{ticket.agent.id}
 			else
 				span(id="assigned_to_agent") No agent assigned
 			<br><br>
@@ -63,7 +70,7 @@ div(class="row")
 			<br><br>
 			for dataproperty in datamodel
 				span #{dataproperty.name}
-				span : 
+				span :
 				span #{dataproperty.value}
 				<br><br>
 <!-- Modal -->
@@ -82,8 +89,8 @@ div(class="modal fade" id="createCommentModal" tabindex="-1" role="dialog" aria-
 			div(class="modal-footer")
 				button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
 				button(type="button" class="btn btn-primary btn-lg" onclick="comment_send()") Send
-	
-		
+
+
 div(class="modal fade" id="assignAgentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
 	div(class="modal-dialog")
 		div(class="modal-content")
@@ -101,7 +108,7 @@ div(class="modal fade" id="assignAgentModal" tabindex="-1" role="dialog" aria-la
 			div(class="modal-footer")
 				button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Cancel
 				button(type="button" class="btn btn-primary btn-lg" onclick="assign_agent_to_ticket()") Assign
-			
+
 script.
 	$(document).bind('keydown', 'shift+c', function () {
 		ticket_create_comment();

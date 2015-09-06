@@ -118,6 +118,18 @@ function comment_send() {
 
 /* Opens/Shows modal to assign agent to ticket */
 function showAssignAgentModal() {
+
+  //Select assigned agent in comboxbox.
+  var assigned_agent = $('#assigned_to_agent')[0].textContent;
+
+  for(var i = 0; i < $('#agent_assignAgentModal_form')[0].options.length; i++) {
+    if($('#agent_assignAgentModal_form')[0].options[i].value == assigned_agent) {
+      $('#agent_assignAgentModal_form')[0].selectedIndex = i;
+    }
+  }
+
+  $('#agent_assignAgentModal_form')[0].selectedIndex
+
 	$('#assignAgentModal').modal('show');
 }
 
@@ -133,22 +145,44 @@ function assign_agent_to_ticket() {
 
 			$('#assignAgentModal').modal('hide');
 		} else {
-
+      
 		}
 	});
 }
 
-/* Sets ticket back to open and removes assigned agent from ticket. */
-function set_ticket_to_open() {
+/* Sets ticket back to open. */
+function set_ticket_to_opened() {
+  $.post('/tickets/' + $('#ticket-id').html() + '/assign/-1', {}, function(data) {
+    if(data.success) {
+      $('#ticket_status').html('Opened');
+      $('#assigned_to_agent'.html('Not assigned'));
+    } else {
+      if(data.error.code == 3) {
+        alert('You can\'t set an assigned ticket to open.');
+      }
+    }
+  });
+}
 
-	$.post('/tickets/' + $('#ticket-id').html() + '/assign/-1', {}, function(data) {
-		if(data.success) {
-			$('#ticket_status').html('Open');
-			$('#assigned_to_agent').html(', Not Assigned');
-		} else {
+/* Sets ticket on solved */
+function set_ticket_to_solved() {
+  $.ajax({
+    url: '/tickets/' + $('#ticket-id').html(),
+    type: 'PUT',
+    data: { 'solved': true },
+    success: function(data) {
+      if(data.success) {
+        $('#ticket_status').html('Solved');
+      } else {
+        if(data.error.code == 3) {
+          alert('You can\'t set this ticket to solved.');
+        }
+      }
+    },
+    error: function(data) {
 
-		}
-	});
+    }
+  });
 }
 
 /* Shows administration template/view */

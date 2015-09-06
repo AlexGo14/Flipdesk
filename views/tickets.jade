@@ -9,13 +9,20 @@ block content
 			div(class="row")
 				div(class="col-sm-3 col-md-3 col-lg-3")
 					div(class="col-sm-3 col-md-3 col-lg-3" id="ticket_list")
+						<br>
 						ul(class="list-unstyled" id="ticket_overview_list")
-							for loop_ticket in tickets
+							for loop_ticket in tickets.current
 								li
 									if loop_ticket.agent.id
 										span(class="btn" id=loop_ticket.id onclick="ticket_click(this.id)")=loop_ticket.caption
 									else
 										u(class="btn" id=loop_ticket.id onclick="ticket_click(this.id)" underline)=loop_ticket.caption
+						<br>
+						span Solved:
+						ul(class="list-unstyled")
+							for loop_ticket in tickets.solved
+								li
+									span(class="btn" id=loop_ticket.id onclick="ticket_click(this.id)")=loop_ticket.caption
 
 
 

@@ -27,6 +27,11 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 		//Get ticket
 		utility.getTicket(req.params.id, function(ticket) {
 
+			//Check for a recursive comment list view
+			if(nconf.get('view').recursiveCommentList) {
+				ticket.comments.reverse();
+			}
+
 			utility.getActiveAgents(function(agents) {
 				res.render('ticket', {
 					'ticket': ticket,
@@ -40,13 +45,27 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 /* GET tickets from a customer. */
 router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 
-		utility.getTicketsByCustomerId(req.params.id, function(tickets) {
-			for(var i = 0; i < tickets.length; i++) {
-				if(tickets[i].agent.id == null) {
-					tickets[i].agent.id = false;
+		utility.getTicketsByCustomerId(req.params.id, function(data) {
+
+			var tickets = {
+				'current': [],
+				'solved': []
+			}
+
+			//Process tickets.
+			for(var i = 0; i < data.length; i++) {
+				if(data[i].agent.id == null) {
+					data[i].agent.id = false;
 				}
-				if(tickets[i].update_timestamp == null) {
-					tickets[i].update_timestamp = false;
+				if(data[i].update_timestamp == null) {
+					data[i].update_timestamp = false;
+				}
+
+				//Split tickets by solved status.
+				if(data[i].solved) {
+					tickets.solved.push(data[i]);
+				} else {
+					tickets.current.push(data[i]);
 				}
 			}
 
@@ -80,8 +99,6 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 
 /* Create Ticket */
 router.post('/', utility.requireAuthentication, function(req, res) {
-
-
 	var new_ticket = {
 		'id': -1,
 		'caption': req.body.caption,
@@ -134,6 +151,26 @@ router.post('/', utility.requireAuthentication, function(req, res) {
 /* Update a ticket */
 router.put('/:id', utility.requireAuthentication, function(req, res) {
 
+	if(req.body.solved) {
+		utility.getTicket(req.params.id, function(ticket) {
+
+			if(ticket.agent.id != null) {
+				utility.solveTicket(req.params.id,
+					function(solved) {
+						if(solved) {
+							res.json( { 'success': true } );
+						} else {
+							res.json( { 'success': false } );
+						}
+					},
+					function(err) {
+
+					});
+			} else {
+				res.json( { 'success': false } );
+			}
+		});
+	}
 });
 
 /* Archive a ticket */
@@ -155,7 +192,11 @@ router.post('/:id/assign/:agent_id', utility.requireAuthentication, function(req
 			res.json( { success: true } );
 		},
 		function(err) {
-			res.json( { success: false } );
+			if(err.code == 3) {
+				res.json( { success: false, error: { 'code': err.code } } );
+			} else {
+				res.json( { success: false, error: { 'code': 0} } );
+			}
 		});
 });
 
