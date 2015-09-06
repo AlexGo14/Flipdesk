@@ -260,7 +260,6 @@ var mail_module = {
 
 		//Find the new comment and create mailContent.
 		var comment = {};
-		logger.error(new_comment.ticket.comments);
 		for(var i = 0; i < new_comment.ticket.comments.length; i++) {
 			if(new_comment.ticket.comments[i].id == new_comment.comment.id) {
 				comment = new_comment.ticket.comments[i];
@@ -275,7 +274,7 @@ var mail_module = {
 			text: "Dear agent a new comment has been created for your ticket \"" + new_comment.ticket.caption + "\".\r\rPlease check your support dashboard.\r\r\r" + mailContent,
 			from: nconf.get('mail').email,
 			to:  new_comment.ticket.agent.email,
-			subject: "New comment for ticket " + new_comment.ticket.caption + "; #FlipID: " + new_ticket.id + "#"
+			subject: "New comment for ticket " + new_comment.ticket.caption + "; #FlipID: " + new_comment.ticket.id + "#"
 		}, function(err, message) {
 			if(err) {
 				logger.error(err);
@@ -288,7 +287,7 @@ var mail_module = {
 			text: "Dear " + new_comment.ticket.user.first_name + " a new comment has been created for your ticket \"" + new_comment.ticket.caption + "\".\r\r\r" + mailContent,
 			from: nconf.get('mail').email,
 			to:  new_comment.ticket.user.email,
-			subject: "New comment for ticket " + new_comment.ticket.caption + "; #FlipID: " + new_ticket.id + "#"
+			subject: "New comment for ticket " + new_comment.ticket.caption + "; #FlipID: " + new_comment.ticket.id + "#"
 		}, function(err, message) {
 			if(err) {
 				logger.error(err);

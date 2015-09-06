@@ -178,8 +178,6 @@ router.post('/:id/comment', utility.requireAuthentication, function(req, res) {
 				utility.getTicket(new_comment.ticket.id, function(ticket) {
 					new_comment.ticket = ticket;
 
-					logger.info(new_comment);
-
 					emailPackage.notificationNewComment(new_comment);
 				});
 			}

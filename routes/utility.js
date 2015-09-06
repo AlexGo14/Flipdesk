@@ -769,7 +769,7 @@ var utility = {
 	checkDatabaseConnection: function(callback) {
 		return knex('customer').select().then(function(rows) {
 				logger.info('Database connection successfully established.');
-
+				
 				callback(true);
 			}).catch(function(ex) {
 				logger.error('Could not connect to database. Check credentials.');

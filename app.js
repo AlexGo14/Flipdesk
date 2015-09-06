@@ -64,7 +64,7 @@ utility.checkDatabaseConnection(function(status) {
 		logger.error("Aborting server now!");
 		process.exit(1);
 	}
-})
+});
 
 //Get routes
 var landing_page = require('./routes/index');
