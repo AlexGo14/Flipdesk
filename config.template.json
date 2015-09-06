@@ -13,6 +13,7 @@
   },
   "company": {
     "name": "",
+    "info_description": "",
     "contact": {
       "email": "",
       "street": "",

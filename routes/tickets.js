@@ -7,7 +7,7 @@ router.get('/', utility.requireAuthentication, function(req, res) {
 
 	utility.getCustomers(function(customers) {
 		res.render('home', { title: 'Tickets', company: nconf.get('company').name,
-				customers: customers
+				company_info: nconf.get('company').info_description, customers: customers
 			});
 	});
 });
