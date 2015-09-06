@@ -9,6 +9,8 @@ function login_form() {
 }
 
 function login() {
+	$('#email_login')[0].value = $('#email_login')[0].value.toLowerCase();
+	
 	$.post('/authentication', $('#login_form').serialize(), function(data) {
 		if(data.success) {
 			if(data.login_pw_change) {
