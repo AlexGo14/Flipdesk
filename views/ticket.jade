@@ -3,7 +3,9 @@ div(class="row")
 		div(class="col-sm-12 col-md-12 col-lg-12")
 			<!-- Split button -->
 			div(class="btn-group")
-				if ticket.agent
+				if ticket.archived
+					button(type="button" class="btn btn-success" id="ticket_status") Archived
+				else if ticket.agent
 					if ticket.solved
 						button(type="button" class="btn btn-success" id="ticket_status") Solved
 					else
@@ -24,7 +26,7 @@ div(class="row")
 						a(href="#" onclick="set_ticket_to_solved()") Solved
 					li(class="divider")
 					li
-						a(href="#") Archived
+						a(href="#" onclick="set_ticket_to_archived()") Archived
 
 			button(class="btn btn-primary" style="margin-left: 10px;" onclick="ticket_create_comment(#{ticket.id})") Write a comment
 

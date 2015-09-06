@@ -151,11 +151,12 @@ var utility = {
 			.select('ticket.id', 'ticket.description', 'ticket.caption',
 				'ticket.create_timestamp', 'ticket.update_timestamp',
 				'ticket.fk_agent_id', 'ticket.fk_user_id', 'ticket.solved',
-				'user.fk_customer_id')
+				'ticket.archived', 'user.fk_customer_id')
 			.join('user', 'ticket.fk_user_id', 'user.id')
 			.where({
 				'ticket.fk_agent_id': agent_id,
-				'ticket.solved': false
+				'ticket.solved': false,
+				'ticket.archived': false
 			})
 			.then(function(rows) {
 				var responseArr = [];
@@ -276,6 +277,22 @@ var utility = {
 			error( { 'code': null, 'msg': null } );
 		});
 	},
+	archiveTicket: function (ticket_id, callback, error) {
+
+		knex('ticket').update({
+			'archived': true
+		})
+		.where({
+			'id': ticket_id
+		})
+		.returning('archived')
+		.then(function(archived) {
+			callback(archived[0]);
+		})
+		.catch(function(err) {
+			error( { 'code': null, 'msg': null } );
+		});
+	},
 	getAgent: function (id, callback) {
 		knex('agent')
 			.select('id', 'first_name', 'last_name', 'create_timestamp', 'update_timestamp',
@@ -380,7 +397,7 @@ var utility = {
 
 		knex('ticket')
 			.select('id', 'description', 'caption', 'create_timestamp', 'update_timestamp',
-				'fk_agent_id', 'fk_user_id', 'solved')
+				'fk_agent_id', 'fk_user_id', 'solved', 'archived')
 			.where({
 				'id': id
 			})
@@ -432,10 +449,11 @@ var utility = {
 	getTicketsByCustomerId: function (customerid, callback) {
 		knex('ticket')
 			.select('ticket.id', 'ticket.description', 'ticket.caption', 'ticket.create_timestamp', 'ticket.update_timestamp',
-				'ticket.fk_agent_id', 'ticket.fk_user_id', 'ticket.solved')
+				'ticket.fk_agent_id', 'ticket.fk_user_id', 'ticket.solved', 'ticket.archived')
 			.join('user', 'ticket.fk_user_id', '=', 'user.id')
 			.where({
-				'user.fk_customer_id': customerid
+				'user.fk_customer_id': customerid,
+				'archived': false
 			})
 			.orderBy('ticket.update_timestamp', 'desc')
 			.then(function(rows) {
@@ -792,7 +810,8 @@ var utility = {
 			 'update_timestamp': null,
 			'agent': {'id': input.fk_agent_id },
 			'user': { 'id': input.fk_user_id },
-			'solved': input.solved
+			'solved': input.solved,
+			'archived': input.archived
 		};
 
 		if(input.update_timestamp != null) {

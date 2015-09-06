@@ -175,7 +175,16 @@ router.put('/:id', utility.requireAuthentication, function(req, res) {
 
 /* Archive a ticket */
 router.delete('/:id', utility.requireAuthentication, function(req, res) {
+	utility.archiveTicket(req.params.id, function(archived) {
+			if(archived) {
+				res.json( { 'success': true } );
+			} else {
+				res.json( { 'success': false } );
+			}
+		},
+		function(err) {
 
+		});
 });
 
 /* Assign agent to ticket */

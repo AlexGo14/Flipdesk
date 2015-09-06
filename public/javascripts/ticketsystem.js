@@ -145,7 +145,7 @@ function assign_agent_to_ticket() {
 
 			$('#assignAgentModal').modal('hide');
 		} else {
-      
+
 		}
 	});
 }
@@ -176,6 +176,26 @@ function set_ticket_to_solved() {
       } else {
         if(data.error.code == 3) {
           alert('You can\'t set this ticket to solved.');
+        }
+      }
+    },
+    error: function(data) {
+
+    }
+  });
+}
+
+function set_ticket_to_archived() {
+  $.ajax({
+    url: '/tickets/' + $('#ticket-id').html(),
+    type: 'DELETE',
+    data: { },
+    success: function(data) {
+      if(data.success) {
+        $('#ticket_status').html('Archived');
+      } else {
+        if(data.error.code == 3) {
+          alert('You can\'t move ticket to archive.');
         }
       }
     },
