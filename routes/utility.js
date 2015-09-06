@@ -183,21 +183,6 @@ var utility = {
 				logger.error('Could not select customers from database --- ' + err);
 			});
 	},
-	getCustomerByImapMailbox: function(imapmailbox, callback) {
-
-		knex('customer')
-			.select('id')
-			.where({
-				'email_mailbox_imap': imapmailbox
-			})
-			.then(function(rows) {
-
-				utility.getCustomer(rows[0].id, callback);
-			})
-			.catch(function(err) {
-				logger.error('Could not select customer by imap mailbox from database --- ' + err);
-			});
-	},
 	disableCustomer: function (id, callback) {
 		knex('customer').returning('id').update({
 			active: false

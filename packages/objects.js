@@ -47,6 +47,20 @@ var objects = {
 			'update_timestamp': input.update_timestamp,
 			'active': input.active
 		};
+	},
+	setCustomerObject: function(input) {
+
+		var customer = {
+			'id': input.id,
+			'name': input.name,
+			'email': input.email_contact,
+			'create_timestamp': input.create_timestamp,
+			'update_timestamp': input.update_timestamp,
+			'admin': { 'id': input.fk_created_by_admin },
+			'active': input.active
+		};
+
+		return customer;
 	}
 }
 
