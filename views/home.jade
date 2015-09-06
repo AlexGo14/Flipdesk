@@ -9,13 +9,11 @@ block content
 					p=company_info
 			div(class="row" style="margin-top: 10px;")
 				div(class="col-sm-3 col-md-3 col-lg-3")
-					span Your ticket assignments to you
+					span Your tickets
 					ul
-						li Lorem Ipsum
-						li Lorem Ipsum
-						li Lorem Ipsum
-						li Lorem Ipsum
-						li Lorem Ipsum
+						for assignment in assignments
+							li
+								a(href="tickets/customer/" + assignment.customer_id + "?open_ticket=" + assignment.id)=assignment.caption
 				div(class="col-sm-3 col-md-3 col-lg-3")
 					span Last updates of your assigned tickets
 					ul

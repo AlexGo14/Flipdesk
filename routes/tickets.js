@@ -6,9 +6,12 @@ var emailPackage = require('../packages/mail');
 router.get('/', utility.requireAuthentication, function(req, res) {
 
 	utility.getCustomers(function(customers) {
-		res.render('home', { title: 'Tickets', company: nconf.get('company').name,
-				company_info: nconf.get('company').info_description, customers: customers
+		utility.getAssignmentsByUser(req.user.id, function(ticket_assignments) {
+			res.render('home', { title: 'Tickets', company: nconf.get('company').name,
+					company_info: nconf.get('company').info_description, customers: customers,
+					assignments: ticket_assignments
 			});
+		});
 	});
 });
 

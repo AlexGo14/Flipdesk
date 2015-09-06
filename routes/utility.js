@@ -146,6 +146,32 @@ var utility = {
 			logger.error('Could not update user in database --- ' + err);
 		});
 	},
+	getAssignmentsByUser: function(agent_id, callback) {
+		knex('ticket')
+			.select('ticket.id', 'ticket.description', 'ticket.caption',
+				'ticket.create_timestamp', 'ticket.update_timestamp',
+				'ticket.fk_agent_id', 'ticket.fk_user_id', 'ticket.solved',
+				'user.fk_customer_id')
+			.join('user', 'ticket.fk_user_id', 'user.id')
+			.where({
+				'ticket.fk_agent_id': agent_id,
+				'ticket.solved': false
+			})
+			.then(function(rows) {
+				var responseArr = [];
+
+				for(var i = 0; i < rows.length; i++) {
+					var obj = utility.setTicketObject(rows[i]);
+					obj.customer_id = rows[i].fk_customer_id;
+
+					responseArr.push(obj);
+				}
+				
+				callback(responseArr);
+			}).catch(function(err) {
+				logger.error('Could not get assignments from database --- ' + err);
+			});
+	},
 	getCustomer: function (id, callback) {
 		knex('customer')
 			.select('id', 'name', 'email_contact', 'create_timestamp',

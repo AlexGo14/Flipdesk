@@ -1,4 +1,27 @@
 
+$(document).ready(function() {
+  var paramOpenTicketResponse = parseInt(getUrlParameter('open_ticket'));
+
+	if(paramOpenTicketResponse > 0) {
+		ticket_click(paramOpenTicketResponse);
+	}
+});
+
+var getUrlParameter = function getUrlParameter(sParam) {
+  var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+      sURLVariables = sPageURL.split('&'),
+      sParameterName,
+      i;
+
+  for (i = 0; i < sURLVariables.length; i++) {
+    sParameterName = sURLVariables[i].split('=');
+
+    if (sParameterName[0] === sParam) {
+        return sParameterName[1] === undefined ? true : sParameterName[1];
+    }
+  }
+}
+
 /* Calls specific ticket data and loads it into ticket view */
 function ticket_click(id) {
 	$.get('/tickets/' + id, '', function(data, textStatus) {
