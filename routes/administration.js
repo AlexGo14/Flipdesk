@@ -44,6 +44,11 @@ router.post('/settings/update', utility.requireAuthentication, function(req, res
 /* Renders administration/agents view */
 router.get('/agents', utility.requireAuthentication, function(req, res) {
 	utility.getAgents(function(agents) {
+		//Sort agents by last_name alphabetically.
+		agents.sort(function(a, b) {
+			return a.last_name.replace(/[^a-z]/ig,'') > b.last_name.replace(/[^a-z]/ig,'') ? 1 : -1;
+		});
+
 		res.render('administration-agent', {'agents': agents } );
 	});
 });
