@@ -12,8 +12,6 @@ var mail_module = {
 				if(customers[i].username_mailbox && customers[i].password_mailbox
 						&& customers[i].email_mailbox_imap) {
 
-					logger.info('Start mail listener for customer ' + customers[i].name + ' (id: ' + customers[i].id + ')');
-
 					var mailListener = new MailListener({
 						username: customers[i].username_mailbox,
 						password: customers[i].password_mailbox,
@@ -33,11 +31,11 @@ var mail_module = {
 					mailListener.start();
 
 					mailListener.on("server:connected", function(){
-						logger.info('Established IMAP connection to ' + mailListener.imap._config.host);
+						logger.info('Established IMAP connection to ' + mailListener.imap._config.host + ' --- user ' + mailListener.imap._config.user);
 					});
 
 					mailListener.on("server:disconnected", function(){
-						logger.error('Disconnected IMAP connection to ' + mailListener.imap._config.host);
+						logger.error('Disconnected IMAP connection to ' + mailListener.imap._config.host + ' --- user ' + mailListener.imap._config.user);
 					});
 
 					mailListener.on("error", function(err){
@@ -55,16 +53,15 @@ var mail_module = {
 
 								for(var i = 0; i < users.length; i++) {
 
-									if(mail.headers.from.indexOf(users[i].email)) {
-
+									if(mail.headers.from.indexOf(users[i].email) > -1) {
 										//The user has been found. He is users[i]
+
 										if(mail.subject.indexOf('#FlipID') != -1) {
 											//A user has send a new comment via email. We will process it.
 											var id_position = mail.subject.indexOf('#FlipID: ') + 8;
 											var end_position = mail.subject.indexOf('#', id_position);
 
 											var ticket_id = mail.subject.substr(id_position, end_position - id_position);
-
 
 											database.createComment({
 												'description': mail.text,
@@ -90,23 +87,23 @@ var mail_module = {
 
 											//Now, we need the datamodel for the company
 											database.getDatamodel(1, function(datamodel) {
-													var properties = [];
+												var properties = [];
 
-													for(var u = 0; u < datamodel.length; u++) {
-														properties[u] = {
-															'datamodel_id': datamodel[u].id,
-															'value': null
-														}
+												for(var u = 0; u < datamodel.length; u++) {
+													properties[u] = {
+														'datamodel_id': datamodel[u].id,
+														'value': null
 													}
+												}
 
-													//The ticket is ready to be created.
-													database.createTicket({
-														'caption': mail.subject,
-														'description': mail.text,
-														'user': { 'id': users[i].id },
-														'agent': { 'id': null },
-														'properties': properties
-													}, function(id, err) {
+												//The ticket is ready to be created.
+												database.createTicket({
+													'caption': mail.subject,
+													'description': mail.text,
+													'user': { 'id': users[i].id },
+													'agent': { 'id': null },
+													'properties': properties
+												}, function(id, err) {
 
 													if(!err) {
 														logger.info('Created ticket from imap scan. Ticket-ID: ' + id);
@@ -210,7 +207,7 @@ var mail_module = {
 		database.getAgent(new_ticket.agent.id, function(agent) {
 			// send the message and get a callback with an error or details of the message that was sent
 			server.send({
-				text: "Dear agent a new ticket has been created. Please check your support dashboard.\r\r\rTicket content: " + new_ticket.description,
+				text: "Dear agent a new ticket has been created. Please check your support dashboard.\r\rDo not reply to this email.\r\r\rTicket content: " + new_ticket.description,
 				from: nconf.get('mail').email,
 				to:  agent.email,
 				subject: "New ticket:  " + new_ticket.caption + "; #FlipID: " + new_ticket.id + "#"

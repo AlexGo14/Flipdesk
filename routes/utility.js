@@ -271,6 +271,27 @@ var utility = {
 				logger.error('Could not get agents from database --- ' + err);
 			});
 	},
+	getActiveAgents: function (callback) {
+		knex('agent')
+			.select('id', 'first_name', 'last_name', 'create_timestamp', 'update_timestamp',
+				'is_admin', 'email', 'active')
+			.where({
+				'active': true
+			})
+			.then(function(rows) {
+
+				var agents = [];
+
+				for(var i = 0; i < rows.length; i++) {
+					agents[i] = utility.setAgentObject(rows[i]);
+				}
+
+				callback(agents);
+			})
+			.catch(function(err) {
+				logger.error('Could not get agents from database --- ' + err);
+			});
+	},
 	createAgent: function (agent, callback) {
 		knex('agent').returning('id').insert({
 			first_name: agent.first_name,
@@ -769,7 +790,7 @@ var utility = {
 	checkDatabaseConnection: function(callback) {
 		return knex('customer').select().then(function(rows) {
 				logger.info('Database connection successfully established.');
-				
+
 				callback(true);
 			}).catch(function(ex) {
 				logger.error('Could not connect to database. Check credentials.');

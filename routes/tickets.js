@@ -18,7 +18,7 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 		//Get ticket
 		utility.getTicket(req.params.id, function(ticket) {
 
-			utility.getAgents(function(agents) {
+			utility.getActiveAgents(function(agents) {
 				res.render('ticket', {
 					'ticket': ticket,
 					'agents': agents,
@@ -41,7 +41,7 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 				}
 			}
 
-			utility.getAgents(function(agents) {
+			utility.getActiveAgents(function(agents) {
 				utility.getDatamodel(req.params.id, function(datamodel_draft) {
 
 					var datamodel = [];
@@ -105,8 +105,9 @@ router.post('/', utility.requireAuthentication, function(req, res) {
 
 			utility.createTicket(new_ticket, function(id, err) {
 				if(!err) {
+					new_ticket.id = id;
 
-					utility.getTicket(id, function(ticketObj) {
+					utility.getTicket(new_ticket.id, function(ticketObj) {
 						res.json({ 'success': true, 'ticket': ticketObj });
 					});
 
