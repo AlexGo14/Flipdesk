@@ -166,7 +166,7 @@ var utility = {
 
 					responseArr.push(obj);
 				}
-				
+
 				callback(responseArr);
 			}).catch(function(err) {
 				logger.error('Could not get assignments from database --- ' + err);
@@ -763,7 +763,8 @@ var utility = {
 			'comments': [],
 			'create_timestamp': {
 					'short': moment(input.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
-					'detailed': moment(input.create_timestamp).tz('Europe/Berlin').format('Do MMMM YYYY, h:mm a')
+					'detailed': moment(input.create_timestamp).tz('Europe/Berlin').format('Do MMMM YYYY, h:mm a'),
+					'system': input.create_timestamp
 			 },
 			 'update_timestamp': null,
 			'agent': {'id': input.fk_agent_id },

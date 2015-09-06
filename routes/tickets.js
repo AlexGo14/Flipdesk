@@ -5,8 +5,14 @@ var emailPackage = require('../packages/mail');
 
 router.get('/', utility.requireAuthentication, function(req, res) {
 
-	utility.getCustomers(function(customers) {
-		utility.getAssignmentsByUser(req.user.id, function(ticket_assignments) {
+	utility.getAssignmentsByUser(req.user.id, function(ticket_assignments) {
+
+		ticket_assignments.sort(function(a, b) {
+			return new Date(a.create_timestamp.system) - new Date(b.create_timestamp.system)
+		});
+
+		utility.getCustomers(function(customers) {
+
 			res.render('home', { title: 'Tickets', company: nconf.get('company').name,
 					company_info: nconf.get('company').info_description, customers: customers,
 					assignments: ticket_assignments
