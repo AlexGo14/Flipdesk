@@ -8,6 +8,5 @@ bin
 project_management
 
 #Files
-config.json
 config.login.json
 gulpfile.js
