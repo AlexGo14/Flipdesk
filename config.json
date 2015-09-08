@@ -1,7 +1,7 @@
 {
   "language": "en",
   "server": {
-  "port": 3000
+    "port": 3000
   },
   "database": {
     "type": "pg",
@@ -26,11 +26,11 @@
     "server": {
       "smtp": {
         "host": "",
-        "port": 0
+        "port": 587
       },
       "imap": {
         "host": "",
-        "port": 0
+        "port": 993
       },
       "username": "",
       "password": ""
