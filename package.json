@@ -1,8 +1,9 @@
 {
   "name": "Flipdesk",
   "description": "A helpdesk system",
-  "author": "Johannes Giere, jogiere@gmail.com",
+  "author": "Johannes Giere <jogiere@gmail.com>",
   "version": "0.0.1",
+  "license": "AGPL",
   "private": true,
   "dependencies": {
     "express": "4.10.2",
