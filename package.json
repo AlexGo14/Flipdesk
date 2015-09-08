@@ -26,6 +26,8 @@
     "emailjs": "0.3.16"
   },
   "devDependencies": {
-    "gulp": "^3.9.0"
+    "gulp": "^3.9.0",
+    "gulp-mocha": "^2.1.3",
+    "gulp-util": "^3.0.6"
   }
 }
