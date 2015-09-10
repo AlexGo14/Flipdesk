@@ -4,16 +4,34 @@ var favicon = require('serve-favicon');
 var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var utility = require("./routes/utility");
+var utility = require('./packages/utility');
+var database = require('./packages/database');
 var fs = require('fs');
-session = require('cookie-session')
-nconf = require('nconf');
+var nconf = utility.configureNconf();
+var objects = require('./packages/objects');
+session = require('cookie-session');
 pg = require("pg");
 passport = require("passport");
 PassportLocalStrategy = require('passport-local').Strategy;
 bcrypt = require('bcrypt');
 moment = require("moment-timezone");
 
+//TODO: Muss entfernt werden
+//Configure database
+knex = require('knex')({
+	client: nconf.get('database').type,
+	connection: {
+		host: nconf.get('database').ip,
+		user: nconf.get('database').user,
+		password: nconf.get('database').password,
+		database: nconf.get('database').name
+	},
+	pool: {
+		min: 0,
+		max: 10
+	}//,
+	//debug: true
+});
 
 var logDir = './logs';
 if(!fs.existsSync(logDir)) {
@@ -36,30 +54,8 @@ logger = log4js.getLogger('flipdesk');
 logger.setLevel('INFO');
 
 
-//Configure nconf
-nconf.argv()
-     .env()
-     .file({ file: 'config.json' });
-
-
-//Configure database
-knex = require('knex')({
-	client: nconf.get('database').type,
-	connection: {
-		host: nconf.get('database').ip,
-		user: nconf.get('database').user,
-		password: nconf.get('database').password,
-		database: nconf.get('database').name
-	},
-	pool: {
-		min: 0,
-		max: 10
-	}//,
-	//debug: true
-});
-
 //Checks if a connection to database can be established.
-utility.checkDatabaseConnection(function(status) {
+database.checkDatabaseConnection(function(status) {
 	if(!status) {
 		logger.error("Aborting server now!");
 		process.exit(1);
@@ -106,10 +102,9 @@ passport.use('local', new PassportLocalStrategy({
 	knex('agent').select().where({
 		'email': email
 	}).then(function(rows) {
-
 		if(rows.length < 1) {
 			// if the user does not exist
-			return done(null, false, {message: "The user does not exist"});
+			return done(null, false, { message: "The user does not exist" });
 		}
 
 		for( var i = 0; i < rows.length; i++) {
@@ -130,7 +125,8 @@ passport.use('local', new PassportLocalStrategy({
 					logger.error(err);
 				});
 
-				var userObj = utility.setAgentObject(rows[i]);
+				logger.warn("Test");
+				var userObj = objects.setAgentObject(rows[i]);
 
 				return done(null, userObj );
 			}
@@ -146,7 +142,7 @@ passport.serializeUser(function(user, done) {
 });
 passport.deserializeUser(function(id, done) {
 	// query the current user from database
-	utility.getAgent(id, function(agent) {
+	database.getAgent(id, function(agent) {
 		if(agent != null) {
 			done(null, agent);
 		} else {

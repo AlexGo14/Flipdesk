@@ -1,7 +1,9 @@
-var MailListener = require("mail-listener2");
-var email = require("emailjs");
+var MailListener = require('mail-listener2');
+var email = require('emailjs');
 var objects = require("./objects");
-var database = require("./database");
+var utility = require('./utility');
+var nconf = utility.configureNconf();
+var database = require('./database');
 
 var mail_module = {
 	start: function() {

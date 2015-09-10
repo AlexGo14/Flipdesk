@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var utility = require('../routes/utility');
+var database = require('../packages/database');
 
 router.get('/', function (req, res) {
 
@@ -40,7 +40,7 @@ router.post('/', function( req, res, next) {
 				return next(err);
 			}
 
-			utility.getAgent(user.id, function(agent) {
+			database.getAgent(user.id, function(agent) {
 				if(agent.active) {
 					req.session.messages = "Login successful";
 

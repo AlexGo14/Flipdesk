@@ -1,17 +1,19 @@
 var express = require('express');
 var router = express.Router();
-var utility = require('./utility');
+var utility = require('../packages/utility');
+var nconf = utility.configureNconf();
 var emailPackage = require('../packages/mail');
+var database = require('../packages/database');
 
 router.get('/', utility.requireAuthentication, function(req, res) {
 
-	utility.getAssignmentsByUser(req.user.id, function(ticket_assignments) {
+	database.getAssignmentsByUser(req.user.id, function(ticket_assignments) {
 
 		ticket_assignments.sort(function(a, b) {
 			return new Date(a.create_timestamp.system) - new Date(b.create_timestamp.system)
 		});
 
-		utility.getCustomers(function(customers) {
+		database.getCustomers(function(customers) {
 
 			res.render('home', { title: 'Tickets', company: nconf.get('company').name,
 					company_info: nconf.get('company').info_description, customers: customers,
@@ -25,14 +27,14 @@ router.get('/', utility.requireAuthentication, function(req, res) {
 router.get('/:id', utility.requireAuthentication, function(req, res) {
 
 		//Get ticket
-		utility.getTicket(req.params.id, function(ticket) {
+		database.getTicket(req.params.id, function(ticket) {
 
 			//Check for a recursive comment list view
 			if(nconf.get('view').recursiveCommentList) {
 				ticket.comments.reverse();
 			}
 
-			utility.getActiveAgents(function(agents) {
+			database.getActiveAgents(function(agents) {
 				res.render('ticket', {
 					'ticket': ticket,
 					'agents': agents,
@@ -45,7 +47,7 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 /* GET tickets from a customer. */
 router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 
-		utility.getTicketsByCustomerId(req.params.id, function(data) {
+		database.getTicketsByCustomerId(req.params.id, function(data) {
 
 			var tickets = {
 				'current': [],
@@ -69,8 +71,8 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 				}
 			}
 
-			utility.getActiveAgents(function(agents) {
-				utility.getDatamodel(req.params.id, function(datamodel_draft) {
+			database.getActiveAgents(function(agents) {
+				database.getDatamodel(req.params.id, function(datamodel_draft) {
 
 					var datamodel = [];
 					for(var i = 0; i < datamodel_draft.length; i++) {
@@ -79,8 +81,8 @@ router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 						}
 					}
 
-					utility.getUsersByCustomerId(req.params.id, function(users) {
-						utility.getCustomers(function(customers) {
+					database.getUsersByCustomerId(req.params.id, function(users) {
+						database.getCustomers(function(customers) {
 							res.render('tickets', {
 								title: 'Tickets',
 								company: nconf.get('company').name,
@@ -112,8 +114,8 @@ router.post('/', utility.requireAuthentication, function(req, res) {
 		'properties': req.body.properties
 	}
 
-	utility.getUser(new_ticket.user.id, function(user) {
-		utility.getDatamodel(user.customer.id, function(datamodel) {
+	database.getUser(new_ticket.user.id, function(user) {
+		database.getDatamodel(user.customer.id, function(datamodel) {
 
 			for(var i = 0; i < datamodel.length; i++) {
 				if(datamodel[i].mandatory) {
@@ -129,11 +131,11 @@ router.post('/', utility.requireAuthentication, function(req, res) {
 				}
 			}
 
-			utility.createTicket(new_ticket, function(id, err) {
+			database.createTicket(new_ticket, function(id, err) {
 				if(!err) {
 					new_ticket.id = id;
 
-					utility.getTicket(new_ticket.id, function(ticketObj) {
+					database.getTicket(new_ticket.id, function(ticketObj) {
 						res.json({ 'success': true, 'ticket': ticketObj });
 					});
 
@@ -152,10 +154,10 @@ router.post('/', utility.requireAuthentication, function(req, res) {
 router.put('/:id', utility.requireAuthentication, function(req, res) {
 
 	if(req.body.solved) {
-		utility.getTicket(req.params.id, function(ticket) {
+		database.getTicket(req.params.id, function(ticket) {
 
 			if(ticket.agent.id != null) {
-				utility.solveTicket(req.params.id,
+				database.solveTicket(req.params.id,
 					function(solved) {
 						if(solved) {
 							res.json( { 'success': true } );
@@ -175,7 +177,7 @@ router.put('/:id', utility.requireAuthentication, function(req, res) {
 
 /* Archive a ticket */
 router.delete('/:id', utility.requireAuthentication, function(req, res) {
-	utility.archiveTicket(req.params.id, function(archived) {
+	database.archiveTicket(req.params.id, function(archived) {
 			if(archived) {
 				res.json( { 'success': true } );
 			} else {
@@ -196,7 +198,7 @@ router.post('/:id/assign/:agent_id', utility.requireAuthentication, function(req
 		agent_id = null;
 	}
 
-	utility.assignAgent(agent_id, ticket_id,
+	database.assignAgent(agent_id, ticket_id,
 		function(id) {
 			res.json( { success: true } );
 		},
@@ -230,12 +232,12 @@ router.post('/:id/comment', utility.requireAuthentication, function(req, res) {
 		new_comment.user.id = parseInt(new_comment.user.id);
 	}
 
-	utility.createComment(new_comment, function(id, error) {
+	database.createComment(new_comment, function(id, error) {
 		if(!error) {
 			if(new_comment.agent.id != null) {
 				new_comment.comment = { 'id': id };
 
-				utility.getTicket(new_comment.ticket.id, function(ticket) {
+				database.getTicket(new_comment.ticket.id, function(ticket) {
 					new_comment.ticket = ticket;
 
 					emailPackage.notificationNewComment(new_comment);

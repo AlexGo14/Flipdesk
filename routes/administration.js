@@ -1,12 +1,14 @@
 var express = require('express');
 var router = express.Router();
-var utility = require('./utility');
+var utility = require('../packages/utility');
+var nconf = utility.configureNconf();
 var generatePassword = require('password-generator');
 var mailPackage = require('../packages/mail');
+var database = require('../packages/database');
 
 /* Renders general administration view */
 router.get('/', utility.requireAuthentication, function(req, res) {
-	utility.getCustomers(function(customers) {
+	database.getCustomers(function(customers) {
 		res.render('administration', { title: 'Tickets', company: nconf.get('company').name,
 			customers: customers
 		});
@@ -43,7 +45,7 @@ router.post('/settings/update', utility.requireAuthentication, function(req, res
 
 /* Renders administration/agents view */
 router.get('/agents', utility.requireAuthentication, function(req, res) {
-	utility.getAgents(function(agents) {
+	database.getAgents(function(agents) {
 		//Sort agents by last_name alphabetically.
 		agents.sort(function(a, b) {
 			return a.last_name.replace(/[^a-z]/ig,'') > b.last_name.replace(/[^a-z]/ig,'') ? 1 : -1;
@@ -55,7 +57,7 @@ router.get('/agents', utility.requireAuthentication, function(req, res) {
 
 /* Loads agent details and returns json data */
 router.get('/agents/:id', utility.requireAuthentication, function(req, res) {
-	utility.getAgent(req.params.id, function(agent) {
+	database.getAgent(req.params.id, function(agent) {
 		res.json( { 'agent': agent } );
 	});
 });
@@ -74,14 +76,14 @@ router.post('/agents', utility.requireAuthentication, function(req, res) {
 	//Generate salt, random password and hash async
 	//This function processes async to give the user a fast response.
 	//He should not wait for generating the salt, password, updating the db and sending the invitation/welcome email.
-	utility.createAgent(agent, function(id) {
+	database.createAgent(agent, function(id) {
 		bcrypt.genSalt(10, function(err, salt) {
 			var gen_password = generatePassword(12, false);
 
 			bcrypt.hash(gen_password, salt, function(err, hash) {
 
-				utility.setNewAgentPassword(id, hash, function(id) {
-					utility.getAgent(id, function(agent) {
+				database.setNewAgentPassword(id, hash, function(id) {
+					database.getAgent(id, function(agent) {
 						//Send welcome email
 						logger.info(agent);
 						mailPackage.sendAgentWelcomeEmail(agent, gen_password);
@@ -107,7 +109,7 @@ router.post('/agents/:id', utility.requireAuthentication, function(req, res) {
 		update_timestamp: moment().format()
 	};
 
-	utility.updateAgent(agent, function(id) {
+	database.updateAgent(agent, function(id) {
 		res.json( { 'success': true } );
 	});
 });
@@ -115,14 +117,14 @@ router.post('/agents/:id', utility.requireAuthentication, function(req, res) {
 /* Loads customer details and returns json data */
 router.get('/customer/:id', utility.requireAuthentication, function(req, res) {
 
-	utility.getCustomer(req.params.id, function(customer) {
+	database.getCustomer(req.params.id, function(customer) {
 
-		utility.getActiveUsersByCustomerId(req.params.id, function(users) {
+		database.getActiveUsersByCustomerId(req.params.id, function(users) {
 			customer.users = users;
 
-			utility.getDatamodel(req.params.id, function(datamodel) {
-				utility.getDatatypes(function(datatypes) {
-					utility.getBlacklist(function(blacklist) {
+			database.getDatamodel(req.params.id, function(datamodel) {
+				database.getDatatypes(function(datatypes) {
+					database.getBlacklist(function(blacklist) {
 						res.render('administration-customer',
 							{'name': customer.name, 'id': customer.id, 'users': customer.users, 'active': customer.active,
 								'blacklist': blacklist, 'datamodel': datamodel, 'datatypes': datatypes });
@@ -152,7 +154,7 @@ router.post('/customer', utility.requireAuthentication, function(req, res) {
 		admin: { id: req.user.id }
 	}
 
-	utility.createCustomer(customer, function(id, err) {
+	database.createCustomer(customer, function(id, err) {
 		if(id != null) {
 			res.json({ success: true, id: id });
 		} else {
@@ -164,14 +166,14 @@ router.post('/customer', utility.requireAuthentication, function(req, res) {
 
 /* Disable customer */
 router.delete('/customer/:id', utility.requireAuthentication, function(req, res) {
-	utility.disableCustomer(req.params.id, function(id) {
+	database.disableCustomer(req.params.id, function(id) {
 		res.json({'success': true});
 	});
 });
 
 /* Enable customer */
 router.put('/customer/:id', utility.requireAuthentication, function(req, res) {
-	utility.enableCustomer(req.params.id, function(id) {
+	database.enableCustomer(req.params.id, function(id) {
 		res.json({'success': true});
 	});
 });
@@ -183,7 +185,7 @@ router.post('/customer/:id', utility.requireAuthentication, function(req, res) {
 		'name': req.body.name
 	};
 
-	utility.updateCustomer(customer, function(id) {
+	database.updateCustomer(customer, function(id) {
 		res.json({'success': true});
 	});
 });
@@ -201,7 +203,7 @@ router.post('/user', utility.requireAuthentication, function(req, res) {
 	logger.error(user);
 
 	//Insert into db
-	utility.createUser(user, function(user_id) {
+	database.createUser(user, function(user_id) {
 		user.id = user_id;
 
 		//Generate salt, random password and hash async
@@ -212,7 +214,7 @@ router.post('/user', utility.requireAuthentication, function(req, res) {
 
 			bcrypt.hash(gen_password, salt, function(err, hash) {
 				//Update user object
-				utility.updateUserPassword(user.id, hash, function(id) {
+				database.updateUserPassword(user.id, hash, function(id) {
 					//Send welcome email
 					mailPackage.sendUserWelcomeEmail(user, gen_password);
 				});
@@ -232,20 +234,21 @@ router.post('/user/:id', utility.requireAuthentication, function(req, res) {
 		'email': req.body.email
 	};
 
-	utility.updateUser(user, function(id) {
+	database.updateUser(user, function(id) {
 		res.json({'success': true});
 	});
 });
 
 /* Delete user */
 router.delete('/user/:id', utility.requireAuthentication, function(req, res) {
-	utility.deleteUser(req.params.id, function(success) {
+	database.deleteUser(req.params.id, function(success) {
 		res.json({'success': success});
 	});
 });
 
 /* Create ticket field */
 router.post('/ticketfield', utility.requireAuthentication, function(req, res) {
+	//TODO: Was passiert hier?
 	knex('customer_datamodel').returning('id').insert({
 		'name': req.body.name,
 		'mandatory': req.body.mandatory,
@@ -256,7 +259,7 @@ router.post('/ticketfield', utility.requireAuthentication, function(req, res) {
 	.then(function(id) {
 		id = id[0];
 
-		utility.getDatamodel(req.body.customer_id, function(datamodel) {
+		database.getDatamodel(req.body.customer_id, function(datamodel) {
 			for(var i = 0; i < datamodel.length; i++) {
 				if(datamodel[i].id == id) {
 					res.json({'success': true, 'property': datamodel[i]});

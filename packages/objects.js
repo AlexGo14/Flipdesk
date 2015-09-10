@@ -18,24 +18,6 @@ var objects = {
 
     return customer;
   },
-  setAgentObject: function(input) {
-		return {
-			'id': input.id,
-			'first_name': input.first_name,
-			'last_name': input.last_name,
-			'create_timestamp': {
-				'short': moment(input.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
-				'detailed': moment(input.create_timestamp).tz('Europe/Berlin').format('Do MMMM YYYY, h:mm a')
-			},
-			'update_timestamp': {
-				'short': moment(input.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
-				'detailed': moment(input.create_timestamp).tz('Europe/Berlin').format('Do MMMM YYYY, h:mm a')
-			},
-			'is_admin': input.is_admin,
-			'email': input.email,
-			'active': input.active
-		};
-	},
   setUserObject: function(input) {
 		return {
 			'id': input.id,
@@ -61,7 +43,68 @@ var objects = {
 		};
 
 		return customer;
-	}
+	},
+  setTicketObject: function(input) {
+    var ticket = {
+      'id': input.id,
+      'description': input.description,
+      'caption': input.caption,
+      'comments': [],
+      'create_timestamp': {
+          'short': moment(input.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
+          'detailed': moment(input.create_timestamp).tz('Europe/Berlin').format('Do MMMM YYYY, h:mm a'),
+          'system': input.create_timestamp
+       },
+       'update_timestamp': null,
+      'agent': {'id': input.fk_agent_id },
+      'user': { 'id': input.fk_user_id },
+      'solved': input.solved,
+      'archived': input.archived
+    };
+
+    if(input.update_timestamp != null) {
+      ticket.update_timestamp = {
+          'short': moment(input.update_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
+          'detailed': moment(input.update_timestamp).tz('Europe/Berlin').format('Do MMMM YYYY, h:mm a')
+      };
+    }
+
+    return ticket;
+  },
+  setCommentObject: function(input) {
+    return {
+      'id': input.id,
+      'description': input.description,
+      'user': {'id': input.fk_user_id},
+      'agent': {'id': input.fk_agent_id},
+      'ticket': {'id': input.fk_ticket_id},
+      'previous_comment': {'id': input.fk_previous_comment_id},
+      'create_timestamp': {
+          'short': moment(input.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
+          'detailed': moment(input.create_timestamp).tz('Europe/Berlin').format('Do MMMM YYYY, h:mm a')
+       }
+    };
+  },
+  setAgentObject: function(input) {
+
+    return {
+      'id': input.id,
+      'first_name': input.first_name,
+      'last_name': input.last_name,
+      'create_timestamp': {
+        'short': moment(input.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
+        'detailed': moment(input.create_timestamp).tz('Europe/Berlin').format('Do MMMM YYYY, h:mm a')
+      },
+      'update_timestamp': {
+        'short': moment(input.create_timestamp).tz('Europe/Berlin').startOf('minute').fromNow(),
+        'detailed': moment(input.create_timestamp).tz('Europe/Berlin').format('Do MMMM YYYY, h:mm a')
+      },
+      'is_admin': input.is_admin,
+      'email': input.email,
+      'active': input.active,
+      'login_pw_change': input.login_pw_change
+    };
+  }
 }
 
 module.exports = objects;

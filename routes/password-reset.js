@@ -1,5 +1,7 @@
 var express = require('express');
-var utility = require('./utility');
+var utility = require('../packages/utility');
+var nconf = utility.configureNconf();
+var database = require('../packages/database');
 var email = require('../packages/mail');
 var generatePassword = require('password-generator');
 
@@ -20,10 +22,10 @@ router.post('/', function(req, res) {
 			bcrypt.hash(gen_password, salt, function(err, hash) {
 
         if(!err) {
-          utility.resetAgentPassword(req.body.email, hash, function(id, err) {
+          database.resetAgentPassword(req.body.email, hash, function(id, err) {
 
             if(!err) {
-							utility.getAgent(id, function(agent) {
+							database.getAgent(id, function(agent) {
 
 								if(agent) {
 									email.sendAgentResetEmail(agent, gen_password);

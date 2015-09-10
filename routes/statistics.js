@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
-var utility = require('./utility');
+var utility = require('../packages/utility');
+var nconf = utility.configureNconf();
+var database = require('../packages/database');
 
 router.get('/', utility.requireAuthentication, function(req, res) {
 	knex.select().from('customer').then(function(rows) {
