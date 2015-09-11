@@ -497,6 +497,49 @@ var database = {
       error( { 'code': null, 'msg': null } );
     });
   },
+	updateTicketDataModel: function (ticket_id, property, callback, error) {
+		knex('ticket_datamodel').update({
+      'value': property.value,
+    })
+    .where({
+      'fk_datamodel_id': property.datamodel_id,
+			'fk_ticket_id': ticket_id
+    })
+    .then(function(updated) {
+      callback(updated[0]);
+    })
+    .catch(function(err) {
+			logger.error(err);
+      error( { 'code': null, 'msg': null } );
+    });
+	},
+	updateTicket: function (ticket, callback, error) {
+
+		for(var i = 0; i < ticket.properties.length; i++) {
+			database.updateTicketDataModel(ticket.id, ticket.properties[i], function(updated) {
+
+			}, function(errorObj) {
+
+			});
+		}
+
+    knex('ticket').update({
+      'caption': ticket.caption,
+			'description': ticket.description,
+			'fk_user_id': ticket.user_id
+    })
+		.returning('id')
+    .where({
+      'id': ticket.id
+    })
+    .then(function(updated) {
+			callback(true);
+    })
+    .catch(function(err) {
+			logger.error(err);
+      error( { 'code': null, 'msg': null } );
+    });
+  },
   archiveTicket: function (ticket_id, callback, error) {
 
     knex('ticket').update({
@@ -616,10 +659,13 @@ var database = {
   getTicket: function (id, callback) {
 
     knex('ticket')
-      .select('id', 'description', 'caption', 'create_timestamp', 'update_timestamp',
-        'fk_agent_id', 'fk_user_id', 'solved', 'archived')
+      .select('ticket.id', 'ticket.description', 'ticket.caption',
+				'ticket.create_timestamp', 'ticket.update_timestamp',
+        'ticket.fk_agent_id', 'ticket.fk_user_id', 'ticket.solved',
+				'ticket.archived', 'user.fk_customer_id')
+			.join('user', 'ticket.fk_user_id', 'user.id')
       .where({
-        'id': id
+        'ticket.id': id
       })
       .then(function(rows) {
         if(rows.length == 1) {
@@ -668,8 +714,10 @@ var database = {
   },
   getTicketsByCustomerId: function (customerid, callback) {
     knex('ticket')
-      .select('ticket.id', 'ticket.description', 'ticket.caption', 'ticket.create_timestamp', 'ticket.update_timestamp',
-        'ticket.fk_agent_id', 'ticket.fk_user_id', 'ticket.solved', 'ticket.archived')
+      .select('ticket.id', 'ticket.description', 'ticket.caption',
+				'ticket.create_timestamp', 'ticket.update_timestamp',
+        'ticket.fk_agent_id', 'ticket.fk_user_id', 'ticket.solved',
+				'ticket.archived', 'user.fk_customer_id')
       .join('user', 'ticket.fk_user_id', '=', 'user.id')
       .where({
         'user.fk_customer_id': customerid,

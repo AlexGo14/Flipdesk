@@ -29,21 +29,22 @@ div(class="row")
 						a(href="#" onclick="set_ticket_to_archived()") Archived
 
 			button(class="btn btn-primary" style="margin-left: 10px;" onclick="ticket_create_comment(#{ticket.id})") Write a comment
+			button(class="btn btn-primary" style="margin-left: 10px;" onclick="show_editTicketModal(#{ticket.id})") Edit ticket
 
 div(class="row")
 		div(class="col-sm-9 col-md-9 col-lg-9")
 			<br>
-			h2 #{ticket.caption}
+			h2(id="ticket_caption") #{ticket.caption}
 
-			blockquote #{ticket.description}
+			blockquote(id="ticket_description") #{ticket.description}
 
 			<br><br>
 			if ticket.comments.length > 0
 				h3 Comments
 				for loop_comment in ticket.comments
-					span Written by
-					span(data-toggle="tooltip" data-placement="left" title="#{loop_comment.agent.email}") #{loop_comment.agent.name}
-					span on
+					span Written by&nbsp;
+					span(data-toggle="tooltip" data-placement="left" title="#{loop_comment.agent.email}") #{loop_comment.agent.first_name} #{loop_comment.agent.last_name}
+					span on&nbsp;
 					u(data-toggle="tooltip" data-placement="left" title="#{loop_comment.create_timestamp.detailed}") #{loop_comment.create_timestamp.short}
 					<br><br>
 					blockquote(id="comment_id_" + loop_comment.id)
@@ -51,14 +52,14 @@ div(class="row")
 					<br><br>
 
 		div(class="col-sm-3 col-md-3 col-lg-3")
-			strong Ticket ID:
+			strong Ticket ID:&nbsp;
 			span(id="ticket-id") #{ticket.id}
 			<br><br>
-			span Created:
+			span Created:&nbsp;
 			u(data-toggle="tooltip" data-placement="left" title="#{ticket.create_timestamp.detailed}") #{ticket.create_timestamp.short}
 			<br><br>
 			if ticket.agent
-				span() Agent:
+				span() Agent:&nbsp;
 				span(id="assigned_to_agent") #{ticket.agent.first_name} #{ticket.agent.last_name}
 				<br>
 				span(id="assigned_to_agent_id") Agent-ID: #{ticket.agent.id}
@@ -66,14 +67,17 @@ div(class="row")
 				span(id="assigned_to_agent") No agent assigned
 			<br><br>
 			if ticket.user
-				span(id="created_by_user") User: #{ticket.user.first_name} #{ticket.user.last_name}
+				span User:&nbsp;
+				span(id="created_by_user") #{ticket.user.first_name} #{ticket.user.last_name}
+				<br>
+				span User-ID:&nbsp;
+				span(id="created_by_user_id") #{ticket.user.id}
 			else
 				span(id="created_by_user") No user assigned
 			<br><br>
 			for dataproperty in datamodel
-				span #{dataproperty.name}
-				span :
-				span #{dataproperty.value}
+				span #{dataproperty.name}:&nbsp;
+				span(id="list_#{dataproperty.name}") #{dataproperty.value}
 				<br><br>
 <!-- Modal -->
 div(class="modal fade" id="createCommentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
@@ -110,6 +114,38 @@ div(class="modal fade" id="assignAgentModal" tabindex="-1" role="dialog" aria-la
 			div(class="modal-footer")
 				button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Cancel
 				button(type="button" class="btn btn-primary btn-lg" onclick="assign_agent_to_ticket()") Assign
+
+<!-- Modal -->
+div(class="modal fade" id="editTicketModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+	div(class="modal-dialog")
+		div(class="modal-content")
+			div(class="modal-header")
+				button(type="button" class="close" data-dismiss="modal")
+					span(aria-hidden="true") &times;
+					span(class="sr-only") Close
+				h4(class="modal-title" id="myModalLabel") Edit Ticket
+			div(class="modal-body")
+				form(class="form" role="form" id="send_ticket_form")
+					div(class="form-group")
+						input(type="text" class="form-control input-lg" placeholder="Caption" id="edit_ticket_form_caption")
+						<br><br>
+						label User:
+						select(class="form-control" id="edit_ticket_form_user")
+							for user in users
+								option(id=user.id)=user.first_name + ' ' + user.last_name
+						<br><br>
+						for data in datamodel
+							label #{data.name}
+
+							if data.mandatory
+								input(type="text" class="form-control custom_properties_edit mandatory" id="#{data.id}" value="#{data.value}" placeholder="#{data.name}")
+							else
+								input(type="text" class="form-control custom_properties_edit" id="#{data.id}" value="#{data.value}" placeholder="#{data.name}")
+							<br><br>
+						textarea(class="form-control" rows="5" placeholder="Description" id="edit_ticket_form_description")
+			div(class="modal-footer")
+				button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
+				button(type="button" class="btn btn-primary btn-lg" onclick="ticket_save(#{ticket.id})") Save
 
 script.
 	$(document).bind('keydown', 'shift+c', function () {

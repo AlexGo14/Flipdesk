@@ -50,12 +50,16 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 			if(nconf.get('view').recursiveCommentList) {
 				ticket.comments.reverse();
 			}
+			logger.warn(ticket.comments);
 
 			database.getActiveAgents(function(agents) {
-				res.render('ticket', {
-					'ticket': ticket,
-					'agents': agents,
-					'datamodel': ticket.datamodel
+				database.getActiveUsersByCustomerId(ticket.company.id, function(users) {
+					res.render('ticket', {
+						'ticket': ticket,
+						'agents': agents,
+						'datamodel': ticket.datamodel,
+						'users': users
+					});
 				});
 			});
 		});
@@ -170,7 +174,8 @@ router.post('/', utility.requireAuthentication, function(req, res) {
 /* Update a ticket */
 router.put('/:id', utility.requireAuthentication, function(req, res) {
 
-	if(req.body.solved) {
+	//Execute this only if the ticket should be solved
+	if(req.body.solved && !req.body.id && !req.body.caption) {
 		database.getTicket(req.params.id, function(ticket) {
 
 			if(ticket.agent.id != null) {
@@ -188,6 +193,24 @@ router.put('/:id', utility.requireAuthentication, function(req, res) {
 			} else {
 				res.json( { 'success': false } );
 			}
+		});
+	} else {
+		//Execute this to update everything
+		database.getTicket(req.params.id, function(ticket) {
+			database.updateTicket(req.body,
+				function(updated) {
+					if(updated) {
+						database.getTicket(ticket.id, function(updated_ticket) {
+							res.json( { 'success': true, 'ticket': updated_ticket} );
+						});
+					} else {
+						logger.warn(updated);
+						res.json( { 'success': false } );
+					}
+				},
+				function(err) {
+
+				});
 		});
 	}
 });

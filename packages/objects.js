@@ -75,6 +75,7 @@ var objects = {
        'update_timestamp': null,
       'agent': {'id': input.fk_agent_id },
       'user': { 'id': input.fk_user_id },
+      'company' : { 'id': input.fk_customer_id},
       'solved': input.solved,
       'archived': input.archived
     };

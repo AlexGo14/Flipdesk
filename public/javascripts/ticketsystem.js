@@ -56,6 +56,83 @@ function show_createTicketModal() {
 	$('#createTicketModal').modal('show');
 }
 
+/* Opens modal to edit ticket */
+function show_editTicketModal(ticket_id) {
+  $('#edit_ticket_form_caption')[0].value = $('#ticket_caption')[0].textContent;
+  $('#edit_ticket_form_description')[0].value = $('#ticket_description')[0].textContent;
+
+  for(var i = 0; i < $('#edit_ticket_form_user')[0].options.length; i++) {
+    if($('#edit_ticket_form_user')[0].options[i].value == $('#created_by_user')[0].textContent) {
+      $('#edit_ticket_form_user')[0].selectedIndex = i;
+    }
+  }
+
+  $('#editTicketModal').modal('show');
+}
+
+function ticket_save(ticket_id) {
+  var new_ticket = {
+    'id': ticket_id,
+		'caption': $('#edit_ticket_form_caption')[0].value,
+		'description': $('#edit_ticket_form_description')[0].value,
+		'user_id': $('#edit_ticket_form_user')[0].selectedOptions[0].id,
+		properties: []
+	};
+
+	var customProperties = $('.custom_properties_edit');
+
+	//Do the mandatory property check
+	var findNullMandatory = false;
+	for(var i = 0; i < customProperties.length; i++) {
+		if(customProperties[i].classList.contains('mandatory') && customProperties[i].value == '') {
+			customProperties[i].classList.add('add-property');
+			findNullMandatory = true;
+		} else {
+			customProperties[i].classList.remove('add-property');
+		}
+	}
+
+	if(findNullMandatory) {
+		return;
+	}
+
+	for(var i = 0; i < customProperties.length; i++) {
+		new_ticket.properties[i] = {
+			datamodel_id: parseInt(customProperties[i].id),
+			value: customProperties[i].value
+		};
+	}
+
+	$.ajax({
+		url: '/tickets/' + ticket_id,
+		type: 'PUT',
+		data: JSON.stringify(new_ticket),
+		contentType: 'application/json',
+		success: function(data) {
+			if(data.success) {
+        $('#'+data.ticket.id)[0].textContent = data.ticket.caption;
+        $('#ticket_caption')[0].textContent = data.ticket.caption;
+
+        $('#ticket_description')[0].textContent = data.ticket.description;
+
+        $('#created_by_user_id')[0].textContent = data.ticket.user.id;
+        $('#created_by_user')[0].textContent = data.ticket.user.first_name + ' ' + data.ticket.user.last_name;
+
+        for(var i = 0; i < data.ticket.datamodel.length; i++) {
+          $('#list_' + data.ticket.datamodel[i].name)[0].textContent = data.ticket.datamodel[i].value;
+        }
+
+				$('#editTicketModal').modal('hide');
+
+				$('#edit_ticket_form_caption')[0].value = '';
+				$('#edit_ticket_form_description')[0].value = '';
+
+
+			}
+		}
+	});
+}
+
 /* Creates a new ticket object from form data and performs HTTP-POST to create new ticket.
  * After that, it hides the modal and empties the form input fields. */
 function ticket_send() {
@@ -78,9 +155,8 @@ function ticket_send() {
 		} else {
 			customProperties[i].classList.remove('add-property');
 		}
-
-
 	}
+
 	if(findNullMandatory) {
 		return;
 	}
