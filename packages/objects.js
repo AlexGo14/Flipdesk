@@ -103,6 +103,29 @@ var objects = {
        }
     };
   },
+  setFullCommentObject: function(input) {
+    var commentObject = objects.setCommentObject(input);
+    commentObject.agent = { 'id': null };
+    commentObject.user = { 'id': null };
+    
+    //If user is set than we build a user object.
+    //If not, we build an agent object.
+    if(input.user_id) {
+      commentObject.user = { 'id': input.user_id,
+          'first_name': input.user_first_name,
+          'last_name': input.user_last_name,
+          'email': input.user_email
+      };
+    } else {
+      commentObject.agent = { 'id': input.agent_id,
+          'first_name': input.agent_first_name,
+          'last_name': input.agent_last_name,
+          'email': input.agent_email
+      };
+    }
+
+    return commentObject;
+  },
   setAgentObject: function(input) {
 
     return {

@@ -856,17 +856,32 @@ var database = {
   },
   getCommentsByTicketId: function (ticketid, callback) {
     knex('comment')
-      .select('id', 'description', 'fk_user_id', 'fk_agent_id',
-        'fk_ticket_id', 'fk_previous_comment_id', 'create_timestamp')
+      .select('comment.id', 'comment.description', 'comment.fk_ticket_id',
+				'comment.fk_previous_comment_id', 'comment.create_timestamp',
+				'user.id as user_id', 'user.last_name as user_last_name',
+					'user.first_name as user_first_name', 'user.email as user_email',
+				'agent.id as agent_id', 'agent.last_name as agent_last_name',
+					'agent.first_name as agent_first_name', 'agent.email as agent_email')
+			.leftOuterJoin('user', 'comment.fk_user_id', 'user.id')
+			.leftOuterJoin('agent', 'comment.fk_agent_id', 'agent.id')
       .where({
-        'fk_ticket_id': ticketid
+        'comment.fk_ticket_id': ticketid
       })
       .orderBy('fk_previous_comment_id', 'asc')
       .then(function(rows) {
         var comments = [];
 
         for(var i = 0; i < rows.length; i++) {
-          comments[i] = objects.setCommentObject(rows[i]);
+          comments[i] = objects.setFullCommentObject(rows[i]);
+
+					//change commentator object
+					if(comments[i].user.id) {
+						comments[i].creator = comments[i].user;
+					} else if(comments[i].agent.id) {
+						comments[i].creator = comments[i].agent;
+					}
+					comments[i].agent = null;
+					comments[i].user = null;
         }
 
         callback(comments);

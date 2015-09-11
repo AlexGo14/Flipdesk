@@ -43,8 +43,8 @@ div(class="row")
 				h3 Comments
 				for loop_comment in ticket.comments
 					span Written by&nbsp;
-					span(data-toggle="tooltip" data-placement="left" title="#{loop_comment.agent.email}") #{loop_comment.agent.first_name} #{loop_comment.agent.last_name}
-					span on&nbsp;
+					span(data-toggle="tooltip" data-placement="left" title="#{loop_comment.creator.email}") #{loop_comment.creator.first_name} #{loop_comment.creator.last_name}
+					span &nbsp;on&nbsp;
 					u(data-toggle="tooltip" data-placement="left" title="#{loop_comment.create_timestamp.detailed}") #{loop_comment.create_timestamp.short}
 					<br><br>
 					blockquote(id="comment_id_" + loop_comment.id)

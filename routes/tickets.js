@@ -50,7 +50,6 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 			if(nconf.get('view').recursiveCommentList) {
 				ticket.comments.reverse();
 			}
-			logger.warn(ticket.comments);
 
 			database.getActiveAgents(function(agents) {
 				database.getActiveUsersByCustomerId(ticket.company.id, function(users) {
