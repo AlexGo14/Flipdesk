@@ -10,7 +10,6 @@
   Based on NodeJS and compatible with PostgreSQL, MySQL/MariaDB and SQLite, Flipdesk is fast.
 
   Please, keep in mind that Flipdesk is not ready yet. I am very short on time, but I will fix open bugs asap.
-  You can find all development code in branch "Development". If a stable version of Flipdesk is available, I will move all code to the master branch.
 
 ##License
   Flipdesk. A flexible helpdesk system.
