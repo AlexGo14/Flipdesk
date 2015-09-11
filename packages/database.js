@@ -47,24 +47,6 @@ var database = {
 				callback(false);
 			});
 	},
-  getAgent: function (id, callback) {
-		knex('agent')
-			.select('id', 'first_name', 'last_name', 'create_timestamp', 'update_timestamp',
-				'is_admin', 'email', 'active')
-			.where({
-				'id': id
-			})
-			.then(function(rows) {
-				var agent = objects.setAgentObject(rows[0]);
-
-				callback(agent);
-			})
-			.catch(function(err) {
-				logger.error('Could not select customer from database with ID: ' + id + ' --- ' + err);
-
-				callback(null);
-			});
-	},
   getUser: function (id, callback) {
 		//Select user
 		knex('user').select('id', 'first_name', 'last_name', 'email', 'fk_customer_id',
@@ -569,7 +551,7 @@ var database = {
         callback(agent);
       })
       .catch(function(err) {
-        logger.error('Could not select agent from database with ID: ' + id + ' --- ' + err);
+        logger.warn('Could not select agent from database with ID: ' + id + ' --- It\'s probably just an unassigned ticket. --- ' + err);
 
         callback(null);
       });

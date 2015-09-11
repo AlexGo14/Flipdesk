@@ -191,22 +191,30 @@ function ticket_send() {
 /* Create a new comment object from form data and performs HTTP-POST to create new comment
  * Hides modal and empties input fields after all */
 function comment_send() {
-	var new_comment = {
-		'description': $('#create_comment_form_description')[0].value,
-		'agent_id': 1,
-		'user_id': null,
-		'ticket_id': $('#ticket-id')[0].innerHTML
-	};
+  if($('#assigned_to_agent')[0].textContent.contains('No agent')) {
+    $('#create_comment_form_error')[0].textContent = "You have to assign this ticket first.";
+  } else {
+    var new_comment = {
+  		'description': $('#create_comment_form_description')[0].value,
+  		'agent_id': parseInt($('#assigned_to_agent_id')[0].textContent),
+  		'user_id': null,
+  		'ticket_id': $('#ticket-id')[0].innerHTML
+  	};
 
-	$.post('/tickets/' + new_comment.ticket_id + '/comment', new_comment, function(data) {
-			if(data.success) {
-				$('#createCommentModal').modal('hide');
+  	$.post('/tickets/' + new_comment.ticket_id + '/comment', new_comment, function(data) {
+  			if(data.success) {
+  				$('#createCommentModal').modal('hide');
 
-				$('#create_comment_form_description')[0].value = '';
+  				$('#create_comment_form_description')[0].value = '';
 
-				ticket_click(parseInt(new_comment.ticket_id));
-			}
-	}, 'json');
+  				ticket_click(parseInt(new_comment.ticket_id));
+  			} else {
+          if(data.err.code == 1) {
+            $('#create_comment_form_error')[0].textContent = data.err.code.msg;
+          }
+        }
+  	}, 'json');
+  }
 }
 
 /* Opens/Shows modal to assign agent to ticket */
@@ -234,8 +242,8 @@ function assign_agent_to_ticket() {
 	$.post('/tickets/' + $('#ticket-id').html() + '/assign/' + agent_id, {}, function(data) {
 		if(data.success) {
 			$('#ticket_status').html('Assigned');
-			$('#assigned_to_agent').html('Agent: ' + $('#agent_assignAgentModal_form')[0].selectedOptions[0].value);
-
+			$('#assigned_to_agent').html($('#agent_assignAgentModal_form')[0].selectedOptions[0].value);
+      $('#assigned_to_agent_id').html(agent_id);
 			$('#assignAgentModal').modal('hide');
 		} else {
 

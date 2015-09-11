@@ -257,42 +257,47 @@ router.post('/:id/assign/:agent_id', utility.requireAuthentication, function(req
 
 //Create a comment
 router.post('/:id/comment', utility.requireAuthentication, function(req, res) {
-	var new_comment = {
-		'description': req.body.description,
-		'ticket': {
-			'id': parseInt(req.body.ticket_id)
-		},
-		'agent': {
-			'id': req.body.agent_id
-		},
-		'user': {
-			'id': req.body.user_id
-		}
-	};
+	if(req.body.agent_id) {
+		var new_comment = {
+			'description': req.body.description,
+			'ticket': {
+				'id': parseInt(req.body.ticket_id)
+			},
+			'agent': {
+				'id': req.body.agent_id
+			},
+			'user': {
+				'id': req.body.user_id
+			}
+		};
 
-	if(new_comment.agent.id != null) {
-		new_comment.agent.id = parseInt(new_comment.agent.id);
-	} else if(new_comment.user.id != null) {
-		new_comment.user.id = parseInt(new_comment.user.id);
+		if(new_comment.agent.id != null) {
+			new_comment.agent.id = parseInt(new_comment.agent.id);
+		} else if(new_comment.user.id != null) {
+			new_comment.user.id = parseInt(new_comment.user.id);
+		}
+
+		database.createComment(new_comment, function(id, error) {
+			if(!error) {
+				if(new_comment.agent.id != null) {
+					new_comment.comment = { 'id': id };
+
+					database.getTicket(new_comment.ticket.id, function(ticket) {
+						new_comment.ticket = ticket;
+
+						emailPackage.notificationNewComment(new_comment);
+					});
+				}
+
+				res.json({ 'success': true, 'id': id });
+			} else {
+				logger.error(error);
+			}
+		});
+	} else {
+		res.json({ 'success': false, err: {'code': 1, 'msg': 'You have to assign an agent first.'}});
 	}
 
-	database.createComment(new_comment, function(id, error) {
-		if(!error) {
-			if(new_comment.agent.id != null) {
-				new_comment.comment = { 'id': id };
-
-				database.getTicket(new_comment.ticket.id, function(ticket) {
-					new_comment.ticket = ticket;
-
-					emailPackage.notificationNewComment(new_comment);
-				});
-			}
-
-			res.json({ 'success': true, 'id': id });
-		} else {
-			logger.error(error);
-		}
-	});
 });
 
 module.exports = router;

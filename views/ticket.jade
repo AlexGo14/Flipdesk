@@ -59,13 +59,17 @@ div(class="row")
 			span Created:&nbsp;
 			u(data-toggle="tooltip" data-placement="left" title="#{ticket.create_timestamp.detailed}") #{ticket.create_timestamp.short}
 			<br><br>
+			span() Agent:&nbsp;
 			if ticket.agent
-				span() Agent:&nbsp;
 				span(id="assigned_to_agent") #{ticket.agent.first_name} #{ticket.agent.last_name}
-				<br>
-				span(id="assigned_to_agent_id") Agent-ID: #{ticket.agent.id}
 			else
 				span(id="assigned_to_agent") No agent assigned
+			<br>
+			span Agent-ID:&nbsp;
+			if ticket.agent
+				span(id="assigned_to_agent_id") #{ticket.agent.id}
+			else
+				span(id="assigned_to_agent_id")
 			<br><br>
 			if ticket.user
 				span User:&nbsp;
@@ -93,6 +97,7 @@ div(class="modal fade" id="createCommentModal" tabindex="-1" role="dialog" aria-
 				form(class="form" role="form" id="send_ticket_form")
 					div(class="form-group")
 						textarea(class="form-control" rows="5" placeholder="Comment" id="create_comment_form_description")
+				span(id="create_comment_form_error")
 			div(class="modal-footer")
 				button(type="button" class="btn btn-default btn-lg" data-dismiss="modal") Close
 				button(type="button" class="btn btn-primary btn-lg" onclick="comment_send()") Send
