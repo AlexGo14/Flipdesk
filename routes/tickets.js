@@ -51,6 +51,11 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 				ticket.comments.reverse();
 			}
 
+			//Process comment text viewable for browser - add line breaks
+			for(var i = 0; i < ticket.comments.length; i++) {
+				ticket.comments[i].description= ticket.comments[i].description.replace(/\n/g , "<br />");
+			}
+
 			database.getActiveAgents(function(agents) {
 				database.getActiveUsersByCustomerId(ticket.company.id, function(users) {
 					res.render('ticket', {
