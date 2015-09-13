@@ -283,33 +283,35 @@ var mail_module = {
 			}
 		}
 
-
-
-		server.send({
-			text: "Dear agent a new comment has been created for your ticket \"" + new_comment.ticket.caption + "\".\r\rPlease check your support dashboard.\r\r\r" + mailContent,
-			from: nconf.get('mail').email,
-			to:  new_comment.ticket.agent.email,
-			subject: "New comment for ticket " + new_comment.ticket.caption + "; #FlipID: " + new_comment.ticket.id + "#"
-		}, function(err, message) {
-			if(err) {
-				logger.error(err);
-			} else {
-				logger.info(message);
-			}
-		});
-
-		server.send({
-			text: "Dear " + new_comment.ticket.user.first_name + " a new comment has been created for your ticket \"" + new_comment.ticket.caption + "\".\r\r\r" + mailContent,
-			from: nconf.get('mail').email,
-			to:  new_comment.ticket.user.email,
-			subject: "New comment for ticket " + new_comment.ticket.caption + "; #FlipID: " + new_comment.ticket.id + "#"
-		}, function(err, message) {
-			if(err) {
-				logger.error(err);
-			} else {
-				logger.info(message);
-			}
-		});
+		if(new_comment.agent.id) {
+			//Agent has created a comment --> send email to user
+			server.send({
+				text: "Dear " + new_comment.ticket.user.first_name + " a new comment has been created for your ticket \"" + new_comment.ticket.caption + "\".\r\r\r" + mailContent,
+				from: nconf.get('mail').email,
+				to:  new_comment.ticket.user.email,
+				subject: "New comment for ticket " + new_comment.ticket.caption + "; #FlipID: " + new_comment.ticket.id + "#"
+			}, function(err, message) {
+				if(err) {
+					logger.error(err);
+				} else {
+					logger.info(message);
+				}
+			});
+		} else if(new_comment.user.id) {
+			//User has created a comment --> send email to agent
+			server.send({
+				text: "Dear agent a new comment has been created for your ticket \"" + new_comment.ticket.caption + "\".\r\rPlease check your support dashboard.\r\r\r" + mailContent,
+				from: nconf.get('mail').email,
+				to:  new_comment.ticket.agent.email,
+				subject: "New comment for ticket " + new_comment.ticket.caption + "; #FlipID: " + new_comment.ticket.id + "#"
+			}, function(err, message) {
+				if(err) {
+					logger.error(err);
+				} else {
+					logger.info(message);
+				}
+			});
+		}
 	},
 	sendAgentWelcomeEmail: function (new_agent, password) {
 			var server = mail_module.getSmtpServer();
