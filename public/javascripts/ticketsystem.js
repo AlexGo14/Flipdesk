@@ -736,6 +736,12 @@ function addCustomer() {
 		mailbox_password: $('#password')[0].value
 	};
 
+  if(!(customer.name && customer.email_contact && customer.imap_email,
+    customer.smtp_email && customer.mailbox_user && customer.mailbox_password)) {
+      $('#error-message')[0].textContent = 'Please fill out all form fields.';
+      return;
+  }
+
 	$.ajax({
 		url: 'administration/customer',
 		data: JSON.stringify(customer),
@@ -745,7 +751,13 @@ function addCustomer() {
 			if(data.success) {
 				open_administration_customer(data.id);
 			} else {
-				$('#error-message')[0].textContent = data.error.code + ': ' + data.error.msg;
+        var errMsg = 'An unidentified error occurred.';
+        if(data.error.code == 1) {
+          errMsg = data.error.msg;
+        } else if(data.error.code == 4) {
+          errMsg = data.error.msg;
+        }
+				$('#error-message')[0].textContent = errMsg;
 			}
 		}
 	});
