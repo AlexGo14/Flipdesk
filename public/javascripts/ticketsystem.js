@@ -48,7 +48,11 @@ function ticket_click(id) {
 
 /* Opens Modal to create new comment */
 function ticket_create_comment(id) {
-	$('#createCommentModal').modal('show');
+  if($('#ticket_status').html() == 'Solved') {
+    alert('Sorry, you cannot comment on a solved ticket. It needs to be assigned to an agent. Preferably you :D');
+  } else {
+	   $('#createCommentModal').modal('show');
+  }
 }
 
 /* Opens Modal to create new ticket */

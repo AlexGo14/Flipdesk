@@ -277,21 +277,27 @@ router.post('/:id/comment', utility.requireAuthentication, function(req, res) {
 			new_comment.user.id = parseInt(new_comment.user.id);
 		}
 
-		database.createComment(new_comment, function(id, error) {
-			if(!error) {
-				if(new_comment.agent.id != null) {
-					new_comment.comment = { 'id': id };
+		database.getTicket(new_comment.ticket.id, function(preTicket) {
+			if(!preTicket.solved) {
+				database.createComment(new_comment, function(id, error) {
+					if(!error) {
+						if(new_comment.agent.id != null) {
+							new_comment.comment = { 'id': id };
 
-					database.getTicket(new_comment.ticket.id, function(ticket) {
-						new_comment.ticket = ticket;
+							database.getTicket(new_comment.ticket.id, function(ticket) {
+								new_comment.ticket = ticket;
 
-						emailPackage.notificationNewComment(new_comment);
-					});
-				}
+								emailPackage.notificationNewComment(new_comment);
+							});
+						}
 
-				res.json({ 'success': true, 'id': id });
+						res.json({ 'success': true, 'id': id });
+					} else {
+						logger.error(error);
+					}
+				});
 			} else {
-				logger.error(error);
+				res.json({ 'success': false, err: {'code': 3, 'msg': 'You cannot comment on a solved ticket. You have to assign an agent first.'}});
 			}
 		});
 	} else {
