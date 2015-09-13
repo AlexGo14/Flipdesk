@@ -2,6 +2,10 @@
 -- PostgreSQL database dump
 --
 
+-- Dumped from database version 9.4.4
+-- Dumped by pg_dump version 9.4.4
+-- Started on 2015-09-13 16:40:13 CEST
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
@@ -10,13 +14,26 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
--- Name: Ticketsystem; Type: COMMENT; Schema: -; Owner: postgres
+-- TOC entry 2161 (class 1262 OID 16385)
+-- Name: Ticketsystem; Type: DATABASE; Schema: -; Owner: admin
 --
 
-COMMENT ON DATABASE "Ticketsystem" IS 'johannes';
+CREATE DATABASE "Ticketsystem" WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'en_GB.UTF-8' LC_CTYPE = 'en_GB.UTF-8';
 
+
+ALTER DATABASE "Ticketsystem" OWNER TO admin;
+
+\connect "Ticketsystem"
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
 
 --
+-- TOC entry 190 (class 3079 OID 11907)
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
 --
 
@@ -24,6 +41,8 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
+-- TOC entry 2164 (class 0 OID 0)
+-- Dependencies: 190
 -- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
 --
 
@@ -37,7 +56,8 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: agent; Type: TABLE; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 172 (class 1259 OID 16386)
+-- Name: agent; Type: TABLE; Schema: public; Owner: admin; Tablespace: 
 --
 
 CREATE TABLE agent (
@@ -49,14 +69,16 @@ CREATE TABLE agent (
     is_admin boolean DEFAULT false NOT NULL,
     password character(60) NOT NULL,
     email character varying(250) NOT NULL,
-    active boolean DEFAULT true NOT NULL
+    active boolean DEFAULT true NOT NULL,
+    login_pw_change boolean DEFAULT true NOT NULL
 );
 
 
-ALTER TABLE public.agent OWNER TO johannes;
+ALTER TABLE agent OWNER TO admin;
 
 --
--- Name: agent_id_seq; Type: SEQUENCE; Schema: public; Owner: johannes
+-- TOC entry 173 (class 1259 OID 16395)
+-- Name: agent_id_seq; Type: SEQUENCE; Schema: public; Owner: admin
 --
 
 CREATE SEQUENCE agent_id_seq
@@ -67,17 +89,20 @@ CREATE SEQUENCE agent_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.agent_id_seq OWNER TO johannes;
+ALTER TABLE agent_id_seq OWNER TO admin;
 
 --
--- Name: agent_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: johannes
+-- TOC entry 2165 (class 0 OID 0)
+-- Dependencies: 173
+-- Name: agent_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
 --
 
 ALTER SEQUENCE agent_id_seq OWNED BY agent.id;
 
 
 --
--- Name: blacklist; Type: TABLE; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 174 (class 1259 OID 16397)
+-- Name: blacklist; Type: TABLE; Schema: public; Owner: admin; Tablespace: 
 --
 
 CREATE TABLE blacklist (
@@ -86,10 +111,11 @@ CREATE TABLE blacklist (
 );
 
 
-ALTER TABLE public.blacklist OWNER TO johannes;
+ALTER TABLE blacklist OWNER TO admin;
 
 --
--- Name: blacklist_id_seq; Type: SEQUENCE; Schema: public; Owner: johannes
+-- TOC entry 175 (class 1259 OID 16400)
+-- Name: blacklist_id_seq; Type: SEQUENCE; Schema: public; Owner: admin
 --
 
 CREATE SEQUENCE blacklist_id_seq
@@ -100,17 +126,20 @@ CREATE SEQUENCE blacklist_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.blacklist_id_seq OWNER TO johannes;
+ALTER TABLE blacklist_id_seq OWNER TO admin;
 
 --
--- Name: blacklist_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: johannes
+-- TOC entry 2166 (class 0 OID 0)
+-- Dependencies: 175
+-- Name: blacklist_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
 --
 
 ALTER SEQUENCE blacklist_id_seq OWNED BY blacklist.id;
 
 
 --
--- Name: comment; Type: TABLE; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 176 (class 1259 OID 16402)
+-- Name: comment; Type: TABLE; Schema: public; Owner: admin; Tablespace: 
 --
 
 CREATE TABLE comment (
@@ -124,10 +153,11 @@ CREATE TABLE comment (
 );
 
 
-ALTER TABLE public.comment OWNER TO johannes;
+ALTER TABLE comment OWNER TO admin;
 
 --
--- Name: comment_id_seq; Type: SEQUENCE; Schema: public; Owner: johannes
+-- TOC entry 177 (class 1259 OID 16409)
+-- Name: comment_id_seq; Type: SEQUENCE; Schema: public; Owner: admin
 --
 
 CREATE SEQUENCE comment_id_seq
@@ -138,17 +168,20 @@ CREATE SEQUENCE comment_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.comment_id_seq OWNER TO johannes;
+ALTER TABLE comment_id_seq OWNER TO admin;
 
 --
--- Name: comment_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: johannes
+-- TOC entry 2167 (class 0 OID 0)
+-- Dependencies: 177
+-- Name: comment_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
 --
 
 ALTER SEQUENCE comment_id_seq OWNED BY comment.id;
 
 
 --
--- Name: customer; Type: TABLE; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 178 (class 1259 OID 16411)
+-- Name: customer; Type: TABLE; Schema: public; Owner: admin; Tablespace: 
 --
 
 CREATE TABLE customer (
@@ -159,16 +192,19 @@ CREATE TABLE customer (
     update_timestamp timestamp with time zone,
     fk_created_by_admin integer NOT NULL,
     active boolean DEFAULT true NOT NULL,
-    email_mailbox character varying(200),
     username_mailbox character varying(100),
-    password_mailbox character varying(100)
+    password_mailbox character varying(100),
+    email_mailbox_imap character varying(250),
+    email_mailbox_smtp character varying(250),
+    email_domain character varying(128) NOT NULL
 );
 
 
-ALTER TABLE public.customer OWNER TO johannes;
+ALTER TABLE customer OWNER TO admin;
 
 --
--- Name: customer_datamodel; Type: TABLE; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 179 (class 1259 OID 16419)
+-- Name: customer_datamodel; Type: TABLE; Schema: public; Owner: admin; Tablespace: 
 --
 
 CREATE TABLE customer_datamodel (
@@ -176,14 +212,16 @@ CREATE TABLE customer_datamodel (
     fk_customer_id integer NOT NULL,
     fk_datatype_id integer NOT NULL,
     name character varying(30) NOT NULL,
-    mandatory boolean DEFAULT false NOT NULL
+    mandatory boolean DEFAULT false NOT NULL,
+    active boolean DEFAULT true NOT NULL
 );
 
 
-ALTER TABLE public.customer_datamodel OWNER TO johannes;
+ALTER TABLE customer_datamodel OWNER TO admin;
 
 --
--- Name: customer_datamodel_id_seq; Type: SEQUENCE; Schema: public; Owner: johannes
+-- TOC entry 180 (class 1259 OID 16424)
+-- Name: customer_datamodel_id_seq; Type: SEQUENCE; Schema: public; Owner: admin
 --
 
 CREATE SEQUENCE customer_datamodel_id_seq
@@ -194,17 +232,20 @@ CREATE SEQUENCE customer_datamodel_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.customer_datamodel_id_seq OWNER TO johannes;
+ALTER TABLE customer_datamodel_id_seq OWNER TO admin;
 
 --
--- Name: customer_datamodel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: johannes
+-- TOC entry 2168 (class 0 OID 0)
+-- Dependencies: 180
+-- Name: customer_datamodel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
 --
 
 ALTER SEQUENCE customer_datamodel_id_seq OWNED BY customer_datamodel.id;
 
 
 --
--- Name: customer_datatype; Type: TABLE; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 181 (class 1259 OID 16426)
+-- Name: customer_datatype; Type: TABLE; Schema: public; Owner: admin; Tablespace: 
 --
 
 CREATE TABLE customer_datatype (
@@ -213,10 +254,11 @@ CREATE TABLE customer_datatype (
 );
 
 
-ALTER TABLE public.customer_datatype OWNER TO johannes;
+ALTER TABLE customer_datatype OWNER TO admin;
 
 --
--- Name: customer_datatype_id_seq; Type: SEQUENCE; Schema: public; Owner: johannes
+-- TOC entry 182 (class 1259 OID 16429)
+-- Name: customer_datatype_id_seq; Type: SEQUENCE; Schema: public; Owner: admin
 --
 
 CREATE SEQUENCE customer_datatype_id_seq
@@ -227,17 +269,20 @@ CREATE SEQUENCE customer_datatype_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.customer_datatype_id_seq OWNER TO johannes;
+ALTER TABLE customer_datatype_id_seq OWNER TO admin;
 
 --
--- Name: customer_datatype_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: johannes
+-- TOC entry 2169 (class 0 OID 0)
+-- Dependencies: 182
+-- Name: customer_datatype_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
 --
 
 ALTER SEQUENCE customer_datatype_id_seq OWNED BY customer_datatype.id;
 
 
 --
--- Name: customer_id_seq; Type: SEQUENCE; Schema: public; Owner: johannes
+-- TOC entry 183 (class 1259 OID 16431)
+-- Name: customer_id_seq; Type: SEQUENCE; Schema: public; Owner: admin
 --
 
 CREATE SEQUENCE customer_id_seq
@@ -248,17 +293,20 @@ CREATE SEQUENCE customer_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.customer_id_seq OWNER TO johannes;
+ALTER TABLE customer_id_seq OWNER TO admin;
 
 --
--- Name: customer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: johannes
+-- TOC entry 2170 (class 0 OID 0)
+-- Dependencies: 183
+-- Name: customer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
 --
 
 ALTER SEQUENCE customer_id_seq OWNED BY customer.id;
 
 
 --
--- Name: ticket; Type: TABLE; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 184 (class 1259 OID 16433)
+-- Name: ticket; Type: TABLE; Schema: public; Owner: admin; Tablespace: 
 --
 
 CREATE TABLE ticket (
@@ -269,28 +317,31 @@ CREATE TABLE ticket (
     fk_agent_id integer,
     create_timestamp timestamp with time zone DEFAULT now() NOT NULL,
     update_timestamp timestamp with time zone,
-    solved boolean DEFAULT false NOT NULL
+    solved boolean DEFAULT false NOT NULL,
+    archived boolean DEFAULT false NOT NULL
 );
 
 
-ALTER TABLE public.ticket OWNER TO johannes;
+ALTER TABLE ticket OWNER TO admin;
 
 --
--- Name: ticket_datamodel; Type: TABLE; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 185 (class 1259 OID 16441)
+-- Name: ticket_datamodel; Type: TABLE; Schema: public; Owner: admin; Tablespace: 
 --
 
 CREATE TABLE ticket_datamodel (
     id integer NOT NULL,
     fk_ticket_id integer NOT NULL,
     fk_datamodel_id integer NOT NULL,
-    value character varying NOT NULL
+    value character varying
 );
 
 
-ALTER TABLE public.ticket_datamodel OWNER TO johannes;
+ALTER TABLE ticket_datamodel OWNER TO admin;
 
 --
--- Name: ticket_datamodel_id_seq; Type: SEQUENCE; Schema: public; Owner: johannes
+-- TOC entry 186 (class 1259 OID 16447)
+-- Name: ticket_datamodel_id_seq; Type: SEQUENCE; Schema: public; Owner: admin
 --
 
 CREATE SEQUENCE ticket_datamodel_id_seq
@@ -301,17 +352,20 @@ CREATE SEQUENCE ticket_datamodel_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.ticket_datamodel_id_seq OWNER TO johannes;
+ALTER TABLE ticket_datamodel_id_seq OWNER TO admin;
 
 --
--- Name: ticket_datamodel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: johannes
+-- TOC entry 2171 (class 0 OID 0)
+-- Dependencies: 186
+-- Name: ticket_datamodel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
 --
 
 ALTER SEQUENCE ticket_datamodel_id_seq OWNED BY ticket_datamodel.id;
 
 
 --
--- Name: ticket_id_seq; Type: SEQUENCE; Schema: public; Owner: johannes
+-- TOC entry 187 (class 1259 OID 16449)
+-- Name: ticket_id_seq; Type: SEQUENCE; Schema: public; Owner: admin
 --
 
 CREATE SEQUENCE ticket_id_seq
@@ -322,17 +376,20 @@ CREATE SEQUENCE ticket_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.ticket_id_seq OWNER TO johannes;
+ALTER TABLE ticket_id_seq OWNER TO admin;
 
 --
--- Name: ticket_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: johannes
+-- TOC entry 2172 (class 0 OID 0)
+-- Dependencies: 187
+-- Name: ticket_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
 --
 
 ALTER SEQUENCE ticket_id_seq OWNED BY ticket.id;
 
 
 --
--- Name: user; Type: TABLE; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 188 (class 1259 OID 16451)
+-- Name: user; Type: TABLE; Schema: public; Owner: admin; Tablespace: 
 --
 
 CREATE TABLE "user" (
@@ -348,10 +405,11 @@ CREATE TABLE "user" (
 );
 
 
-ALTER TABLE public."user" OWNER TO johannes;
+ALTER TABLE "user" OWNER TO admin;
 
 --
--- Name: user_id_seq; Type: SEQUENCE; Schema: public; Owner: johannes
+-- TOC entry 189 (class 1259 OID 16459)
+-- Name: user_id_seq; Type: SEQUENCE; Schema: public; Owner: admin
 --
 
 CREATE SEQUENCE user_id_seq
@@ -362,88 +420,92 @@ CREATE SEQUENCE user_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.user_id_seq OWNER TO johannes;
+ALTER TABLE user_id_seq OWNER TO admin;
 
 --
--- Name: user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: johannes
+-- TOC entry 2173 (class 0 OID 0)
+-- Dependencies: 189
+-- Name: user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
 --
 
 ALTER SEQUENCE user_id_seq OWNED BY "user".id;
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: johannes
+-- TOC entry 1988 (class 2604 OID 16461)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY agent ALTER COLUMN id SET DEFAULT nextval('agent_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: johannes
+-- TOC entry 1990 (class 2604 OID 16462)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY blacklist ALTER COLUMN id SET DEFAULT nextval('blacklist_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: johannes
+-- TOC entry 1992 (class 2604 OID 16463)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY comment ALTER COLUMN id SET DEFAULT nextval('comment_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: johannes
+-- TOC entry 1995 (class 2604 OID 16464)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY customer ALTER COLUMN id SET DEFAULT nextval('customer_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: johannes
+-- TOC entry 1998 (class 2604 OID 16465)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY customer_datamodel ALTER COLUMN id SET DEFAULT nextval('customer_datamodel_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: johannes
+-- TOC entry 1999 (class 2604 OID 16466)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY customer_datatype ALTER COLUMN id SET DEFAULT nextval('customer_datatype_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: johannes
+-- TOC entry 2002 (class 2604 OID 16467)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY ticket ALTER COLUMN id SET DEFAULT nextval('ticket_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: johannes
+-- TOC entry 2004 (class 2604 OID 16468)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY ticket_datamodel ALTER COLUMN id SET DEFAULT nextval('ticket_datamodel_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: johannes
+-- TOC entry 2007 (class 2604 OID 16469)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY "user" ALTER COLUMN id SET DEFAULT nextval('user_id_seq'::regclass);
 
 
 --
--- Name: Customer_email_key; Type: CONSTRAINT; Schema: public; Owner: johannes; Tablespace: 
---
-
-ALTER TABLE ONLY customer
-    ADD CONSTRAINT "Customer_email_key" UNIQUE (email_contact);
-
-
---
--- Name: Customer_name_key; Type: CONSTRAINT; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 2019 (class 2606 OID 16473)
+-- Name: Customer_name_key; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
 --
 
 ALTER TABLE ONLY customer
@@ -451,7 +513,8 @@ ALTER TABLE ONLY customer
 
 
 --
--- Name: Customer_pkey; Type: CONSTRAINT; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 2021 (class 2606 OID 16475)
+-- Name: Customer_pkey; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
 --
 
 ALTER TABLE ONLY customer
@@ -459,7 +522,8 @@ ALTER TABLE ONLY customer
 
 
 --
--- Name: agent_pkey; Type: CONSTRAINT; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 2009 (class 2606 OID 16477)
+-- Name: agent_pkey; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
 --
 
 ALTER TABLE ONLY agent
@@ -467,7 +531,8 @@ ALTER TABLE ONLY agent
 
 
 --
--- Name: blacklist_email_key; Type: CONSTRAINT; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 2013 (class 2606 OID 16479)
+-- Name: blacklist_email_key; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
 --
 
 ALTER TABLE ONLY blacklist
@@ -475,7 +540,8 @@ ALTER TABLE ONLY blacklist
 
 
 --
--- Name: blacklist_pkey; Type: CONSTRAINT; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 2015 (class 2606 OID 16481)
+-- Name: blacklist_pkey; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
 --
 
 ALTER TABLE ONLY blacklist
@@ -483,7 +549,8 @@ ALTER TABLE ONLY blacklist
 
 
 --
--- Name: comments_pkey; Type: CONSTRAINT; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 2017 (class 2606 OID 16483)
+-- Name: comments_pkey; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
 --
 
 ALTER TABLE ONLY comment
@@ -491,7 +558,8 @@ ALTER TABLE ONLY comment
 
 
 --
--- Name: customer_datamodel_pkey; Type: CONSTRAINT; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 2023 (class 2606 OID 16485)
+-- Name: customer_datamodel_pkey; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
 --
 
 ALTER TABLE ONLY customer_datamodel
@@ -499,7 +567,27 @@ ALTER TABLE ONLY customer_datamodel
 
 
 --
--- Name: customer_datatype_datatype_key; Type: CONSTRAINT; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 2025 (class 2606 OID 16576)
+-- Name: customer_datamodel_unique_name; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
+--
+
+ALTER TABLE ONLY customer_datamodel
+    ADD CONSTRAINT customer_datamodel_unique_name UNIQUE (fk_customer_id, name);
+
+
+--
+-- TOC entry 2174 (class 0 OID 0)
+-- Dependencies: 2025
+-- Name: CONSTRAINT customer_datamodel_unique_name ON customer_datamodel; Type: COMMENT; Schema: public; Owner: admin
+--
+
+COMMENT ON CONSTRAINT customer_datamodel_unique_name ON customer_datamodel IS 'A name - customer datamodel binding has to be unique.
+Key is a combination of (customer_id and name).';
+
+
+--
+-- TOC entry 2027 (class 2606 OID 16487)
+-- Name: customer_datatype_datatype_key; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
 --
 
 ALTER TABLE ONLY customer_datatype
@@ -507,7 +595,8 @@ ALTER TABLE ONLY customer_datatype
 
 
 --
--- Name: customer_datatype_pkey; Type: CONSTRAINT; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 2029 (class 2606 OID 16489)
+-- Name: customer_datatype_pkey; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
 --
 
 ALTER TABLE ONLY customer_datatype
@@ -515,7 +604,8 @@ ALTER TABLE ONLY customer_datatype
 
 
 --
--- Name: ticket_datamodel_pkey; Type: CONSTRAINT; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 2033 (class 2606 OID 16491)
+-- Name: ticket_datamodel_pkey; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
 --
 
 ALTER TABLE ONLY ticket_datamodel
@@ -523,7 +613,8 @@ ALTER TABLE ONLY ticket_datamodel
 
 
 --
--- Name: ticket_pkey; Type: CONSTRAINT; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 2031 (class 2606 OID 16493)
+-- Name: ticket_pkey; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
 --
 
 ALTER TABLE ONLY ticket
@@ -531,7 +622,17 @@ ALTER TABLE ONLY ticket
 
 
 --
--- Name: user_pkey; Type: CONSTRAINT; Schema: public; Owner: johannes; Tablespace: 
+-- TOC entry 2011 (class 2606 OID 16566)
+-- Name: unique_email; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
+--
+
+ALTER TABLE ONLY agent
+    ADD CONSTRAINT unique_email UNIQUE (email);
+
+
+--
+-- TOC entry 2035 (class 2606 OID 16495)
+-- Name: user_pkey; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
 --
 
 ALTER TABLE ONLY "user"
@@ -539,7 +640,8 @@ ALTER TABLE ONLY "user"
 
 
 --
--- Name: comment_fk_agent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: johannes
+-- TOC entry 2036 (class 2606 OID 16496)
+-- Name: comment_fk_agent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY comment
@@ -547,7 +649,8 @@ ALTER TABLE ONLY comment
 
 
 --
--- Name: comment_fk_previous_comment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: johannes
+-- TOC entry 2037 (class 2606 OID 16501)
+-- Name: comment_fk_previous_comment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY comment
@@ -555,7 +658,8 @@ ALTER TABLE ONLY comment
 
 
 --
--- Name: comment_fk_ticket_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: johannes
+-- TOC entry 2038 (class 2606 OID 16506)
+-- Name: comment_fk_ticket_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY comment
@@ -563,7 +667,8 @@ ALTER TABLE ONLY comment
 
 
 --
--- Name: comment_fk_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: johannes
+-- TOC entry 2039 (class 2606 OID 16511)
+-- Name: comment_fk_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY comment
@@ -571,7 +676,8 @@ ALTER TABLE ONLY comment
 
 
 --
--- Name: customer_datamodel_fk_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: johannes
+-- TOC entry 2041 (class 2606 OID 16516)
+-- Name: customer_datamodel_fk_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY customer_datamodel
@@ -579,7 +685,8 @@ ALTER TABLE ONLY customer_datamodel
 
 
 --
--- Name: customer_datamodel_fk_datatype_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: johannes
+-- TOC entry 2042 (class 2606 OID 16521)
+-- Name: customer_datamodel_fk_datatype_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY customer_datamodel
@@ -587,7 +694,8 @@ ALTER TABLE ONLY customer_datamodel
 
 
 --
--- Name: customer_fk_created_by_admin_fkey; Type: FK CONSTRAINT; Schema: public; Owner: johannes
+-- TOC entry 2040 (class 2606 OID 16526)
+-- Name: customer_fk_created_by_admin_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY customer
@@ -595,7 +703,8 @@ ALTER TABLE ONLY customer
 
 
 --
--- Name: ticket_datamodel_fk_datamodel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: johannes
+-- TOC entry 2045 (class 2606 OID 16531)
+-- Name: ticket_datamodel_fk_datamodel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY ticket_datamodel
@@ -603,7 +712,8 @@ ALTER TABLE ONLY ticket_datamodel
 
 
 --
--- Name: ticket_datamodel_fk_ticket_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: johannes
+-- TOC entry 2046 (class 2606 OID 16536)
+-- Name: ticket_datamodel_fk_ticket_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY ticket_datamodel
@@ -611,7 +721,8 @@ ALTER TABLE ONLY ticket_datamodel
 
 
 --
--- Name: ticket_fk_agent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: johannes
+-- TOC entry 2043 (class 2606 OID 16541)
+-- Name: ticket_fk_agent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY ticket
@@ -619,7 +730,8 @@ ALTER TABLE ONLY ticket
 
 
 --
--- Name: ticket_fk_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: johannes
+-- TOC entry 2044 (class 2606 OID 16546)
+-- Name: ticket_fk_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY ticket
@@ -627,7 +739,8 @@ ALTER TABLE ONLY ticket
 
 
 --
--- Name: user_fk_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: johannes
+-- TOC entry 2047 (class 2606 OID 16551)
+-- Name: user_fk_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY "user"
@@ -635,15 +748,19 @@ ALTER TABLE ONLY "user"
 
 
 --
--- Name: public; Type: ACL; Schema: -; Owner: johannes
+-- TOC entry 2163 (class 0 OID 0)
+-- Dependencies: 6
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM johannes;
-GRANT ALL ON SCHEMA public TO johannes;
+REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO admin;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
+
+-- Completed on 2015-09-13 16:40:13 CEST
 
 --
 -- PostgreSQL database dump complete
