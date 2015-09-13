@@ -102,7 +102,6 @@ router.post('/agents', utility.requireAuthentication, function(req, res) {
 				database.setNewAgentPassword(id, hash, function(id) {
 					database.getAgent(id, function(agent) {
 						//Send welcome email
-						logger.info(agent);
 						mailPackage.sendAgentWelcomeEmail(agent, gen_password);
 					});
 				});

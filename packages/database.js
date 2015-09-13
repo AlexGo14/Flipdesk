@@ -1030,7 +1030,7 @@ var database = {
       var server = {
         'user': customer.username_mailbox,
         'password': customer.password_mailbox,
-        'host': customer.email_mailbox_stmp
+        'host': customer.email_mailbox_smtp
       }
 
       email.send(server, email);

@@ -155,6 +155,24 @@ var mail_module = {
 			}
 		});
 	},
+	getCustomerAdminSettings: function(customer_id, callback) {
+		knex('customer')
+	    .select('id', 'name', 'email_contact', 'create_timestamp',
+	      'update_timestamp', 'fk_created_by_admin', 'active',
+	      'email_domain', 'username_mailbox', 'password_mailbox', 'email_mailbox_imap',
+	      'email_mailbox_smtp')
+			.where({
+				'id': customer_id
+			})
+	    .then(function(rows) {
+        customer = objects.setCustomerObjectAdminsSettings(rows[0]);
+
+	      callback(customer);
+	    })
+	    .catch(function(err) {
+	      logger.error("Could not fetch customer data: mail.getCustomersAdminSettings --- " + err);
+	    });
+	},
 	getCustomersAdminSettings: function (callback) {
 
 	  knex('customer')
@@ -219,10 +237,9 @@ var mail_module = {
 		}
 	},
 	notificationNewTicket: function(new_ticket) {
-
-		var server = mail_module.getSmtpServer();
-
 		database.getAgent(new_ticket.agent.id, function(agent) {
+			var server = mail_module.getSmtpServer();
+
 			// send the message and get a callback with an error or details of the message that was sent
 			server.send({
 				text: "Dear agent a new ticket has been created. Please check your support dashboard.\r\rDo not reply to this email.\r\r\rTicket content: " + new_ticket.description,
@@ -239,79 +256,82 @@ var mail_module = {
 		});
 
 		database.getUser(new_ticket.user.id, function(user) {
+			mail_module.getSmtpServerAsync(new_ticket.company.id, function (server) {
+				var textDescription = "Dear " + user.last_name + ",\r a new ticket has been created. " +
+					"A support representive will contact you as soon as possible.\r\r\r";
 
-			var textDescription = "Dear " + user.last_name + ",\r a new ticket has been created. " +
-				"A support representive will contact you as soon as possible.\r\r\r";
-
-			if(new_ticket.description) {
-				textDescription += "This is the ticket content: " + new_ticket.description;
-			}
-
-			// send the message and get a callback with an error or details of the message that was sent
-			server.send({
-				text: textDescription,
-				from: nconf.get('mail').email,
-				to:  user.email,
-				subject: "New ticket:  " + new_ticket.caption + "; #FlipID: " + new_ticket.id + "#"
-			}, function(err, message) {
-				if(err) {
-					logger.error(err);
-				} else {
-					logger.info(message);
+				if(new_ticket.description) {
+					textDescription += "This is the ticket content: " + new_ticket.description;
 				}
+
+				// send the message and get a callback with an error or details of the message that was sent
+				server.send({
+					text: textDescription,
+					from: nconf.get('mail').email,
+					to:  user.email,
+					subject: "New ticket:  " + new_ticket.caption + "; #FlipID: " + new_ticket.id + "#"
+				}, function(err, message) {
+					if(err) {
+						logger.error(err);
+					} else {
+						logger.info(message);
+					}
+				});
 			});
 		});
 	},
 	notificationNewComment: function (new_comment) {
-		var server = mail_module.getSmtpServer();
 
+		mail_module.getSmtpServerAsync(new_comment.ticket.company.id, function(server) {
+			logger.warn(server);
 
-		var mailContent = "Comment: " + new_comment.description + "\r\r\r" +
-				"Ticket: " + new_comment.ticket.description + "\r\r\r";
-		if(new_comment.ticket.comments.length > 1) {
-			mailContent += "Previous comments: \r\r";
-		}
+			var mailContent = "Comment: " + new_comment.description + "\r\r\r" +
+					"Ticket: " + new_comment.ticket.description + "\r\r\r";
 
-
-		//Find the new comment and create mailContent.
-		var comment = {};
-		for(var i = 0; i < new_comment.ticket.comments.length; i++) {
-			if(new_comment.ticket.comments[i].id == new_comment.comment.id) {
-				comment = new_comment.ticket.comments[i];
-			} else if(new_comment.ticket.comments.length > 1) {
-				mailContent += "--- " + new_comment.ticket.comments[i].description + "\r\r\r";
+			if(new_comment.ticket.comments.length > 1) {
+				mailContent += "Previous comments: \r\r";
 			}
-		}
 
-		if(new_comment.agent.id) {
-			//Agent has created a comment --> send email to user
-			server.send({
-				text: "Dear " + new_comment.ticket.user.first_name + " a new comment has been created for your ticket \"" + new_comment.ticket.caption + "\".\r\r\r" + mailContent,
-				from: nconf.get('mail').email,
-				to:  new_comment.ticket.user.email,
-				subject: "New comment for ticket " + new_comment.ticket.caption + "; #FlipID: " + new_comment.ticket.id + "#"
-			}, function(err, message) {
-				if(err) {
-					logger.error(err);
-				} else {
-					logger.info(message);
+			//Find the new comment and create mailContent.
+			var comment = {};
+			for(var i = 0; i < new_comment.ticket.comments.length; i++) {
+				if(new_comment.ticket.comments[i].id == new_comment.comment.id) {
+					comment = new_comment.ticket.comments[i];
+				} else if(new_comment.ticket.comments.length > 1) {
+					mailContent += "--- " + new_comment.ticket.comments[i].description + "\r\r\r";
 				}
-			});
-		} else if(new_comment.user.id) {
-			//User has created a comment --> send email to agent
-			server.send({
-				text: "Dear agent a new comment has been created for your ticket \"" + new_comment.ticket.caption + "\".\r\rPlease check your support dashboard.\r\r\r" + mailContent,
-				from: nconf.get('mail').email,
-				to:  new_comment.ticket.agent.email,
-				subject: "New comment for ticket " + new_comment.ticket.caption + "; #FlipID: " + new_comment.ticket.id + "#"
-			}, function(err, message) {
-				if(err) {
-					logger.error(err);
-				} else {
-					logger.info(message);
-				}
-			});
-		}
+			}
+
+			if(new_comment.agent.id) {
+				//Agent has created a comment --> send email to user
+				server.send({
+					text: "Dear " + new_comment.ticket.user.first_name + " a new comment has been created for your ticket \"" + new_comment.ticket.caption + "\".\r\r\r" + mailContent,
+					from: nconf.get('mail').email,
+					to:  new_comment.ticket.user.email,
+					subject: "New comment for ticket " + new_comment.ticket.caption + "; #FlipID: " + new_comment.ticket.id + "#"
+				}, function(err, message) {
+					if(err) {
+						logger.error(err);
+					} else {
+						logger.info(message);
+					}
+				});
+			} else if(new_comment.user.id) {
+				//User has created a comment --> send email to agent
+				server.send({
+					text: "Dear agent a new comment has been created for your ticket \"" + new_comment.ticket.caption + "\".\r\rPlease check your support dashboard.\r\r\r" + mailContent,
+					from: nconf.get('mail').email,
+					to:  new_comment.ticket.agent.email,
+					subject: "New comment for ticket " + new_comment.ticket.caption + "; #FlipID: " + new_comment.ticket.id + "#"
+				}, function(err, message) {
+					if(err) {
+						logger.error(err);
+					} else {
+						logger.info(message);
+					}
+				});
+			}
+		});
 	},
 	sendAgentWelcomeEmail: function (new_agent, password) {
 			var server = mail_module.getSmtpServer();
@@ -335,22 +355,22 @@ var mail_module = {
 			});
 	},
 	sendUserWelcomeEmail: function (new_user, password) {
-			var server = mail_module.getSmtpServer();
+			mail_module.getSmtpServerAsync(new_user.customer.id, function (server) {
+				var description = "Hello " + new_user.first_name + " " + new_user.last_name + ",\r\r" +
+					"you are now registered as user for the support service of " + nconf.get('company').name + ".";
 
-			var description = "Hello " + new_user.first_name + " " + new_user.last_name + ",\r\r" +
-				"you are now registered as user for the support service of " + nconf.get('company').name + ".";
-
-			server.send({
-				text: description,
-				from: nconf.get('mail').email,
-				to:  new_user.email,
-				subject: "A account has been created for you"
-			}, function(err, message) {
-				if(err) {
-					logger.error(err);
-				} else {
-					logger.info(message);
-				}
+				server.send({
+					text: description,
+					from: nconf.get('mail').email,
+					to:  new_user.email,
+					subject: "A account has been created for you"
+				}, function(err, message) {
+					if(err) {
+						logger.error(err);
+					} else {
+						logger.info(message);
+					}
+				});
 			});
 	},
 	sendAgentResetEmail: function (agent, password) {
@@ -375,6 +395,7 @@ var mail_module = {
 			}
 		});
 	},
+	//Use this only for agent notifications.
 	getSmtpServer: function() {
 		var server  = email.server.connect({
 			user: nconf.get('mail').server.username,
@@ -385,6 +406,20 @@ var mail_module = {
 		});
 
 		return server;
+	},
+	getSmtpServerAsync: function(customer_id, callback) {
+
+		mail_module.getCustomerAdminSettings(customer_id, function(customer) {
+			var server  = email.server.connect({
+				user: customer.username_mailbox,
+				password: customer.password_mailbox,
+				host: customer.email_mailbox_smtp,
+				tls: true,
+				port: 587
+			});
+
+			callback(server);
+		})
 	}
 }
 
