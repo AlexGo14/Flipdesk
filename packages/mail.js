@@ -22,6 +22,8 @@ var utility = require('./utility');
 var nconf = utility.configureNconf();
 var database = require('./database');
 
+mailListenerArr = [];
+
 var mail_module = {
 	startAll: function() {
 		mail_module.getCustomersAdminSettings(function(customers) {
@@ -149,7 +151,17 @@ var mail_module = {
 					}
 				});
 			});
+		});
 
+		mailListenerArr.push(mailListener);
+	},
+	stop: function(customer, callback) {
+		mailListenerArr.forEach(function (item, index) {
+			if(item.imap._config.host == customer.email_mailbox_imap) {
+				item.stop();
+
+				mailListenerArr.splice(index, 1);
+			}
 		});
 	},
 	getCustomerAdminSettings: function(customer_id, callback) {

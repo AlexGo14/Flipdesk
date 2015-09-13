@@ -209,6 +209,12 @@ router.post('/customer', utility.requireAuthentication, function(req, res) {
 router.delete('/customer/:id', utility.requireAuthentication, function(req, res) {
 	database.disableCustomer(req.params.id, function(id) {
 		res.json({'success': true});
+
+		mailPackage.getCustomerAdminSettings(req.params.id, function(adminSettings) {
+			mailPackage.stop(adminSettings, function() {
+
+			});
+		});
 	});
 });
 
@@ -216,6 +222,10 @@ router.delete('/customer/:id', utility.requireAuthentication, function(req, res)
 router.put('/customer/:id', utility.requireAuthentication, function(req, res) {
 	database.enableCustomer(req.params.id, function(id) {
 		res.json({'success': true});
+
+		mailPackage.getCustomerAdminSettings(req.params.id, function(adminSettings) {
+			mailPackage.start(adminSettings);
+		});
 	});
 });
 
