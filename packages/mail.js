@@ -113,6 +113,17 @@ var mail_module = {
 									}
 								});
 
+								//Check if ticket is solved. If yes, set it to open.
+								database.getTicket(ticket_id, function(ticket) {
+									if(ticket.solved) {
+										database.assignAgent(null, ticket.id, function(id) {
+											logger.info('User has responded to solved ticket Ticket-ID: ' + ticket.id + '. Set ticket back to open.');
+										}, function (err) {
+											logger.error('Could not set ticket back to open. User has responded to this solved ticket via email. Ticket-ID: ' + ticket.id + ' --- ' + err);
+										});
+									}
+								});
+
 							} else {
 								//Create a new ticket, which has been mailed by a user.
 
@@ -292,7 +303,6 @@ var mail_module = {
 	notificationNewComment: function (new_comment) {
 
 		mail_module.getSmtpServerAsync(new_comment.ticket.company.id, function(server) {
-			logger.warn(server);
 
 			var mailContent = "Comment: " + new_comment.description + "\r\r\r" +
 					"Ticket: " + new_comment.ticket.description + "\r\r\r";
