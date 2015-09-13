@@ -72,7 +72,8 @@ var database = {
 		knex('customer')
 			.select('id')
 			.where({
-				'email_mailbox_imap': imapmailbox
+				'email_mailbox_imap': imapmailbox,
+				'active': true
 			})
 			.then(function(rows) {
 
@@ -413,11 +414,13 @@ var database = {
       });
   },
   disableCustomer: function (id, callback) {
-    knex('customer').returning('id').update({
+
+    knex('customer').update({
       active: false
     }).where({
-      id: id
-    }).then(function(id) {
+      'id': id
+    }).returning('id')
+		.then(function(id) {
       callback(id[0]);
     }).catch(function(err) {
       logger.error('Could not disable customer in database --- ' + err);

@@ -192,6 +192,11 @@ router.post('/customer', utility.requireAuthentication, function(req, res) {
 
 	database.createCustomer(customer, function(id, err) {
 		if(id != null) {
+
+			mailPackage.getCustomerAdminSettings(id, function(customerSettings) {
+				mailPackage.start(customerSettings);
+			});
+
 			res.json({ success: true, id: id });
 		} else {
 			logger.error(err);
@@ -236,7 +241,6 @@ router.post('/user', utility.requireAuthentication, function(req, res) {
 		password: 'processing',
 		fk_customer_id: parseInt(req.body.customer_id)
 	};
-	logger.error(user);
 
 	//Insert into db
 	database.createUser(user, function(user_id) {
@@ -275,7 +279,7 @@ router.post('/user/:id', utility.requireAuthentication, function(req, res) {
 	});
 });
 
-/* Delete user */
+/* Archive user */
 router.delete('/user/:id', utility.requireAuthentication, function(req, res) {
 	database.deleteUser(req.params.id, function(success) {
 		res.json({'success': success});
