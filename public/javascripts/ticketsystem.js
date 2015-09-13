@@ -710,17 +710,37 @@ function add_ticketfield() {
 		type: 'POST',
 		success: function(data) {
 			if(data.success) {
-				$('#ticketfield_table tr:last').after(
-				'<tr onclick="toggle_edit_fieldproperty_modal(' + data.property.id + ')")>' +
+        var id = 'row_property_' + data.property.id;
+
+        //Start add new row
+        var newRow = '<tr id="' + id + '" onclick="toggle_edit_fieldproperty_modal(' + data.property.id + ')")>' +
 					'<td><span>' + data.property.name + '</span></td>' +
-					'<td><span>' + data.property.datatype + '</span></td>' +
-					'<td><label><input type="checkbox" disabled checked="' + data.property.mandatory + '" /></label></td>' +
-					'<td><label><input type="checkbox" disabled checked="' + data.property.active + '" /></label></td>' +
-				'</tr>');
+					'<td><span>' + data.property.datatype + '</span></td>';
+
+        if(data.property.mandatory) {
+          newRow += '<td><label><input type="checkbox" disabled checked /></label></td>';
+        } else {
+          newRow += '<td><label><input type="checkbox" disabled /></label></td>';
+        }
+
+        if(data.property.active) {
+          newRow += '<td><label><input type="checkbox" disabled checked /></label></td>';
+        } else {
+          newRow += '<td><label><input type="checkbox" disabled /></label></td>';
+        }
+
+        newRow += '</tr>';
+
+        $('#ticketfield_table tr:last').after(newRow);
+        //End
 
 				toggle_add_fieldproperty_modal();
 			} else {
-
+        if(data.err.code == 5 && data.err.msg) {
+          $('#add_fieldproperty_error_text')[0].textContent = data.err.msg;
+        } else {
+          $('#add_fieldproperty_error_text')[0].textContent = 'Unknown error';
+        }
 			}
 		}
 	});

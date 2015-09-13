@@ -179,7 +179,7 @@ router.post('/customer', utility.requireAuthentication, function(req, res) {
 	if(domainImapStart != -1 && domainSmtpStart != -1) {
 		var domainImap = customer.imap_email.substr(domainImapStart + 1);
 		var domainSmtp = customer.smtp_email.substr(domainSmtpStart + 1);
-		
+
 		if(domainImap == domainSmtp) {
 			customer.email_domain = domainImap;
 		} else {
@@ -285,7 +285,7 @@ router.delete('/user/:id', utility.requireAuthentication, function(req, res) {
 
 /* Create ticket field */
 router.post('/ticketfield', utility.requireAuthentication, function(req, res) {
-	//TODO: Was passiert hier?
+
 	knex('customer_datamodel').returning('id').insert({
 		'name': req.body.name,
 		'mandatory': req.body.mandatory,
@@ -300,14 +300,21 @@ router.post('/ticketfield', utility.requireAuthentication, function(req, res) {
 			for(var i = 0; i < datamodel.length; i++) {
 				if(datamodel[i].id == id) {
 					res.json({'success': true, 'property': datamodel[i]});
+
+					i = datamodel.length;
 				}
 			}
 		});
 
 	})
 	.catch(function(err) {
-		logger.error(err);
-		res.json({'success': false});
+		logger.warn(err);
+
+		if(err.code == 23505) {
+			res.json({'success': false, 'err': { 'code': 5,  'msg': 'A property with this name already exists.' } } );
+		} else {
+			res.json({'success': false, 'err': { 'code': 5,  'msg': null } } );
+		}
 	});
 });
 
