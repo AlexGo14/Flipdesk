@@ -157,7 +157,7 @@ var mail_module = {
 	  knex('customer')
 	    .select('id', 'name', 'email_contact', 'create_timestamp',
 	      'update_timestamp', 'fk_created_by_admin', 'active',
-	      'email_mailbox', 'username_mailbox', 'password_mailbox', 'email_mailbox_imap',
+	      'email_domain', 'username_mailbox', 'password_mailbox', 'email_mailbox_imap',
 	      'email_mailbox_smtp')
 	    .then(function(rows) {
 	      var customers = [];
@@ -194,10 +194,6 @@ var mail_module = {
 				from: email.from,
 				to: email.to,
 				subject: email.subject,
-				//attachment:
-				//[
-				//	{ data: email.text.html, alternative: true }
-				//]
 			};
 
 			//Check if any attachments are available and if yes, add them to the array.

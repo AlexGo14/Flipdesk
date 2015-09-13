@@ -2,23 +2,26 @@ h3 Add customer
 
 form(class="form" role="form" id="administration_add_form")
 	div(class="form-group")
-		label Company name: 
+		label Company name:
 		input(class="form-control" type="text" placeholder="Name" id="company-name")
 		<br>
-		label Contact E-Mail
+		label Contact E-Mail:
 		input(class="form-control" type="email" placeholder="E-Mail" id="contact-email")
 		<br><br>
-		label IMAP E-Mail
+		label IMAP E-Mail:
 		input(class="form-control" type="email" placeholder="IMAP" id="imap-email")
 		<br>
-		label SMTP E-Mail
+		label SMTP E-Mail:
 		input(class="form-control" type="email" placeholder="SMTP" id="smtp-email")
 		<br>
-		label User
+		label User:
 		input(class="form-control" type="text" placeholder="User" id="user")
 		<br>
-		label Password
+		label Password:
 		input(class="form-control" type="password" placeholder="Password" id="password")
-		<br><br>
-		button(type="button" class="btn btn-primary" onclick="addCustomer()") Save
+		br
 		span(id="error-message")
+		br
+		button(type="button" class="btn btn-primary" onclick="addCustomer()") Save
+		br
+		span All form fields are mandatory.

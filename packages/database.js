@@ -451,7 +451,9 @@ var database = {
       'email_contact': customer.email_contact,
       'active': true,
       'fk_created_by_admin': customer.admin.id,
-      'email_mailbox': customer.imap_email,
+      'email_mailbox_imap': customer.imap_email,
+			'email_mailbox_smtp': customer.smtp_email,
+			'email_domain': customer.email_domain,
       'username_mailbox': customer.mailbox_user,
       'password_mailbox': customer.mailbox_password
     })
@@ -1021,7 +1023,7 @@ var database = {
         'text': { 'raw': description },
         'subject': subject,
         'to': to,
-        'from': customer.email_mailbox,
+        'from': customer.email_mailbox_smtp,
         'attachments': []
       };
 

@@ -26,7 +26,7 @@ var objects = {
       'update_timestamp': input.update_timestamp,
       'admin': { 'id': input.fk_created_by_admin },
       'active': input.active,
-      'email_mailbox': input.email_mailbox,
+      'email_domain': input.email_domain,
       'username_mailbox': input.username_mailbox,
       'password_mailbox': input.password_mailbox,
       'email_mailbox_imap': input.email_mailbox_imap,
@@ -107,7 +107,7 @@ var objects = {
     var commentObject = objects.setCommentObject(input);
     commentObject.agent = { 'id': null };
     commentObject.user = { 'id': null };
-    
+
     //If user is set than we build a user object.
     //If not, we build an agent object.
     if(input.user_id) {

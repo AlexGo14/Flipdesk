@@ -166,9 +166,29 @@ router.post('/customer', utility.requireAuthentication, function(req, res) {
 		email_contact: req.body.email_contact,
 		imap_email: req.body.imap_email,
 		smtp_email: req.body.smtp_email,
+		email_domain: null,
 		mailbox_user: req.body.mailbox_user,
 		mailbox_password: req.body.mailbox_password,
 		admin: { id: req.user.id }
+	}
+
+	/* Get the email domain from imap and smtp settings.
+	 * Both domains from imap and smtp have to be equal. */
+	var domainImapStart = customer.imap_email.indexOf('.');
+	var domainSmtpStart = customer.smtp_email.indexOf('.');
+	if(domainImapStart != -1 && domainSmtpStart != -1) {
+		var domainImap = customer.imap_email.substr(domainImapStart + 1);
+		var domainSmtp = customer.smtp_email.substr(domainSmtpStart + 1);
+		
+		if(domainImap == domainSmtp) {
+			customer.email_domain = domainImap;
+		} else {
+			res.json({ success: false, error: { code: 4, msg: 'SMTP and IMAP domains are not equal.' } });
+			return;
+		}
+	} else {
+		res.json({ success: false, error: { code: 4, msg: 'SMTP and IMAP variables are wrong.' } });
+		return;
 	}
 
 	database.createCustomer(customer, function(id, err) {
