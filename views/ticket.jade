@@ -36,7 +36,9 @@ div(class="row")
 			<br>
 			h2(id="ticket_caption") #{ticket.caption}
 
-			blockquote(id="ticket_description") #{ticket.description}
+			blockquote(id="ticket_description")
+				p
+					| !{ticket.description}
 
 			<br><br>
 			if ticket.comments.length > 0
