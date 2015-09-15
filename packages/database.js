@@ -681,15 +681,27 @@ var database = {
             database.getUser(ticket.user.id, function(user) {
               ticket.user = user;
 
-              database.getAgent(ticket.agent.id, function(agent) {
-                ticket.agent = agent;
+							database.getTicketDatamodel(ticket.user.customer.id, id, function(datamodel) {
+								ticket.datamodel = datamodel;
 
-                database.getTicketDatamodel(ticket.user.customer.id, id, function(datamodel) {
-                  ticket.datamodel = datamodel;
+								/* If a user requests an unassigned ticket,
+								 * we do not want to proceed with an error */
+								if(ticket.agent.id != null) {
+									//If the agent is set, we can get the agent.
+									database.getAgent(ticket.agent.id, function(agent) {
+										ticket.agent = agent;
 
-                  callback(ticket);
-                });
-              });
+										callback(ticket);
+									});
+								} else {
+									/* Sometimes the agent is not set, so we return the ticket
+									 * with an empty agent object. */
+									 ticket.agent = null;
+									 callback(ticket);
+								}
+							});
+
+
             });
           });
         } else {
@@ -1038,7 +1050,45 @@ var database = {
 
       email.send(server, email);
     });
-  }
+  },
+	writeHistory: function(historyStr, ticket_id, creator, callback) {
+
+		if(creator.agent) {
+
+			knex('history').insert([{
+				'history': historyStr,
+				'fk_ticket_id': ticket_id,
+				'fk_agent_id': creator.id
+			}]).returning('id')
+			.then(function(id) {
+
+				if(id[0] > 0) {
+					callback(true);
+				} else {
+					callback(false);
+				}
+			})
+			.catch(function(err) {
+				callback(false);
+			});
+		} else if(creator.user) {
+			knex('history').insert([{
+				'history': historyStr,
+				'fk_ticket_id': ticket_id,
+				'fk_user_id': creator.id
+			}]).returning('id')
+			.then(function(id) {
+				if(id[0] > 0) {
+					callback(true);
+				} else {
+					callback(false);
+				}
+			})
+			.catch(function(err) {
+					callback(false);
+			});
+		}
+	}
 }
 
 module.exports = database;

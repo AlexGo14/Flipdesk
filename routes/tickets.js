@@ -186,6 +186,20 @@ router.put('/:id', utility.requireAuthentication, function(req, res) {
 				database.solveTicket(req.params.id,
 					function(solved) {
 						if(solved) {
+							//Write history
+							var historyStr = '{creator} solved this ticket.';
+
+							var creator = { 'id': req.user.id, 'agent': true, 'user': false };
+
+							database.writeHistory(historyStr, req.params.id, creator, function(success) {
+
+								if(success) {
+									logger.info('Created history (solving) for Ticket-ID: ' + req.params.id);
+								} else {
+									logger.error('Could not create history (solving) for Ticket-ID: ' + req.params.id);
+								}
+							});
+
 							res.json( { 'success': true } );
 						} else {
 							res.json( { 'success': false } );
@@ -224,6 +238,19 @@ router.delete('/:id', utility.requireAuthentication, function(req, res) {
 	database.archiveTicket(req.params.id, function(archived) {
 			if(archived) {
 				res.json( { 'success': true } );
+
+				//Write history
+				var historyStr = '{creator} archived this ticket.';
+
+				var creator = { 'id': req.user.id, 'agent': true, 'user': false };
+
+				database.writeHistory(historyStr, req.params.id, creator, function(success) {
+					if(success) {
+						logger.info('Created history (archiving) for Ticket-ID: ' + req.params.id);
+					} else {
+						logger.error('Could not create history (archiving) for Ticket-ID: ' + req.params.id);
+					}
+				});
 			} else {
 				res.json( { 'success': false } );
 			}
@@ -245,6 +272,31 @@ router.post('/:id/assign/:agent_id', utility.requireAuthentication, function(req
 	database.assignAgent(agent_id, ticket_id,
 		function(id) {
 			res.json( { success: true } );
+
+			database.getAgent(agent_id, function(agent) {
+				database.getTicket(ticket_id, function(ticket) {
+					var historyStr;
+
+					var creator = { 'id': 0, 'agent': true, 'user': false };
+
+					if(agent_id == null) {
+						historyStr = '{creator} has set this ticket to open.';
+						creator.id = req.user.id;
+					} else {
+						historyStr = '{creator} assigned ticket to himself.';
+						creator.id = agent_id;
+					}
+
+					database.writeHistory(historyStr, ticket_id, creator, function(success) {
+						if(success) {
+							logger.info('Created history (open/assign) for Ticket-ID: ' + req.params.id);
+						} else {
+							logger.error('Could not create history (open/assign) for Ticket-ID: ' + req.params.id);
+						}
+					});
+				});
+			});
+
 		},
 		function(err) {
 			if(err.code == 3) {
@@ -281,6 +333,10 @@ router.post('/:id/comment', utility.requireAuthentication, function(req, res) {
 			if(!preTicket.solved) {
 				database.createComment(new_comment, function(id, error) {
 					if(!error) {
+
+						res.json({ 'success': true, 'id': id });
+
+						//Send comment notification via email.
 						if(new_comment.agent.id != null) {
 							new_comment.comment = { 'id': id };
 
@@ -291,7 +347,18 @@ router.post('/:id/comment', utility.requireAuthentication, function(req, res) {
 							});
 						}
 
-						res.json({ 'success': true, 'id': id });
+						//Write history
+						var historyStr = '{creator} created a comment.';
+
+						var creator = { 'id': req.user.id, 'agent': true, 'user': false };
+
+						database.writeHistory(historyStr, req.params.id, creator, function(success) {
+							if(success) {
+								logger.info('Created history (new comment) for Ticket-ID: ' + req.params.id);
+							} else {
+								logger.error('Could not create history (new comment) for Ticket-ID: ' + req.params.id);
+							}
+						});
 					} else {
 						logger.error(error);
 					}

@@ -88,6 +88,8 @@ var mail_module = {
 							//The user has been found. He is users[i]
 
 							if(mail.subject.indexOf('#FlipID') != -1) {
+								var localUserObj = users[i];
+
 								//A user has send a new comment via email. We will process it.
 								var id_position = mail.subject.indexOf('#FlipID: ') + 8;
 								var end_position = mail.subject.indexOf('#', id_position);
@@ -108,22 +110,35 @@ var mail_module = {
 								}, function(id, error) {
 									if(!error) {
 										logger.info('Created comment ID: ' + id + ' for ticket ID: ' + ticket_id);
+
+										//Write history
+										var historyStr = '{creator} created a comment via email.';
+
+										var creator = { 'id': localUserObj.id, 'agent': false, 'user': true };
+
+										database.writeHistory(historyStr, ticket_id, creator, function(success) {
+											if(success) {
+												logger.info('Created history (new comment by user via email) for Ticket-ID: ' + ticket_id);
+											} else {
+												logger.error('Could not create history (new comment by user via email) for Ticket-ID: ' + ticket_id);
+											}
+										});
+
+										/* Check if ticket is solved. If yes, set it to open.
+										 * We can to that, because the user replied on a already solved ticket. */
+										database.getTicket(ticket_id, function(ticket) {
+											if(ticket.solved) {
+												database.assignAgent(null, ticket.id, function(id) {
+													logger.info('User has responded to solved ticket Ticket-ID: ' + ticket.id + '. Set ticket back to open.');
+												}, function (err) {
+													logger.error('Could not set ticket back to open. User has responded to this solved ticket via email. Ticket-ID: ' + ticket.id + ' --- ' + err);
+												});
+											}
+										});
 									} else {
 										logger.error(error);
 									}
 								});
-
-								//Check if ticket is solved. If yes, set it to open.
-								database.getTicket(ticket_id, function(ticket) {
-									if(ticket.solved) {
-										database.assignAgent(null, ticket.id, function(id) {
-											logger.info('User has responded to solved ticket Ticket-ID: ' + ticket.id + '. Set ticket back to open.');
-										}, function (err) {
-											logger.error('Could not set ticket back to open. User has responded to this solved ticket via email. Ticket-ID: ' + ticket.id + ' --- ' + err);
-										});
-									}
-								});
-
 							} else {
 								//Create a new ticket, which has been mailed by a user.
 
