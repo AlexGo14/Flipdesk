@@ -37,6 +37,9 @@
       },
     "email": ""
   },
+  "keys": {
+    "imap_mailbox_password": ""
+  },
   "log4js": {
     "level": "INFO"
   },

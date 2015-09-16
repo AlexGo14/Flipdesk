@@ -26,16 +26,19 @@
     "server": {
       "smtp": {
         "host": "",
-        "port": 0
+        "port": 587
       },
       "imap": {
         "host": "",
-        "port": 0
+        "port": 993
       },
       "username": "",
       "password": ""
       },
     "email": ""
+  },
+  "keys": {
+    "imap_mailbox_password": ""
   },
   "log4js": {
     "level": "INFO"

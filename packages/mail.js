@@ -33,6 +33,9 @@ var mail_module = {
 					if(customers[i].username_mailbox && customers[i].password_mailbox
 							&& customers[i].email_mailbox_imap) {
 
+								//Decrypt mailbox password
+								customers[i].password_mailbox = utility.decryptString(customers[i].password_mailbox);
+
 								mail_module.start(customers[i]);
 					} else {
 						logger.warn("Couldn't establish connection to customers IMAP-server. Missing IMAP credentials.");

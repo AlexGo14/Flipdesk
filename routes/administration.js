@@ -190,6 +190,9 @@ router.post('/customer', utility.requireAuthentication, function(req, res) {
 		return;
 	}
 
+	//Encrypt mailbox password
+	customer.mailbox_password = utility.encryptString(customer.mailbox_password);
+	
 	database.createCustomer(customer, function(id, err) {
 		if(id != null) {
 

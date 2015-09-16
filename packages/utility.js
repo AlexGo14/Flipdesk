@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 var nconf = require('nconf');
+var crypto = require('crypto');
 
 var utility = {
 	requireAuthentication: function (req, res, next){
@@ -31,6 +32,18 @@ var utility = {
 		return nconf.argv()
 		     .env()
 		     .file({ file: 'config.json' });
+	},
+	encryptString: function(input) {
+		var cipher = crypto.createCipher('aes-256-cbc', nconf.get('keys').imap_mailbox_password)
+	  var crypted = cipher.update(input,'utf8','hex')
+	  crypted += cipher.final('hex');
+	  return crypted;
+	},
+	decryptString: function(input) {
+		var decipher = crypto.createDecipher('aes-256-cbc', nconf.get('keys').imap_mailbox_password)
+		var dec = decipher.update(input,'hex','utf8')
+		dec += decipher.final('utf8');
+		return dec;
 	}
 }
 
