@@ -461,6 +461,4 @@ var mail_module = {
 	}
 }
 
-mail_module.startAll();
-
 module.exports = mail_module;

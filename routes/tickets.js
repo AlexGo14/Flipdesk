@@ -45,6 +45,8 @@ router.get('/:id', utility.requireAuthentication, function(req, res) {
 
 		//Get ticket
 		database.getTicket(req.params.id, function(ticket) {
+			//Replace \n with html tag.
+			ticket.description = ticket.description.replace(/\n/g, "<br />");
 
 			//Check for a recursive comment list view
 			if(nconf.get('view').recursiveCommentList) {

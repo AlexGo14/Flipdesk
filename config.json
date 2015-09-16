@@ -40,10 +40,13 @@
   "keys": {
     "imap_mailbox_password": ""
   },
-  "log4js": {
-    "level": "INFO"
+  "debug": {
+    "log4js": {
+      "level": "INFO"
+    },
+    "knex": false
   },
   "view": {
-    "recursiveCommentList": false
+    "recursiveCommentList": true
   }
  }

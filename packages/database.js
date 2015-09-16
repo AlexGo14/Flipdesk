@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 var objects = require("./objects");
 var utility = require('./utility');
 var nconf = utility.configureNconf();
+
 //Configure database
 knex = require('knex')({
 	client: nconf.get('database').type,
@@ -30,8 +31,8 @@ knex = require('knex')({
 	pool: {
 		min: 0,
 		max: 10
-	}//,
-	//debug: true
+	},
+	debug: nconf.get('debug').knex
 });
 
 var database = {
